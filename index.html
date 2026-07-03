@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>호두마루 - Zombie Survival</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- ══ LOBBY ══ -->
+<div id="sLobby" class="screen on">
+  <div class="logo">호두마루</div>
+  <div class="logo-sub">ZOMBIE SURVIVAL</div>
+  <div class="res-row">
+    <div class="rb cb">🪙 <span id="lc">0</span></div>
+    <div class="rb eb">⚡ <span id="le">0</span></div>
+  </div>
+  <div class="lobby-grid">
+    <button id="btn-play" class="lb play" onclick="go('sMap')">▶ 플레이</button>
+    <button class="lb" style="background:linear-gradient(135deg,#1e1b4b,#4c1d95);color:#c4b5fd;" onclick="go('sAch')">🏆 업적</button>
+    <button id="btn-shop" class="lb shop" onclick="go('sShop')">🛒 상점</button>
+    <button id="btn-skin" id="btn-skin" class="lb skin" onclick="go('sJob')">⚔️ 직업</button>
+    <button id="btn-upg" class="lb upg" onclick="go('sUpg')">⬆ 영구업그레이드</button>
+    <button id="btn-equip" class="lb equip" onclick="go('sEquip')">🎒 장비</button>
+    <button class="lb" style="background:#dbeafe;color:#1e40af;border:1.5px solid #93c5fd;" onclick="go('sParty')">🤝 파티</button>
+    <button class="lb" style="background:linear-gradient(135deg,#1a0a3e,#2e1065);color:#fbbf24;border:1.5px solid #7c3aed;" onclick="go('sSeason')">🌟 시즌패스</button>
+  </div>
+  <div class="ver">호두마루 v1.0</div>
+  <div style="position:fixed;bottom:10px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;z-index:25;background:rgba(255,255,255,0.85);padding:4px 14px;border-radius:20px;border:1px solid #e5e7eb;">
+    <span style="font-size:11px;color:#6b7280;">🎵 BGM</span>
+    <input type="range" id="bgmVol" min="0" max="1" step="0.05" value="0.18" style="width:80px;cursor:pointer;" oninput="setBGMVol(parseFloat(this.value))">
+    <button onclick="bgmPlaying?stopBGM():startBGM()" style="font-size:10px;padding:2px 8px;border:1px solid #d1d5db;border-radius:8px;background:#fff;cursor:pointer;">ON/OFF</button>
+  </div>
+  <button class="code-btn" onclick="openCode()">🔑 CODE</button>
+  <button class="code-btn" style="right:14px;left:auto;" onclick="openSettings()">⚙️ 설정</button>
+  <!-- 드림코어 진입 버튼 -->
+  <div id="dreamBtn" onclick="enterDreamworld();" style="position:fixed;top:10px;left:10px;width:48px;height:48px;cursor:pointer;z-index:9000;border-radius:6px;overflow:hidden;display:none;opacity:0.8;transition:all .3s;filter:grayscale(40%);" onmouseenter="dreamBtnHover(true)" onmouseleave="dreamBtnHover(false)">
+    <img src="" id="dreamBtnImg" style="width:100%;height:100%;object-fit:cover;display:block;">
+  </div>
+</div>
+
+
+<!-- ══ DREAMCORE WORLD ══ -->
+<div id="sDream" class="screen" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;overflow:hidden;flex-direction:column;align-items:center;justify-content:center;">
+  <!-- 글리치 오버레이 -->
+  <canvas id="dreamCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
+  <!-- 눈 배경들 -->
+  <img class="dream-eye" id="dEye1" src="" style="position:absolute;opacity:0;filter:grayscale(100%) brightness(0.4);">
+  <img class="dream-eye" id="dEye2" src="" style="position:absolute;opacity:0;filter:grayscale(100%) brightness(0.3);">
+  <img class="dream-eye" id="dEye3" src="" style="position:absolute;opacity:0;filter:grayscale(100%) brightness(0.35);">
+  <!-- UI -->
+  <div style="position:relative;z-index:10;text-align:center;">
+    <div id="dreamTitle" class="glitch-text" style="font-size:clamp(28px,6vw,56px);font-family:'Courier New',monospace;color:#fff;letter-spacing:8px;margin-bottom:4px;">WAKE UP</div>
+    <div id="dreamSub" class="glitch-text" style="font-size:12px;color:#aaa;letter-spacing:4px;margin-bottom:40px;font-family:'Courier New',monospace;">THE SUN IS RISING</div>
+    <div class="dream-menu">
+      <button class="dream-btn" onclick="dreamGo('sMap','dream')">▶ ENTER</button>
+      <button class="dream-btn" onclick="dreamShop()">⬛ ITEMS</button>
+      <button class="dream-btn" onclick="go('sEquip');renderEquip();">⬛ EQUIP</button>
+      <button class="dream-btn" onclick="dreamJob()">⬛ ENTITY</button>
+      <button class="dream-btn" onclick="exitDreamworld()">← ESCAPE</button>
+    </div>
+    <div class="dream-res">
+      <span style="color:#555;font-family:monospace;">🪙 <span id="dlc">0</span></span>
+      <span style="color:#333;font-family:monospace;margin-left:20px;">⚡ <span id="dle">0</span></span>
+    </div>
+  </div>
+</div>
+
+<!-- 드림코어 맵 선택 -->
+<div id="sDreamMap" class="screen" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;overflow:hidden;flex-direction:column;align-items:center;justify-content:center;">
+  <canvas id="dreamCanvas2" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
+  <div style="position:relative;z-index:10;text-align:center;width:100%;">
+    <div class="glitch-text" style="font-size:18px;color:#555;letter-spacing:6px;margin-bottom:32px;font-family:'Courier New',monospace;">CHOOSE YOUR NIGHTMARE</div>
+    <div id="dreamMapList" style="display:flex;flex-direction:column;align-items:center;gap:10px;"></div>
+    <button class="dream-btn" style="margin-top:24px;font-size:11px;" onclick="go('sDream')">← RUN</button>
+  </div>
+</div>
+
+<!-- 드림코어 상점/직업 오버레이 글리치 -->
+<div id="dreamOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:200;display:none;flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto;padding-top:30px;">
+  <canvas id="dreamCanvas3" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
+  <div style="position:relative;z-index:10;width:min(95vw,700px);">
+    <div id="dreamOverlayTitle" class="glitch-text" style="font-size:20px;color:#fff;letter-spacing:6px;font-family:'Courier New',monospace;margin-bottom:20px;text-align:center;"></div>
+    <div id="dreamOverlayContent" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;"></div>
+    <button class="dream-btn" style="margin-top:20px;width:100%;" onclick="closeDreamOverlay()">← BACK</button>
+  </div>
+</div>
+
+
+<!-- ══ 업적 화면 ══ -->
+<div id="sAch" class="screen" style="background:linear-gradient(160deg,#0a0014,#000);padding:12px;overflow-y:auto;">
+  <button class="back" onclick="go('sLobby')">← 뒤로</button>
+  <div style="text-align:center;margin-bottom:16px;">
+    <div style="font-size:22px;font-weight:900;color:#fbbf24;letter-spacing:4px;">🏆 업적</div>
+    <div id="achProgress" style="font-size:11px;color:#6b7280;margin-top:4px;"></div>
+  </div>
+  <div id="achList" style="display:flex;flex-direction:column;gap:8px;max-width:700px;margin:0 auto;padding-bottom:40px;"></div>
+</div>
+
+<!-- ══ MAP SELECT ══ -->
+<div id="sMap" class="screen">
+  <button class="back" onclick="go('sLobby')">← 뒤로</button>
+  <div class="stitle">🗺 맵 선택</div>
+  <div class="map-row">
+    <button class="marr" onclick="chMap(-1)">‹</button>
+    <div class="mcard">
+      <canvas id="mpC" width="400" height="210"></canvas>
+      <div class="minfo">
+        <div class="mname" id="mn"></div>
+        <div class="mdesc" id="md"></div>
+        <div class="mtags" id="mt"></div>
+      </div>
+    </div>
+    <button class="marr" onclick="chMap(1)">›</button>
+  </div>
+  <button class="mok" onclick="go('sWeapon')">이 맵으로 →</button>
+</div>
+
+<!-- ══ WEAPON SELECT ══ -->
+<div id="sWeapon" class="screen">
+  <button class="back" onclick="go('sMap')">← 뒤로</button>
+  <div class="stitle" style="margin-bottom:6px;">⚔️ 무기 선택</div>
+  <div style="font-size:11px;color:#9ca3af;margin-bottom:16px;">4번째 슬롯 = 장비탭 장착 무기</div>
+  <div class="wcards" id="wCards"></div>
+  <button class="wok" onclick="startGame()">게임 시작!</button>
+</div>
+
+<!-- ══ SHOP ══ -->
+<div id="sShop" class="screen">
+  <button class="back" onclick="go('sLobby')">← 뒤로</button>
+  <div class="stitle" style="margin-bottom:6px;">🛒 상점</div>
+  <div class="res-row" style="margin-bottom:10px;">
+    <div class="rb cb" style="font-size:12px;padding:4px 14px;">🪙 <span id="sc">0</span></div>
+    <div class="rb eb" style="font-size:12px;padding:4px 14px;">⚡ <span id="se">0</span></div>
+  </div>
+  <div class="stabs">
+    <button class="stab on" onclick="stab('items',this)">아이템</button>
+    <button class="stab" onclick="stab('armor',this)">갑옷</button>
+    <button class="stab" onclick="stab('weapons',this)">무기</button>
+    <button class="stab" onclick="stab('gameitem',this)">✨ 아이템</button>
+  </div>
+  <div class="sgrid" id="sGrid"></div>
+</div>
+
+<!-- ══ PERM UPGRADE ══ -->
+<div id="sUpg" class="screen">
+  <button class="back" onclick="go('sLobby')">← 뒤로</button>
+  <div class="stitle" style="margin-bottom:4px;">⬆ 영구업그레이드</div>
+  <div class="rb eb" style="font-size:12px;padding:4px 14px;margin-bottom:10px;">⚡ <span id="ue">0</span></div>
+  <div class="ugrid" id="uGrid"></div>
+</div>
+
+<!-- ══ EQUIP ══ -->
+<div id="sEquip" class="screen">
+  <button class="back" onclick="go('sLobby')">← 뒤로</button>
+  <div class="stitle" style="margin-bottom:4px;">🎒 장비</div>
+  <div style="display:flex;gap:6px;margin-bottom:8px;justify-content:center;">
+    <button id="eTabWep"  class="etab on" onclick="setEquipTab('wep')">⚔️ 무기</button>
+    <button id="eTabArmor" class="etab"   onclick="setEquipTab('armor')">🛡️ 갑옷</button>
+    <button id="eTabItem"  class="etab"   onclick="setEquipTab('item')">✨ 아이템</button>
+  </div>
+  <div class="ebody">
+    <div class="elist" id="eList"></div>
+    <div class="eprev">
+      <canvas id="ppC" width="120" height="160"></canvas>
+      <div style="font-size:10px;color:#6d28d9;margin-top:6px;text-align:center;" id="pLabel">장비 없음</div>
+    </div>
+  </div>
+  <div class="edet" id="eDet" style="display:none;">
+    <div class="ednm" id="edNm"></div>
+    <div class="edds" id="edDs"></div>
+    <div class="edbts">
+      <button class="edbtn w" id="edW">장착</button>
+      <button class="edbtn u" id="edU">⚡ 강화</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ JOB ══ -->
+<div id="sJob" class="screen" style="background:linear-gradient(160deg,#f8f4ff,#fff0fb);">
+  <button class="back" onclick="go('sLobby')">← 뒤로</button>
+  <div class="stitle" style="margin-bottom:6px;">⚔️ 직업 선택</div>
+  <div class="res-row" style="margin-bottom:10px;">
+    <div class="rb cb" style="font-size:12px;padding:4px 14px;">🪙 <span id="jc">0</span></div>
+    <div class="rb eb" style="font-size:12px;padding:4px 14px;">⚡ <span id="je">0</span></div>
+  </div>
+  <div style="display:flex;gap:14px;width:min(720px,95vw);max-height:70vh;">
+    <div id="jobList" style="flex:2;overflow-y:auto;display:flex;flex-direction:column;gap:8px;max-height:70vh;padding-right:4px;"></div>
+    <div id="jobPreview" style="flex:1;background:#f0e8ff;border-radius:14px;border:2px solid #c4b5fd;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:18px 14px;min-width:190px;max-height:70vh;overflow-y:auto;">
+      <div style="font-size:52px;margin-bottom:8px;" id="jpIcon">⚔️</div>
+      <div style="font-size:15px;font-weight:800;color:#4c1d95;margin-bottom:4px;text-align:center;" id="jpName">직업 미선택</div>
+      <div style="font-size:11px;color:#6b7280;text-align:center;line-height:1.6;margin-bottom:10px;white-space:pre-line;" id="jpDesc">직업을 클릭하면
+여기에 설명이 표시됩니다</div>
+      <div id="jpSkills" style="width:100%;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ GAME ══ -->
+<canvas id="gameCanvas"></canvas>
+
+<div id="gameUI">
+  <div class="hbar">
+    <div>
+      <div class="hsts">
+        <div class="hs" id="hw">🌊 1</div>
+        <div class="hs" id="hhp" style="color:#4ade80;">❤️ 100</div>
+        <div class="hs" id="hsc">⭐ 0</div>
+        <div class="hs" id="ham">탄약</div>
+        <div class="hs" id="hkl">💀 0</div>
+        <div class="hs" id="hco" style="color:#fbbf24;">🪙 0</div>
+        <div class="hs" id="hen" style="color:#a855f7;">⚡ 0</div>
+      </div>
+      <div id="hmsg"></div>
+      
+  <div id="itemBar" style="position:fixed;bottom:60px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:50;"></div>
+
+  <div id="bossBar">
+        <div class="bbg">
+          <div class="btop"><div class="bname" id="bNm">👹 보스</div><div class="bhp" id="bHp">0/0</div></div>
+          <div class="btrack"><div class="bfill" id="bFill" style="width:100%;background:linear-gradient(90deg,#ef4444,#fbbf24);"></div></div>
+          <div class="bphase" id="bPhase"></div>
+        </div>
+      </div>
+    </div>
+    <div class="mmbox"><canvas id="mmC" width="72" height="108"></canvas></div>
+  </div>
+</div>
+<div id="perks"></div>
+
+
+<!-- ══ PARTY ══ -->
+<div id="sParty" class="screen">
+  <button class="back" onclick="go('sLobby')">← 뒤로</button>
+  <div class="stitle" style="color:#1e40af;margin-bottom:12px;">🤝 파티 시스템</div>
+
+  <div class="party-box">
+    <h3>📋 파티 만들기</h3>
+    <div class="party-code-disp" id="myPartyCode">------</div>
+    <button class="party-btn create" onclick="createParty()">+ 새 파티 생성</button>
+    <div id="partyMemberList" style="margin-top:8px;"></div>
+    <button class="party-btn" style="background:#ef4444;color:#fff;display:none;" id="startPartyBtn" onclick="startPartyGame()">▶ 파티 게임 시작</button>
+  </div>
+
+  <div class="party-box">
+    <h3>🔗 파티 참가</h3>
+    <input class="party-input" id="joinCodeInput" placeholder="코드 입력 (6자리)" maxlength="6">
+    <button class="party-btn join" onclick="joinParty()">참가하기</button>
+    <div id="joinStatus" style="font-size:11px;color:#6b7280;text-align:center;min-height:16px;"></div>
+  </div>
+
+  <div style="font-size:10px;color:#6b7280;text-align:center;max-width:440px;line-height:1.6;">
+    💡 같은 기기에서 파티 코드를 공유하면 함께 시작할 수 있어요.<br>
+    파티원은 코인·에너지 보상을 1.5배 받습니다!
+  </div>
+</div>
+
+<!-- ══ SEASON PASS ══ -->
+<div id="sSeason" class="screen">
+  <button class="back" style="border-color:#4c1d95;color:#a855f7;" onclick="go('sLobby')">← 뒤로</button>
+  <div class="sp-header">
+    <div class="sp-season-num" id="spSeasonNum">시즌 1</div>
+    <div class="sp-title">✨ 시즌패스</div>
+    <div class="sp-sub">웨이브를 클리어해서 XP를 획득하고 보상을 받으세요!</div>
+    <div id="spMonthType" style="font-size:11px;padding:3px 12px;border-radius:12px;margin-top:4px;display:inline-block;"></div>
+    <div id="spTimer" style="font-size:12px;color:#ef4444;font-weight:700;margin-top:6px;background:rgba(239,68,68,0.1);padding:4px 14px;border-radius:20px;display:inline-block;">⏰ --:--:--</div>
+  </div>
+  <div class="sp-progress-wrap">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+      <div style="font-size:13px;font-weight:800;color:#fbbf24;">Lv.<span id="spLv">1</span></div>
+      <div style="font-size:11px;color:#c4b5fd;"><span id="spXP">0</span> / <span id="spNextXP">1000</span> XP</div>
+    </div>
+    <div class="sp-bar-bg"><div class="sp-bar-fill" id="spBar" style="width:0%"></div></div>
+    <div class="sp-xp-txt">총 XP: <span id="spTotalXP">0</span></div>
+  </div>
+  <div class="sp-track" id="spTrack"></div>
+  <div style="font-size:10px;color:#6b7280;margin-top:10px;text-align:center;">
+    💡 웨이브 클리어 시 XP 획득 · 보스 처치 시 XP 2배
+  </div>
+</div>
+
+<!-- ══ 보스 클리어 화면 ══ -->
+<div id="clearScreen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.88);z-index:80;flex-direction:column;align-items:center;justify-content:center;gap:20px;">
+  <div id="clearTitle" style="font-size:clamp(28px,5vw,52px);font-weight:900;color:#fbbf24;text-align:center;text-shadow:0 0 30px #f59e0b;"></div>
+  <div id="clearSub" style="font-size:clamp(14px,2.5vw,22px);color:#e5e7eb;text-align:center;"></div>
+  <div id="clearReward" style="display:flex;gap:16px;margin:8px 0;"></div>
+  <button onclick="clearToLobby()" style="padding:16px 56px;background:linear-gradient(135deg,#7c3aed,#a855f7);border:none;border-radius:14px;color:#fff;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 4px 20px #a855f740;margin-top:10px;">🏠 로비로 돌아가기</button>
+</div>
+<!-- ══ 일시정지 메뉴 ══ -->
+<div id="pauseMenu" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:60;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
+  <div style="font-size:28px;font-weight:900;color:#fbbf24;margin-bottom:8px;">⏸ 일시정지</div>
+  <button onclick="resumeGame()" style="padding:14px 48px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;border-radius:12px;color:#fff;font-size:18px;font-weight:800;cursor:pointer;width:220px;">▶ 게임 계속하기</button>
+  <button onclick="quitGame()" style="padding:14px 48px;background:linear-gradient(135deg,#ef4444,#dc2626);border:none;border-radius:12px;color:#fff;font-size:18px;font-weight:800;cursor:pointer;width:220px;">🚪 게임 나가기</button>
+</div>
+
+<!-- ══ 스킬 버튼 (게임 중 우하단) ══ -->
+<div id="skillBar" style="display:none;position:fixed;bottom:14px;right:14px;z-index:6;display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+  <button id="skillBtnQ" onclick="useSkill('Q')" style="display:none;position:relative;width:60px;height:60px;border-radius:12px;border:2px solid #6b7280;background:rgba(0,0,0,.7);color:#fff;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:2px;overflow:hidden;backdrop-filter:blur(4px);"></button>
+  <button id="skillBtnE" onclick="useSkill('E')" style="display:none;position:relative;width:60px;height:60px;border-radius:12px;border:2px solid #6b7280;background:rgba(0,0,0,.7);color:#fff;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:2px;overflow:hidden;backdrop-filter:blur(4px);"></button>
+</div>
+
+<!-- ══ 일시정지 버튼 ══ -->
+<button id="pauseBtn" onclick="togglePause()" style="display:none;position:fixed;top:8px;right:10px;z-index:8;padding:5px 14px;background:rgba(0,0,0,.65);border:1.5px solid rgba(255,255,255,.3);border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;backdrop-filter:blur(4px);">⏸ 일시정지</button>
+
+<!-- ══ UPGRADE OVERLAY ══ -->
+<div id="upgOv">
+  <div class="ut">✨ 웨이브 클리어!</div>
+  <div class="uw" id="uvw"></div>
+  <div class="ures">
+    <div class="urb cb">🪙 +<span id="ucn">0</span></div>
+    <div class="urb eb">⚡ +<span id="uen">0</span></div>
+  </div>
+  <div class="usub">특성을 하나 선택하세요</div>
+  <div class="ucards" id="uCards"></div>
+</div>
+
+<script src="/js/01-storage.js"></script>
+<script src="/js/02-jobs.js"></script>
+<script src="/js/03-pause-job-skills.js"></script>
+<script src="/js/04-layers-items.js"></script>
+<script src="/js/05-achievements.js"></script>
+<script src="/js/06-maps.js"></script>
+<script src="/js/07-weapons.js"></script>
+<script src="/js/08-armor-shop.js"></script>
+<script src="/js/09-perm-upgrade-equip.js"></script>
+<script src="/js/10-traits.js"></script>
+<script src="/js/11-boss-data-terrain.js"></script>
+<script src="/js/12-boss-fights.js"></script>
+<script src="/js/13-engine.js"></script>
+<script src="/js/14-bgm-party-season.js"></script>
+<script src="/js/15-dreamcore.js"></script>
+<script src="/js/16-item-use-equip.js"></script>
+
+<!-- ══ 설정 모달 ══ -->
+<div id="settingsModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;">
+  <div class="code-box" style="max-width:340px;">
+    <h3 style="color:#6d28d9;">⚙️ 설정</h3>
+    <p style="margin-bottom:20px;">게임 옵션을 설정하세요</p>
+    <button onclick="confirmReset()" style="width:100%;padding:10px 0;background:linear-gradient(135deg,#ef4444,#dc2626);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;">🗑️ 데이터 초기화</button>
+    <button onclick="closeSettings()" class="code-cancel">닫기</button>
+  </div>
+</div>
+<!-- ══ 초기화 확인 모달 ══ -->
+<div id="resetConfirmModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:110;align-items:center;justify-content:center;">
+  <div class="code-box" style="max-width:360px;border-color:#ef4444;">
+    <h3 style="color:#dc2626;">⚠️ 정말 초기화할까요?</h3>
+    <p style="color:#6b7280;margin-bottom:8px;">코인, 에너지, 구매한 모든 아이템이</p>
+    <p style="color:#ef4444;font-weight:700;margin-bottom:20px;">완전히 삭제됩니다!</p>
+    <button onclick="doReset()" style="width:100%;padding:10px 0;background:linear-gradient(135deg,#ef4444,#7f1d1d);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;">💀 네, 모두 초기화합니다</button>
+    <button onclick="cancelReset()" style="width:100%;padding:10px 0;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;">✅ 취소 (돌아가기)</button>
+  </div>
+</div>
+<div id="codeModal">
+  <div class="code-box">
+    <h3>🔑 코드 입력</h3>
+    <p>보상 코드를 입력하세요</p>
+    <div class="code-msg" id="codeMsg"></div>
+    <input class="code-input" id="codeInput" type="text" placeholder="코드 입력..." maxlength="20" autocomplete="off">
+    <button class="code-submit" onclick="submitCode()">✅ 적용</button>
+    <button class="code-cancel" onclick="closeCode()">닫기</button>
+  </div>
+</div>
+<audio id="bgmAudio" loop preload="auto" src="/assets/bgm.mp3"></audio>
+<audio id="dreamBGM" loop preload="auto" src="/assets/dream-bgm.mp3"></audio>
+</body>
+</html>
