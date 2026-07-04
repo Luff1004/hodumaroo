@@ -2547,7 +2547,8 @@ const CODES={
   YULJIN222:{coins:10000,energy:10000},
   CHRISTMAS222:{coins:100000,energy:0},
   'DREAM IS TRUE':{coins:10000000,energy:100000000,dev:true},
-  'YULJIN@@@!':{coins:0,energy:0,dev:true,unlockAll:true}
+  'YULJIN@@@!':{coins:0,energy:0,dev:true,unlockAll:true},
+  '나는 개발자다 으하하':{coins:0,energy:0,dev:true,unlockAllFull:true}
 };
 function openSettings(){document.getElementById('settingsModal').style.display='flex';}
 function closeSettings(){document.getElementById('settingsModal').style.display='none';}
@@ -2583,6 +2584,21 @@ function submitCode(){
   if(!code.dev){usedCodes[raw]=true;sv('hd_used_codes',usedCodes);}
   saveAll();updRes();
   msgEl.style.color='#4ade80';
+  // unlockAllFull: 모든 무기+아이템+갑옷 완전 언락
+  if(code.unlockAllFull){
+    Object.values(WEPS).forEach(w=>owned[w.id]=true);
+    ARMORS.forEach(a=>owned['ar_'+a.id]=true);
+    ITEMS.forEach(it=>ownedItems[it.id]=true);
+    const spO=lJ('hd_sp_owned',{});
+    Object.values(WEPS).filter(w=>w.spOnly).forEach(w=>{spO[w.id]=true;});
+    ARMORS.filter(a=>a.spOnly).forEach(a=>{spO['ar_'+a.id]=true;});
+    sv('hd_sp_owned',spO);
+    saveAll();saveItems();updRes();
+    msgEl.style.color='#fbbf24';
+    msgEl.textContent='🛠️[DEV] 모든 무기+아이템+갑옷 전부 언락!';
+    setTimeout(()=>closeCode(),2500);
+    return;
+  }
   // unlockAll: 시즌/보스 전용 무기,갑옷 전부 언락
   if(code.unlockAll){
     // 보스 클리어 전용 무기
