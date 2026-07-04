@@ -53,7 +53,7 @@ const ITEMS = [
   {id:'lucky_clover', name:'행운의 클로버',icon:'🍀',price:0,    type:'active', cd:1,    rarity:'legendary',desc:'업적: 오늘은 운이 좋군요 보상', achievement:true},
   {id:'spatial_path', name:'공간의 길',   icon:'🌌', price:0,    type:'active', cd:900,  rarity:'legendary',desc:'업적: THE DREAMCORE 보상', achievement:true},
   {id:'soul_hope',    name:'영혼의 희망', icon:'💫', price:0,    type:'active', cd:600,  rarity:'mythic',   desc:'업적: 100킬 달성 보상', achievement:true, wepBonus:true},
-  {id:'dream_key',    name:'드림 열쇠',   icon:'🗝️',price:0,    type:'active', cd:300,  rarity:'mythic',   desc:'업적 전용. 드림코어 보스맵 진입 보조'},
+  {id:'dream_key',    name:'드림 열쇠',   icon:'🗝️',price:4440000, type:'active', cd:900,  rarity:'mythic',   desc:'장착 시 드림코어 진입 가능. 사용 시 마우스 위치로 순간이동'},
   // ── 소비형 (즉시 사용) ──
   {id:'xp_boost',     name:'경험치 부스터',icon:'📈',price:800,  type:'active', cd:1,    rarity:'common',   desc:'즉시 시즌 XP 500 획득'},
   {id:'energy_can',   name:'에너지 캔',   icon:'🔋', price:300,  type:'active', cd:1,    rarity:'common',   desc:'즉시 에너지 1000 획득'},

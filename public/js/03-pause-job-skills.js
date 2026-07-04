@@ -299,8 +299,16 @@ function tickJob() {
     const enemy=zoms.filter(e=>!e.dead&&!e.isMinion).sort((a,b)=>Math.hypot(a.x-z.x,a.y-z.y)-Math.hypot(b.x-z.x,b.y-z.y))[0];
     if(enemy){
       const dx=enemy.x-z.x,dy=enemy.y-z.y,d=Math.hypot(dx,dy)||1;
-      z.x+=dx/d*z.spd;z.y+=dy/d*z.spd;
-      if(d<z.r+enemy.r+4){hitZ(enemy,2);z.x-=dx/d*3;z.y-=dy/d*3;}
+      if(z.isRangedMinion){
+        // 드론: 거리 유지 + 원거리 사격
+        const keepDist=180;
+        if(d>keepDist){z.x+=dx/d*z.spd;z.y+=dy/d*z.spd;}
+        z.fireT=(z.fireT||0)+1;
+        if(z.fireT>=40){z.fireT=0;const fa=Math.atan2(dy,dx);buls.push({x:z.x,y:z.y,vx:Math.cos(fa)*9,vy:Math.sin(fa)*9,r:4,l:120,en:false,dmg:6+(P.dmgB||0),pierce:false,col:'#60a5fa'});}
+      } else {
+        z.x+=dx/d*z.spd;z.y+=dy/d*z.spd;
+        if(d<z.r+enemy.r+4){hitZ(enemy,2);z.x-=dx/d*3;z.y-=dy/d*3;}
+      }
     }
     z.angle=Math.atan2((enemy||P).y-z.y,(enemy||P).x-z.x);
   });

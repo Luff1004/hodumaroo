@@ -52,7 +52,16 @@ function useItem(itemId){
     case 'magnet': activeBuffs.magnet=600; break;
     case 'time_stop': zoms.forEach(z=>{if(!z.dead&&!z.isBoss)z._frz=Math.max(z._frz||0,300);}); break;
     case 'turret': turrets.push({x:P.x,y:P.y,l:900,ml:900,fireT:0}); break;
-    case 'clone_item': effs.push({type:'shadow',x:P.x+50,y:P.y,l:600,ml:600,ang:0,idx:0,cnt:1,col:'#818cf8',fireT:0}); break;
+    case 'clone_item': effs.push({type:'shadow',x:P.x+50,y:P.y,l:600,ml:600,ang:0,idx:0,cnt:1,col:'#818cf8',fireT:0,fromItem:true}); break;
+    case 'wolf':
+      for(let i=0;i<3;i++){const wa=i/3*Math.PI*2;zoms.push({x:P.x+Math.cos(wa)*50,y:P.y+Math.sin(wa)*50,type:'wolf_ally',r:14,hp:40,maxHp:40,spd:3.2,angle:0,dead:false,dT:0,isMinion:true,minionTimer:1800,_dshC:999,_dsh:false,_dvx:0,_dvy:0,_healT:0,_phT:60,_phased:false,_frz:0,wob:0,col:'#78716c'});}
+      break;
+    case 'drone_item':
+      zoms.push({x:P.x,y:P.y-40,type:'drone_ally',r:14,hp:60,maxHp:60,spd:2.6,angle:0,dead:false,dT:0,isMinion:true,isRangedMinion:true,minionTimer:1200,_dshC:999,_dsh:false,_dvx:0,_dvy:0,_healT:0,_phT:60,_phased:false,_frz:0,wob:0,fireT:0,col:'#60a5fa'});
+      break;
+    case 'golem_item':
+      zoms.push({x:P.x-40,y:P.y,type:'golem_ally',r:26,hp:400,maxHp:400,spd:1.2,angle:0,dead:false,dT:0,isMinion:true,minionTimer:3600,_dshC:999,_dsh:false,_dvx:0,_dvy:0,_healT:0,_phT:60,_phased:false,_frz:0,wob:0,col:'#6b7280'});
+      break;
     case 'rage': activeBuffs.rage=600; break;
     case 'adrenaline': activeBuffs.adrenaline=600; break;
     case 'berserker': activeBuffs.berserker=1200; break;
@@ -66,6 +75,7 @@ function useItem(itemId){
     case 'coin_bag': coins+=2000; sv('hd_c',coins); updRes(); break;
     case 'lucky_clover': for(let i=0;i<24;i++){const a=i/24*Math.PI*2;parts.push({x:P.x,y:P.y,vx:Math.cos(a)*6,vy:Math.sin(a)*6,l:40,ml:40,r:6,col:'#4ade80'});} setMsg('🍀 행운이 함께하길!'); break;
     case 'spatial_path': P.x=Math.max(P.r,Math.min(MW-P.r,mxW));P.y=Math.max(P.r,Math.min(MH-P.r,myW)); break;
+    case 'dream_key': P.x=Math.max(P.r,Math.min(MW-P.r,mxW));P.y=Math.max(P.r,Math.min(MH-P.r,myW)); break;
     case 'sp_item_jan': zoms.forEach(z=>{if(!z.dead)z._frz=Math.max(z._frz||0,300);}); addExp(MW/2,camY+300,350,'#bae6fd'); break;
     case 'sp_item_jun': for(let i=-2;i<=2;i++)for(let j=0;j<8;j++){const a=j/8*Math.PI*2;buls.push({x:P.x+i*60,y:P.y,vx:Math.cos(a)*9,vy:Math.sin(a)*9,r:7,l:130,en:false,dmg:35,col:'#38bdf8',_freezeAtk:true,_explosive:true});} break;
     case 'sp_item_dec': for(let i=0;i<50;i++){gTimeout(()=>{if(!running)return;const rx=Math.random()*MW,ry=camY-10;buls.push({x:rx,y:ry,vx:0,vy:8,r:6,l:100,en:false,dmg:25,col:'#fbbf24'});},i*60);} P.hp=P.maxHp; break;
@@ -149,10 +159,10 @@ function renderEquipItemTab(){
     wB.style.cssText='margin-left:auto;padding:4px 8px;border-radius:6px;font-size:10px;font-weight:700;border:none;cursor:pointer;';
     if(isEq){
       wB.style.background='#ef4444';wB.style.color='#fff';wB.textContent='해제';
-      wB.onclick=()=>{equippedItems=equippedItems.filter(x=>x!==it.id);saveItems();renderEquip();renderItemBar();};
+      wB.onclick=()=>{equippedItems=equippedItems.filter(x=>x!==it.id);saveItems();renderEquip();renderItemBar();checkDreamUnlock();};
     } else if(equippedItems.length<3){
       wB.style.background='#7c3aed';wB.style.color='#fff';wB.textContent='장착';
-      wB.onclick=()=>{equippedItems.push(it.id);saveItems();renderEquip();renderItemBar();};
+      wB.onclick=()=>{equippedItems.push(it.id);saveItems();renderEquip();renderItemBar();checkDreamUnlock();};
     } else {
       wB.style.background='#374151';wB.style.color='#9ca3af';wB.textContent='슬롯 가득';wB.disabled=true;
     }

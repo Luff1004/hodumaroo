@@ -41,7 +41,7 @@ const ACHIEVEMENTS = [
   {id:'dream_enter',name:'THE DREAMCORE',      desc:'드림코어 세계에 진입',                reward:{item:'spatial_path'}, cond:'dreamEntered>=1'},
   {id:'dream_sun',  name:'태양이 뜨지 않는다', desc:'THE SUN IS RISE 처치',                reward:{coins:50000},  cond:'bossKills.dream_sun>=1'},
   {id:'dream_eye',  name:'눈을 감아라',        desc:'E Y E 처치',                          reward:{coins:100000}, cond:'bossKills.dream_eye>=1'},
-  {id:'dream_wakeup',name:'WAKE UP',           desc:'WAKE UP 보스 처치',                   reward:{item:'dream_key'}, cond:'bossKills.dream_wakeup>=1'},
+  {id:'dream_wakeup',name:'WAKE UP',           desc:'WAKE UP 보스 처치',                   reward:{item:'black_hole'}, cond:'bossKills.dream_wakeup>=1'},
   {id:'dream_all',  name:'꿈에서 깨어나라',    desc:'드림코어 보스 4종 모두 처치',         reward:{energy:500000},cond:'["dream_sun","dream_limbo","dream_eye","dream_wakeup"].every(k=>bossKills[k]>=1)'},
   // ── 코인/에너지 업적 ──
   {id:'coin_1k',    name:'첫 수입',            desc:'코인 1,000 보유',                     reward:{coins:500},    cond:'coins>=1000'},
@@ -157,6 +157,19 @@ function go(id){
     const gc=document.getElementById('gameCanvas');if(gc)gc.style.filter='';
     if(window._dreamTitleItv){clearInterval(window._dreamTitleItv);window._dreamTitleItv=null;}
   }
+}
+function showComingSoon(name){
+  let t=document.getElementById('comingSoonToast');
+  if(!t){
+    t=document.createElement('div');
+    t.id='comingSoonToast';
+    t.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.85);color:#fbbf24;padding:16px 28px;border-radius:12px;font-size:15px;font-weight:800;z-index:9999;pointer-events:none;transition:opacity .2s;';
+    document.body.appendChild(t);
+  }
+  t.textContent='🔮 '+name+' - 준비중입니다';
+  t.style.opacity='1';
+  clearTimeout(t._hideT);
+  t._hideT=setTimeout(()=>{t.style.opacity='0';},1500);
 }
 function showGame(){
   SCREENS.forEach(s=>{const el=document.getElementById(s);if(el)el.classList.remove('on');});

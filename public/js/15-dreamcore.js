@@ -598,7 +598,7 @@ function renderDreamEquip(){
 function checkDreamUnlock(){
   const btn=document.getElementById('dreamBtn');
   if(!btn)return;
-  const unlocked = eqWepId==='clock_drop';
+  const unlocked = equippedItems.includes('dream_key');
   btn.style.display = unlocked ? 'block' : 'none';
 }
 

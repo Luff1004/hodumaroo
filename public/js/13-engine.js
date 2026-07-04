@@ -81,6 +81,10 @@ const ZT={
   space_jelly:   {name:'우주의 해파리', col:'#67e8f9',ol:'#0e7490',bHp:11,  spd:.8,  r:16,sc:55},
   glitch_entity: {name:'X)(#%+#@?',     col:'#ffffff',ol:'#000000',bHp:60,  spd:1.3, r:20,sc:150},
   the_god:       {name:'THE GOD',       col:'#fbbf24',ol:'#78350f',bHp:120, spd:.5,  r:30,sc:300},
+  // ── 아이템 소환 동맹 ──
+  wolf_ally:  {name:'늑대',   col:'#78716c',ol:'#44403c',bHp:40,  spd:3.2, r:14,sc:0},
+  drone_ally: {name:'드론',   col:'#60a5fa',ol:'#1d4ed8',bHp:60,  spd:2.6, r:14,sc:0},
+  golem_ally: {name:'골렘',   col:'#6b7280',ol:'#374151',bHp:400, spd:1.2, r:26,sc:0},
 };
 
 function d2(ax,ay,bx,by){return(ax-bx)**2+(ay-by)**2;}
@@ -388,6 +392,22 @@ function tickPerks(){
   } else {
     P._visionLv=-1;
   }
+
+  // 아이템(분신) - 특성(perk)과 무관하게 항상 작동
+  effs.forEach(e=>{
+    if(e.type!=='shadow'||!e.fromItem)return;
+    const td=Math.hypot(e.x-P.x,e.y-P.y);
+    if(td>60){const sa=Math.atan2(P.y-e.y,P.x-e.x);e.x+=Math.cos(sa)*3;e.y+=Math.sin(sa)*3;}
+    e.fireT=(e.fireT||0)+1;
+    if(e.fireT>=20){
+      e.fireT=0;
+      const tgt=zoms.filter(z=>!z.dead&&!z.isMinion).sort((a,b)=>Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(b.x-e.x,b.y-e.y))[0];
+      if(tgt){
+        const sang=Math.atan2(tgt.y-e.y,tgt.x-e.x);
+        buls.push({x:e.x,y:e.y,vx:Math.cos(sang)*10,vy:Math.sin(sang)*10,r:4,l:100,en:false,dmg:8+(P.dmgB||0),pierce:false,col:'#818cf8'});
+      }
+    }
+  });
 }
 
 function fireLaser(ang,len,ll,isMG){
