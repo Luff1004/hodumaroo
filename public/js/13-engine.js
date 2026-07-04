@@ -2578,7 +2578,8 @@ const CODES={
   CHRISTMAS222:{coins:100000,energy:0},
   'DREAM IS TRUE':{coins:10000000,energy:100000000,dev:true},
   'YULJIN@@@!':{coins:0,energy:0,dev:true,unlockAll:true},
-  '나는 개발자다 으하하':{coins:0,energy:0,dev:true,unlockAllFull:true}
+  '나는 개발자다 으하하':{coins:0,energy:0,dev:true,unlockAllFull:true},
+  EHDMS:{coins:0,energy:0,dev:true,infinite:true}
 };
 function openSettings(){document.getElementById('settingsModal').style.display='flex';}
 function closeSettings(){document.getElementById('settingsModal').style.display='none';}
@@ -2614,6 +2615,15 @@ function submitCode(){
   if(!code.dev){usedCodes[raw]=true;sv('hd_used_codes',usedCodes);}
   saveAll();updRes();
   msgEl.style.color='#4ade80';
+  // infinite: 무한 코인+에너지
+  if(code.infinite){
+    coins=999999999999;energy=999999999999;
+    saveAll();updRes();
+    msgEl.style.color='#fbbf24';
+    msgEl.textContent='🛠️[DEV] 무한 코인+에너지 지급!';
+    setTimeout(()=>closeCode(),2500);
+    return;
+  }
   // unlockAllFull: 모든 무기+아이템+갑옷 완전 언락
   if(code.unlockAllFull){
     Object.values(WEPS).forEach(w=>owned[w.id]=true);
