@@ -94,6 +94,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#f0ede8;font-family:
 .mok:hover{transform:scale(1.03);}
 .back{position:fixed;top:14px;left:14px;background:#ede9ff;border:1.5px solid #c4b5fd;color:#6d28d9;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px;z-index:30;}
 .back:hover{background:#ddd6fe;}
+#waveSpeedBtn.on{background:linear-gradient(135deg,#f59e0b,#d97706);border-color:#fbbf24;}
 
 /* ── WEAPON SELECT ── */
 #sWeapon{background:#f8f4ff;}

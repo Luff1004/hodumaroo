@@ -628,6 +628,7 @@ function startDreamGame(m){
     document.getElementById('gameCanvas').style.display='block';
     document.getElementById('gameUI').style.display='block';
     document.getElementById('pauseBtn').style.display='block';
+    document.getElementById('waveSpeedBtn').style.display='block';
     document.getElementById('skillBar').style.display='flex';
     skillCooldowns={E:0,Q:0};
     turrets=[];timeFreezeTimer=0;overclockTimer=0;focusNextShot=false;hpSnapshot=0;

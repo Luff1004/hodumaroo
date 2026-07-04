@@ -13,6 +13,12 @@ let P,zoms,buls,parts,effs,hpItems;
 let wave,score,kills,poison;
 let waveDmgTaken=0;
 let spawnT=0,spawnInt=75,spawnedCnt=0,totalSpawn=9,betweenWave=false;
+let waveSpeedMul=1;
+function toggleWaveSpeed(){
+  waveSpeedMul=waveSpeedMul===1?2:1;
+  const btn=document.getElementById('waveSpeedBtn');
+  if(btn){btn.textContent=waveSpeedMul===2?'⏩ 2배 ON':'⏩ 2배';btn.classList.toggle('on',waveSpeedMul===2);}
+}
 let relTimer=0,camY=0,mxW=400,myW=MH-100;
 const keys={};
 let rafId=null,running=false,activeBoss=null,mx=0,my=0;
@@ -119,6 +125,9 @@ function initGame(){
   zoms=[];buls=[];parts=[];effs=[];hpItems=[];
   wave=1;score=0;kills=0;poison=0;
   spawnT=0;spawnedCnt=0;totalSpawn=calcWZ();spawnInt=selMap.challenge?18:Math.round(75/(HARD_WAVE_MUL[selMap.id]||1));betweenWave=false;relTimer=0;
+  waveSpeedMul=1;
+  const wsBtn=document.getElementById('waveSpeedBtn');
+  if(wsBtn){wsBtn.textContent='⏩ 2배';wsBtn.classList.remove('on');}
   camY=clampC(P.y-VH()/2);activeBoss=null;
   // 맵 장애물 초기화
   obstacles=[];
@@ -1268,7 +1277,7 @@ function update(){
   hpItems.forEach(it=>{if(it.collected)return;it.bob+=.05;if(d2(P.x,P.y,it.x,it.y)<(P.r+it.r+4)**2){it.collected=true;const heal=Math.ceil(P.maxHp*.1);P.hp=Math.min(P.maxHp,P.hp+heal);setMsg(`❤️ +${heal}HP!`);setTimeout(()=>{if(running)setMsg('');},1500);for(let i=0;i<10;i++)parts.push({x:it.x,y:it.y,vx:(Math.random()-.5)*4,vy:-2-Math.random()*3,l:22,ml:22,r:4,col:'#ef4444'});}});
   if(!betweenWave){
     if(selMap.boss){if(spawnedCnt===0&&!activeBossMap){spawnWave();spawnT=0;}}
-    else{spawnT++;if(spawnT>=spawnInt&&spawnedCnt<totalSpawn){spawnWave();spawnedCnt++;spawnT=0;}}
+    else{spawnT+=waveSpeedMul;if(spawnT>=spawnInt&&spawnedCnt<totalSpawn){spawnWave();spawnedCnt++;spawnT=0;}}
     if(!selMap.boss&&spawnedCnt>=totalSpawn&&zoms.filter(z=>!z.dead&&!z.isMinion).length===0){betweenWave=true;setMsg(`✨ 웨이브 ${wave} 클리어!`);if(wave>(achStats.maxWave||0))achStats.maxWave=wave;achStats.mapWave=achStats.mapWave||{};const prevBest=achStats.mapWave[selMap?.id]||0;if(wave>prevBest)achStats.mapWave[selMap.id]=wave;if(waveDmgTaken===0){achStats.noDmgWave=(achStats.noDmgWave||0)+1;}waveDmgTaken=0;if(!achStats.clearedMaps)achStats.clearedMaps=[];if(wave>=10&&!achStats.clearedMaps.includes(selMap.id))achStats.clearedMaps.push(selMap.id);checkAchievements();saveAch();
     const xpGain=100*(wave+(selMap.diff||1))*((pUpgLv['pxp']||0)*.1+1);
     addSeasonXP(Math.floor(xpGain));
@@ -2456,6 +2465,7 @@ function stopGame(){
   document.getElementById('gameUI').style.display='none';
   document.getElementById('bossBar').style.display='none';
   document.getElementById('pauseBtn').style.display='none';
+  document.getElementById('waveSpeedBtn').style.display='none';
   document.getElementById('skillBar').style.display='none';
   document.getElementById('pauseMenu').style.display='none';
   document.getElementById('clearScreen').style.display='none';
@@ -2493,6 +2503,7 @@ function startGame(){
   document.getElementById('gameCanvas').style.display='block';
   document.getElementById('gameUI').style.display='block';
   document.getElementById('pauseBtn').style.display='block';
+  document.getElementById('waveSpeedBtn').style.display='block';
   document.getElementById('skillBar').style.display='flex';
   skillCooldowns={E:0,Q:0};
   turrets=[];timeFreezeTimer=0;overclockTimer=0;focusNextShot=false;hpSnapshot=0;
