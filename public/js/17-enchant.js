@@ -276,6 +276,10 @@ function cutsceneStyle(idx){
   if(r<0.9) return 'starfield';
   return 'chaos'; // 최상위 등급: 모든 연출 총동원
 }
+let _activeCutscene=null;
+function skipEnchantCutscene(){
+  if(_activeCutscene) _activeCutscene.finish();
+}
 function playEnchantCutscene(resultTier, durationMs, onDone){
   const tier=ENCHANT_TIERS[resultTier];
   const cs=document.getElementById('enchantCutscene');
@@ -399,6 +403,8 @@ function playEnchantCutscene(resultTier, durationMs, onDone){
   }
   frame();
 
+  const timers=[];
+
   // 초반 스트로브 플래시 (0~700ms)
   let flashN=0;
   const flashItv=setInterval(()=>{
@@ -407,27 +413,34 @@ function playEnchantCutscene(resultTier, durationMs, onDone){
     flash.style.opacity=flashN%2===0?'0.7':'0';
     if(flashN>=(isTop?10:6)){ clearInterval(flashItv); flash.style.opacity='0'; }
   },90);
+  timers.push(flashItv);
 
   // 흔들림 (0~600ms)
   shakeWrap.classList.add('cutshake');
-  setTimeout(()=>shakeWrap.classList.remove('cutshake'), isTop?900:600);
+  timers.push(setTimeout(()=>shakeWrap.classList.remove('cutshake'), isTop?900:600));
 
   // 텍스트 등장 (라벨 → 이름 zoom-in → 서브)
-  setTimeout(()=>{ label.style.transition='opacity .4s'; label.style.opacity='1'; }, 500);
-  setTimeout(()=>{
+  timers.push(setTimeout(()=>{ label.style.transition='opacity .4s'; label.style.opacity='1'; }, 500));
+  timers.push(setTimeout(()=>{
     nameEl.style.fontSize = isTop?'56px':'42px';
     nameEl.style.transform='scale(1)';
     nameEl.classList.add('cutpulse');
     // 등장 순간 추가 플래시
     flash.style.transition='opacity .08s';
     flash.style.opacity='0.9';
-    setTimeout(()=>{flash.style.opacity='0';},120);
-  }, 850);
-  setTimeout(()=>{ subEl.style.opacity='1'; }, 1300);
+    timers.push(setTimeout(()=>{flash.style.opacity='0';},120));
+  }, 850));
+  timers.push(setTimeout(()=>{ subEl.style.opacity='1'; }, 1300));
 
-  setTimeout(()=>{
+  function finish(){
     running_=false;
+    timers.forEach(id=>{clearTimeout(id);clearInterval(id);});
+    shakeWrap.classList.remove('cutshake');
+    flash.style.opacity='0';
     cs.style.display='none';
+    _activeCutscene=null;
     if(onDone) onDone();
-  }, durationMs);
+  }
+  timers.push(setTimeout(finish, durationMs));
+  _activeCutscene={finish};
 }
