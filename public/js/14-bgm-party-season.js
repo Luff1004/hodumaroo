@@ -111,6 +111,7 @@ function startPartyGame(){
   pdata.gameStarted=true;
   sv('hd_party_'+myParty.code,JSON.stringify(pdata));
   partyBonus=1.5+myParty.members.length*0.1;
+  achStats.partyPlayed=(achStats.partyPlayed||0)+1;saveAch();
   clearInterval(window._partyPoll);
   go('sMap');
 }

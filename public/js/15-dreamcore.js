@@ -89,7 +89,6 @@ function enterDreamworld(){
   triggerGlitchTransition(()=>{
     hideAllScreens();
     const sc = document.getElementById('sDream');
-    sc.style.display='flex';
     sc.classList.add('on');
     startDreamAmbient('dreamCanvas');
     positionDreamEyes();
@@ -128,32 +127,25 @@ function animateDreamTitle(){
 function startDreamAmbient(canvasId){
   const cv = document.getElementById(canvasId);
   if(!cv)return;
-  cv.width=window.innerWidth; cv.height=window.innerHeight;
+  const sw=Math.min(window.innerWidth,200),sh=Math.min(window.innerHeight,150);
+  cv.width=sw; cv.height=sh;
   const cx2=cv.getContext('2d');
   let frame=0;
   function grain(){
     if(!isDreamMode&&canvasId==='dreamCanvas')return;
     frame++;
-    cx2.clearRect(0,0,cv.width,cv.height);
-    // 필름 그레인
-    if(frame%2===0){
-      const id=cx2.createImageData(cv.width,cv.height);
-      const d=id.data;
-      for(let i=0;i<d.length;i+=4){
-        const v=Math.random()*40|0;
-        d[i]=d[i+1]=d[i+2]=v; d[i+3]=Math.random()>0.85?30:0;
-      }
-      cx2.putImageData(id,0,0);
+    if(frame%6!==0){requestAnimationFrame(grain);return;}
+    cx2.clearRect(0,0,sw,sh);
+    const id=cx2.createImageData(sw,sh);
+    const d=id.data;
+    for(let i=0;i<d.length;i+=16){
+      const v=Math.random()*40|0;
+      d[i]=d[i+1]=d[i+2]=v;d[i+3]=Math.random()>0.85?30:0;
     }
-    // 가끔 수평 글리치 라인
+    cx2.putImageData(id,0,0);
     if(Math.random()>.92){
-      const y=Math.random()*cv.height;
-      const h2=1+Math.random()*3;
-      cx2.fillStyle=`rgba(255,255,255,${Math.random()*.06})`;
-      cx2.fillRect(0,y,cv.width,h2);
-      // 색수차
-      cx2.fillStyle=`rgba(0,255,255,${Math.random()*.04})`;
-      cx2.fillRect(Math.random()*20-10,y,cv.width,h2);
+      cx2.fillStyle='rgba(255,255,255,0.06)';
+      cx2.fillRect(0,Math.random()*sh,sw,2);
     }
     requestAnimationFrame(grain);
   }
@@ -173,19 +165,20 @@ function stopScanline(){
 
 // 글리치 전환 효과
 function triggerGlitchTransition(cb){
-  let t2=0;
   const body=document.body;
-  const itv=setInterval(()=>{
-    t2++;
-    if(t2<8){
+  let step=0;
+  function tick(){
+    step++;
+    if(step<8){
       body.style.filter=`grayscale(${Math.random()*100}%) contrast(${1+Math.random()*2})`;
       body.style.transform=`translateX(${(Math.random()-.5)*20}px) scaleY(${.98+Math.random()*.04})`;
+      setTimeout(tick,40);
     } else {
-      clearInterval(itv);
       body.style.filter=''; body.style.transform='';
       if(cb) cb();
     }
-  },40);
+  }
+  setTimeout(tick,40);
 }
 
 // 드림코어 맵 선택
@@ -200,7 +193,7 @@ function openDreamMapSelect(){
   triggerGlitchTransition(()=>{
     hideAllScreens();
     const sc=document.getElementById('sDreamMap');
-    sc.style.display='flex'; sc.classList.add('on');
+    sc.classList.add('on');
     startDreamAmbient('dreamCanvas2');
     const list=document.getElementById('dreamMapList');
     list.innerHTML='';
@@ -330,6 +323,13 @@ Object.assign(BOSSES, {
   dream_eye_boss:  DREAM_BOSSES.dream_eye_boss,
   dream_wakeup_boss:DREAM_BOSSES.dream_wakeup_boss,
 });
+// BOSS_MAP_DATA에도 추가 (HP바 등에서 참조)
+Object.assign(BOSS_MAP_DATA, {
+  dream_sun:   {name:'THE SUN IS RISE',icon:'☀️',col:'#fffff0',hp:80000,maxHp:80000,phase:1,t:0},
+  dream_limbo: {name:'THE LIMBO',icon:'🚪',col:'#e0e0e0',hp:90000,maxHp:90000,phase:1,t:0},
+  dream_eye:   {name:'E Y E',icon:'👁️',col:'#c8b8a2',hp:100000,maxHp:100000,phase:1,t:0},
+  dream_wakeup:{name:'WAKE UP',icon:'🌑',col:'#fff',hp:120000,maxHp:120000,phase:1,t:0},
+});
 
 // ── 드림코어 보스 공격 패턴 ──
 function doDreamBossAtk(z,ab){
@@ -454,24 +454,51 @@ function drawDreamBoss(z,t){
     for(let i=0;i<3;i++){if(Math.random()>.5){const gy=-(Math.random()-.5)*r*2;ctx.fillStyle=`rgba(255,255,255,${Math.random()*.3})`;ctx.fillRect(-r*.6,gy,r*1.2,2);}}
   }
   else if(bid==='dream_eye_boss'){
-    // 눈 - 흰 타원
-    ctx.fillStyle='#f5f0ea';ctx.beginPath();ctx.ellipse(0,0,r,r*.6,0,0,Math.PI*2);ctx.fill();
-    ctx.strokeStyle='#888';ctx.lineWidth=2;ctx.stroke();
-    // 홍채
-    const iris=ctx.createRadialGradient(0,0,0,0,0,r*.35);
-    iris.addColorStop(0,'#222');iris.addColorStop(0.5,'#556');iris.addColorStop(1,'#889');
-    ctx.fillStyle=iris;ctx.beginPath();ctx.arc(0,0,r*.35,0,Math.PI*2);ctx.fill();
+    // 날개 (좌우 대칭, 흰 깃털)
+    function drawWing(side){
+      ctx.save();ctx.scale(side,1);
+      const wx=r*.55,wy=0;
+      ctx.translate(wx,wy);
+      for(let f=0;f<7;f++){
+        const fa=-.55+f*.16;
+        const flen=r*(1.05-Math.abs(f-3)*.08);
+        const fx=Math.cos(fa)*flen, fy=Math.sin(fa)*flen*.7-r*.05;
+        const g=ctx.createLinearGradient(0,0,fx,fy);
+        g.addColorStop(0,'rgba(255,255,255,0.95)');g.addColorStop(1,'rgba(220,220,230,0.55)');
+        ctx.fillStyle=g;
+        ctx.beginPath();ctx.moveTo(0,0);
+        ctx.quadraticCurveTo(fx*.5,fy*.3-8,fx,fy);
+        ctx.quadraticCurveTo(fx*.5,fy*.3+8,0,0);
+        ctx.fill();
+        ctx.strokeStyle='rgba(200,200,210,0.4)';ctx.lineWidth=1;ctx.stroke();
+      }
+      ctx.restore();
+    }
+    drawWing(-1);drawWing(1);
+    // 눈 - 핑크빛 아몬드형
+    const eyeW=r*.62,eyeH=r*.5;
+    ctx.beginPath();
+    ctx.moveTo(-eyeW,0);
+    ctx.quadraticCurveTo(-eyeW*.4,-eyeH,0,-eyeH*.85);
+    ctx.quadraticCurveTo(eyeW*.4,-eyeH,eyeW,0);
+    ctx.quadraticCurveTo(eyeW*.4,eyeH,0,eyeH*.85);
+    ctx.quadraticCurveTo(-eyeW*.4,eyeH,-eyeW,0);
+    ctx.closePath();
+    const eyeGrad=ctx.createRadialGradient(0,0,0,0,0,eyeW);
+    eyeGrad.addColorStop(0,'#f7d9e0');eyeGrad.addColorStop(0.55,'#e8899f');eyeGrad.addColorStop(0.85,'#c14f6b');eyeGrad.addColorStop(1,'#8a2f45');
+    ctx.fillStyle=eyeGrad;ctx.fill();
+    ctx.strokeStyle='#7a2438';ctx.lineWidth=2;ctx.stroke();
+    // 혈관 느낌 라인
+    ctx.strokeStyle='rgba(180,40,60,0.35)';ctx.lineWidth=1;
+    for(let i=0;i<5;i++){const a2=(i/5)*Math.PI*2;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a2)*eyeW*.9,Math.sin(a2)*eyeH*.9);ctx.stroke();}
     // 동공 추적 (플레이어 방향)
     const ea=Math.atan2(P.y-cy,P.x-cx);
-    const px2=Math.cos(ea)*r*.15, py2=Math.sin(ea)*r*.15;
-    ctx.fillStyle='#000';ctx.beginPath();ctx.arc(px2,py2,r*.18,0,Math.PI*2);ctx.fill();
+    const px2=Math.cos(ea)*r*.14, py2=Math.sin(ea)*r*.1;
+    ctx.fillStyle='#000';ctx.beginPath();ctx.arc(px2,py2,r*.22,0,Math.PI*2);ctx.fill();
     // 하이라이트
-    ctx.fillStyle='rgba(255,255,255,0.6)';ctx.beginPath();ctx.arc(px2-r*.05,py2-r*.05,r*.04,0,Math.PI*2);ctx.fill();
-    // 속눈썹
-    ctx.strokeStyle='#333';ctx.lineWidth=2;
-    for(let i=-3;i<=3;i++){ctx.beginPath();ctx.moveTo(i*r*.12,-r*.55);ctx.lineTo(i*r*.1,-r*.45);ctx.stroke();}
+    ctx.fillStyle='rgba(255,255,255,0.7)';ctx.beginPath();ctx.arc(px2-r*.07,py2-r*.07,r*.05,0,Math.PI*2);ctx.fill();
     // 글리치
-    if(Math.random()>.8){ctx.fillStyle=`rgba(200,180,160,${Math.random()*.15})`;ctx.fillRect(-r,-(Math.random()-.5)*r*.6*2,r*2,2);}
+    if(Math.random()>.8){ctx.fillStyle=`rgba(255,255,255,${Math.random()*.15})`;ctx.fillRect(-r,-(Math.random()-.5)*r*.6*2,r*2,2);}
   }
   else if(bid==='dream_wakeup_boss'){
     // 완전한 공허 - 검은 원 + 텍스트 글리치
@@ -585,7 +612,7 @@ function exitDreamworld(){
     const gc=document.getElementById('gameCanvas');if(gc)gc.style.filter='';
     hideAllScreens();
     const lb=document.getElementById('sLobby');
-    lb.style.display='flex';lb.classList.add('on');
+    lb.classList.add('on');
     updRes();
   });
 }

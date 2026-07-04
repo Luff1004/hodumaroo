@@ -65,7 +65,7 @@ function useItem(itemId){
     case 'energy_can': energy+=1000; sv('hd_e',energy); updRes(); break;
     case 'coin_bag': coins+=2000; sv('hd_c',coins); updRes(); break;
     case 'lucky_clover': for(let i=0;i<24;i++){const a=i/24*Math.PI*2;parts.push({x:P.x,y:P.y,vx:Math.cos(a)*6,vy:Math.sin(a)*6,l:40,ml:40,r:6,col:'#4ade80'});} setMsg('🍀 행운이 함께하길!'); break;
-    case 'spatial_path': blink(); break;
+    case 'spatial_path': P.x=Math.max(P.r,Math.min(MW-P.r,mxW));P.y=Math.max(P.r,Math.min(MH-P.r,myW)); break;
     case 'sp_item_jan': zoms.forEach(z=>{if(!z.dead)z._frz=Math.max(z._frz||0,300);}); addExp(MW/2,camY+300,350,'#bae6fd'); break;
     case 'sp_item_jun': for(let i=-2;i<=2;i++)for(let j=0;j<8;j++){const a=j/8*Math.PI*2;buls.push({x:P.x+i*60,y:P.y,vx:Math.cos(a)*9,vy:Math.sin(a)*9,r:7,l:130,en:false,dmg:35,col:'#38bdf8',_freezeAtk:true,_explosive:true});} break;
     case 'sp_item_dec': for(let i=0;i<50;i++){gTimeout(()=>{if(!running)return;const rx=Math.random()*MW,ry=camY-10;buls.push({x:rx,y:ry,vx:0,vy:8,r:6,l:100,en:false,dmg:25,col:'#fbbf24'});},i*60);} P.hp=P.maxHp; break;
@@ -77,7 +77,9 @@ function useItem(itemId){
 
 // 아이템 쿨다운 틱 (update에서 호출)
 function tickItems(){
-  Object.keys(itemCooldowns).forEach(k=>{if(itemCooldowns[k]>0)itemCooldowns[k]--;});
+  let cdChanged=false;
+  Object.keys(itemCooldowns).forEach(k=>{if(itemCooldowns[k]>0){itemCooldowns[k]--;if(itemCooldowns[k]%60===0)cdChanged=true;}});
+  if(cdChanged)renderItemBar();
   // 버프 틱
   if(activeBuffs.regen>0){activeBuffs.regen--;P.hp=Math.min(P.maxHp,P.hp+0.05);}
   if(activeBuffs.blackHole>0){activeBuffs.blackHole--;zoms.forEach(z=>{if(!z.dead){z.x+=(P.x-z.x)*.04;z.y+=(P.y-z.y)*.04;}});}
@@ -100,8 +102,8 @@ function renderItemBar(){
     const cd=itemCooldowns[id]||0;
     const div=document.createElement('div');
     div.className='item-slot'+(cd>0?' cooling':'');
-    div.innerHTML='<span class="item-ico">'+it.icon+'</span>'+(cd>0?'<span class="item-cd">'+Math.ceil(cd/60)+'</span>':'');
-    div.title=it.name+' ['+( i+1)+']';
+    div.innerHTML='<span class="item-key">'+(i+1)+'</span><span class="item-ico">'+it.icon+'</span>'+(cd>0?'<span class="item-cd">'+Math.ceil(cd/60)+'</span>':'');
+    div.title=it.name+' ['+( i+1)+'] - '+it.desc;
     div.onclick=()=>useItem(id);
     bar.appendChild(div);
   });

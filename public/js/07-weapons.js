@@ -75,7 +75,7 @@ const WEPS={
   sp_blade:{id:'sp_blade',name:'[시즌] 성흔의 검',icon:'🌠',price:0,ammo:999,max:999,rel:0,spd:0,dmg:45,r:0,life:0,knife:true,sg:false,chain:true,spOnly:true,rarity:'legendary',desc:'시즌Lv.25 전용(홀수월). 데미지88, 처치시HP+10'},
   sp_cannon:{id:'sp_cannon',name:'[시즌] 별의 포',icon:'💫',price:0,ammo:15,max:15,rel:100,spd:18,dmg:60,r:8,life:200,knife:false,sg:false,energy:true,pierce:true,explosive:true,spOnly:true,rarity:'mythic',desc:'시즌Lv.50 전용(홀수월). 데미지120, 관통+폭발+에너지'},
 };
-const DFLT=['minigun','shotgun','knife'];
+const DFLT=['pistol','shotgun','knife'];
 let selWepId='pistol';
 
 function renderWepSel(){

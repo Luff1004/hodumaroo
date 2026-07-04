@@ -11,6 +11,7 @@ resize();window.addEventListener('resize',()=>{resize();if(P)camY=clampC(P.y-VH(
 
 let P,zoms,buls,parts,effs,hpItems;
 let wave,score,kills,poison;
+let waveDmgTaken=0;
 let spawnT=0,spawnInt=75,spawnedCnt=0,totalSpawn=9,betweenWave=false;
 let relTimer=0,camY=0,mxW=400,myW=MH-100;
 const keys={};
@@ -47,11 +48,41 @@ const ZT={
   prophet:   {name:'선지자', col:'#a16207',ol:'#713f12',bHp:5,   spd:1.0, r:14,sc:45,isProphet:true},
   golem:     {name:'골렘',   col:'#6b7280',ol:'#374151',bHp:35,  spd:.35, r:26,sc:80,isGolem:true},
   demon:     {name:'악마',   col:'#7f1d1d',ol:'#450a0a',bHp:8,   spd:1.6, r:14,sc:55,isDemon:true},
+  // ── 로봇 공장 챌린지 전용 ──
+  robot:        {name:'로봇',     col:'#94a3b8',ol:'#475569',bHp:16, spd:1.0, r:16,sc:45},
+  spider_robot: {name:'거미로봇', col:'#334155',ol:'#0f172a',bHp:8,  spd:2.3, r:12,sc:40},
+  raptor_robot: {name:'랩터로봇', col:'#f87171',ol:'#7f1d1d',bHp:10, spd:1.1, r:14,sc:60},
+  // ── UNDER WATER 챌린지 전용 ──
+  fish:      {name:'물고기',   col:'#38bdf8',ol:'#0369a1',bHp:5,  spd:2.6, r:10,sc:25},
+  squid:     {name:'오징어',   col:'#a78bfa',ol:'#5b21b6',bHp:7,  spd:1.2, r:13,sc:40},
+  starfish:  {name:'불가사리', col:'#fb923c',ol:'#9a3412',bHp:24, spd:.5,  r:18,sc:50},
+  kraken_mob:{name:'크라켄',   col:'#0891b2',ol:'#164e63',bHp:16, spd:.9,  r:17,sc:70},
+  // ── HARDEST OF THE WORLD 챌린지 전용 ──
+  parasite:         {name:'기생수',   col:'#84cc16',ol:'#3f6212',bHp:6,  spd:2.1, r:11,sc:40},
+  alien:            {name:'에일리언', col:'#22c55e',ol:'#14532d',bHp:9,  spd:1.2, r:14,sc:60},
+  tentacle_monster: {name:'촉수괴물', col:'#7c2d92',ol:'#3b0764',bHp:15, spd:1.0, r:17,sc:70},
+  the_thing:        {name:'더 씽',   col:'#57534e',ol:'#1c1917',bHp:42, spd:.5,  r:24,sc:130},
+  // ── 아포칼립스 전용 ──
+  super_zombie:   {name:'수퍼좀비',   col:'#166534',ol:'#052e16',bHp:20, spd:1.6, r:15,sc:60},
+  suicide_zombie: {name:'자폭좀비',   col:'#c026d3',ol:'#701a75',bHp:9,  spd:1.4, r:14,sc:45},
+  num999:         {name:'999',        col:'#dc2626',ol:'#450a0a',bHp:15, spd:1.8, r:13,sc:70},
+  // ── 차원의 심장 전용 ──
+  dim_shard:     {name:'차원조각',   col:'#818cf8',ol:'#3730a3',bHp:7,  spd:2.2, r:10,sc:50},
+  dim_rift:      {name:'차원의틈',   col:'#1e1033',ol:'#4c1d95',bHp:30, spd:.3,  r:22,sc:90},
+  dim_separator: {name:'차원분리기', col:'#a855f7',ol:'#581c87',bHp:18, spd:.9,  r:17,sc:80},
+  worm:          {name:'기생충',     col:'#65a30d',ol:'#365314',bHp:8,  spd:2.0, r:11,sc:45},
+  // ── ETERNAL SPACE 전용 ──
+  space_jelly:   {name:'우주의 해파리', col:'#67e8f9',ol:'#0e7490',bHp:11,  spd:.8,  r:16,sc:55},
+  glitch_entity: {name:'X)(#%+#@?',     col:'#ffffff',ol:'#000000',bHp:60,  spd:1.3, r:20,sc:150},
+  the_god:       {name:'THE GOD',       col:'#fbbf24',ol:'#78350f',bHp:120, spd:.5,  r:30,sc:300},
 };
 
 function d2(ax,ay,bx,by){return(ax-bx)**2+(ay-by)**2;}
 
-function calcWZ(){if(selMap.boss)return 1;if(BOSSES[wave])return 1;return 5+wave*4;}
+// 신규 웨이브맵 3종 EXTREME 난이도 배율 (아포칼립스 < 차원의 심장 < ETERNAL SPACE)
+const HARD_WAVE_MUL={apocalypse:1.5,dimension_heart:2.0,eternal_space:2.8};
+
+function calcWZ(){if(selMap.boss)return 1;if(BOSSES[wave]&&!selMap.challenge)return 1;if(selMap.challenge)return 10+Math.min(50,Math.floor(wave*1.5));const hwm=HARD_WAVE_MUL[selMap.id]||1;return Math.ceil((5+wave*4)*hwm);}
 
 function getWep(){
   const base=WEPS[selWepId]||WEPS.pistol;
@@ -62,8 +93,8 @@ function getWep(){
 }
 
 function initGame(){
-  perkLv={};pTimers={};
-  if(!selMap) selMap=MAPS[0]; // 안전장치
+  perkLv={};pTimers={};waveDmgTaken=0;
+  if(!selMap) selMap=MAPS[0];
   const ws=getWep();
   const ar=ARMORS.find(x=>x.id===eqArmor);
   const puSpd=(pUpgLv['ps']||0)*.2,puHp=(pUpgLv['pmh']||0)*20,puArm=(pUpgLv['pa']||0)*2,puDmg=pUpgLv['pd']||0;
@@ -87,7 +118,7 @@ function initGame(){
   updBadges();
   zoms=[];buls=[];parts=[];effs=[];hpItems=[];
   wave=1;score=0;kills=0;poison=0;
-  spawnT=0;spawnedCnt=0;totalSpawn=calcWZ();spawnInt=75;betweenWave=false;relTimer=0;
+  spawnT=0;spawnedCnt=0;totalSpawn=calcWZ();spawnInt=selMap.challenge?18:Math.round(75/(HARD_WAVE_MUL[selMap.id]||1));betweenWave=false;relTimer=0;
   camY=clampC(P.y-VH()/2);activeBoss=null;
   // 맵 장애물 초기화
   obstacles=[];
@@ -128,6 +159,8 @@ function initGame(){
   }
   document.getElementById('bossBar').style.display='none';
   spawnHpItems();
+  itemCooldowns={};
+  renderItemBar();
 }
 
 function spawnHpItems(){
@@ -376,7 +409,7 @@ function hitZ(z,dmg){
   z.hp-=d;
   for(let i=0;i<4;i++)parts.push({x:z.x,y:z.y,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5,l:12,ml:12,r:3,col:z.isBoss?z.bd.col:(ZT[z.type]?.col||'#888')});
   if(z.hp<=0){
-    if(z.type==='exploder'&&!z._ex){z._ex=true;addExp(z.x,z.y,70,'#FF6600');}
+    if((z.type==='exploder'||z.type==='suicide_zombie')&&!z._ex){z._ex=true;addExp(z.x,z.y,z.type==='suicide_zombie'?95:70,'#FF6600');}
     z.dead=true;z.dT=z.isBoss?80:35;z._justDied=true;
     score+=Math.floor((z.isBoss?z.bd.reward.c:(ZT[z.type]?.sc||10))*(1+(pUpgLv['pxp']||0)*.1));kills++;
     const vl=perkLv['vampiric']??-1;
@@ -392,8 +425,9 @@ function hitZ(z,dmg){
 
 function takeDmg(d){
   if(P._invincible>0)return;
-  if(P._shadow>0){d*=0.3;} // 분신술: 피해 70% 감소
+  if(P._shadow>0){d*=0.3;}
   if(P._shield>0)return;
+  waveDmgTaken+=d;
   const dl=perkLv['dodge']??-1;
   if(dl>=0&&Math.random()<[.05,.10,.15,.20,.30][Math.min(dl,4)])return;
   if(P._armorDodge&&Math.random()<P._armorDodge)return;
@@ -445,6 +479,8 @@ function onBossDie(z){
   // 보스 킬 기록
   if(z.bossMapId){ achStats.bossKills=achStats.bossKills||{}; achStats.bossKills[z.bossMapId]=(achStats.bossKills[z.bossMapId]||0)+1; }
   if(z.bd&&z.bd.id&&z.bd.id.startsWith('dream_')){ achStats.bossKills=achStats.bossKills||{}; const dk=z.bd.id.replace('_boss',''); achStats.bossKills[dk]=(achStats.bossKills[dk]||0)+1; }
+  if(waveDmgTaken===0){achStats.noDmgBoss=(achStats.noDmgBoss||0)+1;}
+  if(P.hp<=z.bd.hp*0.1+1){achStats.dreamCloseKill=(achStats.dreamCloseKill||0)+1;}
   checkAchievements(); saveAch();
   activeBoss=null;document.getElementById('bossBar').style.display='none';
   // 보스맵 클리어
@@ -1044,7 +1080,8 @@ function spawnZType(type){
       x=50+Math.random()*(MW-100);y=camY+50+Math.random()*(VH()-100);tries++;
     }
   }
-  const T=ZT[type]||ZT.normal,sm=1+wave*.07,hm=1+Math.floor(wave/4)*.5;
+  const hwm=HARD_WAVE_MUL[selMap.id]||1;
+  const T=ZT[type]||ZT.normal,sm=(1+wave*.07)*(selMap.challenge?1.2:1)*(1+(hwm-1)*.4),hm=(1+Math.floor(wave/4)*.5)*(selMap.challenge?1.8:1)*hwm;
   zoms.push({x,y,type,r:T.r,hp:Math.ceil(T.bHp*hm),maxHp:Math.ceil(T.bHp*hm),spd:T.spd*sm,
     angle:0,dead:false,dT:0,_dshC:180+Math.random()*60,_dsh:false,_dvx:0,_dvy:0,
     _healT:0,_phT:Math.random()*120,_phased:false,_frz:0,wob:Math.random()*Math.PI*2,
@@ -1054,6 +1091,35 @@ function spawnZType(type){
 }
 
 function getZombiePool(){if(selMap.boss)return [];
+  if(selMap.id==='robot_factory'){
+    const rp=['robot','robot'];
+    if(wave>=2)rp.push('spider_robot','spider_robot');
+    if(wave>=4)rp.push('raptor_robot');
+    if(wave>=8)rp.push('robot','spider_robot','raptor_robot');
+    if(wave>=15)rp.push('raptor_robot','spider_robot');
+    if(wave>=25)rp.push('robot','raptor_robot','spider_robot');
+    return rp;
+  }
+  if(selMap.id==='underwater'){
+    const up=['fish','fish'];
+    if(wave>=2)up.push('squid');
+    if(wave>=4)up.push('starfish');
+    if(wave>=6)up.push('kraken_mob');
+    if(wave>=8)up.push('fish','squid','kraken_mob');
+    if(wave>=15)up.push('kraken_mob','starfish');
+    if(wave>=25)up.push('kraken_mob','squid','starfish');
+    return up;
+  }
+  if(selMap.id==='hardest_world'){
+    const hp=['parasite','parasite'];
+    if(wave>=2)hp.push('alien');
+    if(wave>=4)hp.push('tentacle_monster');
+    if(wave>=6)hp.push('the_thing');
+    if(wave>=8)hp.push('parasite','alien','tentacle_monster');
+    if(wave>=15)hp.push('the_thing','tentacle_monster');
+    if(wave>=25)hp.push('the_thing','alien','tentacle_monster');
+    return hp;
+  }
   const base=['normal'];
   if(wave>=2)base.push('runner');
   if(wave>=3)base.push('tanker');
@@ -1094,10 +1160,35 @@ function getZombiePool(){if(selMap.boss)return [];
   if(m.id==='city'&&wave>=12)base.push('demon');
   if(m.id==='city'&&wave>=15)base.push('golem');
   if(m.id==='forest'&&wave>=10)base.push('golem');
+  // 아포칼립스: 수퍼좀비 + 자폭좀비 (EXTREME, 1웨이브부터 강적 밀도 높음)
+  if(m.id==='apocalypse'){
+    base.push('super_zombie','super_zombie','super_zombie','suicide_zombie');
+    if(wave>=2)base.push('num999','suicide_zombie');
+    if(wave>=4)base.push('super_zombie','num999');
+    if(wave>=6)base.push('super_zombie','suicide_zombie','num999');
+    if(wave>=9)base.push('num999','super_zombie','suicide_zombie','num999');
+  }
+  // 차원의 심장: 차원 몬스터 (아포칼립스보다 훨씬 강력)
+  if(m.id==='dimension_heart'){
+    base.push('dim_shard','dim_shard','dim_shard','dim_rift');
+    if(wave>=2)base.push('dim_separator','dim_rift');
+    if(wave>=4)base.push('worm','dim_separator');
+    if(wave>=6)base.push('dim_shard','dim_separator','worm');
+    if(wave>=9)base.push('dim_rift','worm','dim_separator','dim_shard');
+  }
+  // ETERNAL SPACE: 최종 난이도, X)(#%+#@?와 THE GOD 전용 등장 (조기 등장)
+  if(m.id==='eternal_space'){
+    base.push('space_jelly','space_jelly','worm','dim_shard');
+    if(wave>=2)base.push('num999','space_jelly');
+    if(wave>=3)base.push('glitch_entity');
+    if(wave>=5)base.push('the_god');
+    if(wave>=7)base.push('glitch_entity','the_god','space_jelly','worm');
+    if(wave>=10)base.push('glitch_entity','the_god','num999');
+  }
   return base;
 }
 function spawnWave(){
-  if(BOSSES[wave]){if(spawnedCnt===0){spawnBoss(wave);spawnedCnt++;}return;}
+  if(BOSSES[wave]&&!selMap.challenge){if(spawnedCnt===0){spawnBoss(wave);spawnedCnt++;}return;}
   if(selMap.boss){
     if(wave===1&&spawnedCnt===0&&!activeBossMap){startBossMap(selMap.boss);spawnedCnt++;}
     return;
@@ -1105,6 +1196,26 @@ function spawnWave(){
   if(selMap.id==='bob'){if(!bobActive&&spawnedCnt===0){startBobMap();spawnedCnt++;}return;}
   const pool=getZombiePool();
   spawnZType(pool[Math.floor(Math.random()*pool.length)]);
+}
+
+function triggerChallengeClear(){
+  window._bossMapClearing=true;
+  stopLoop();
+  const rc=Math.floor(50000*(selMap.diff||10));
+  const re=Math.floor(25000*(selMap.diff||10));
+  coins+=rc;energy+=re;saveAll();updHUD();
+  addSeasonXP(20000);
+  achStats.challengeCleared=achStats.challengeCleared||[];
+  if(!achStats.challengeCleared.includes(selMap.id))achStats.challengeCleared.push(selMap.id);
+  checkAchievements();saveAch();
+  setTimeout(()=>{
+    document.getElementById('clearTitle').textContent='🏆 챌린지 클리어!';
+    document.getElementById('clearSub').textContent=selMap.name+' - 100웨이브 달성!';
+    document.getElementById('clearReward').innerHTML=
+      `<div style="background:#fef3c7;border:2px solid #f59e0b;color:#92400e;padding:8px 20px;border-radius:20px;font-weight:800;font-size:18px;">🪙 +${rc.toLocaleString()}</div>`+
+      `<div style="background:#ede9ff;border:2px solid #7c3aed;color:#4c1d95;padding:8px 20px;border-radius:20px;font-weight:800;font-size:18px;">⚡ +${re.toLocaleString()}</div>`;
+    document.getElementById('clearScreen').style.display='flex';
+  },300);
 }
 
 // ── UPDATE ──
@@ -1158,7 +1269,7 @@ function update(){
   if(!betweenWave){
     if(selMap.boss){if(spawnedCnt===0&&!activeBossMap){spawnWave();spawnT=0;}}
     else{spawnT++;if(spawnT>=spawnInt&&spawnedCnt<totalSpawn){spawnWave();spawnedCnt++;spawnT=0;}}
-    if(!selMap.boss&&spawnedCnt>=totalSpawn&&zoms.filter(z=>!z.dead&&!z.isMinion).length===0){betweenWave=true;setMsg(`✨ 웨이브 ${wave} 클리어!`);if(wave>( achStats.maxWave||0)){achStats.maxWave=wave;achStats.mapWave=achStats.mapWave||{};achStats.mapWave[selMap?.id]=(achStats.mapWave[selMap?.id]||0)+1;}checkAchievements();saveAch();
+    if(!selMap.boss&&spawnedCnt>=totalSpawn&&zoms.filter(z=>!z.dead&&!z.isMinion).length===0){betweenWave=true;setMsg(`✨ 웨이브 ${wave} 클리어!`);if(wave>(achStats.maxWave||0))achStats.maxWave=wave;achStats.mapWave=achStats.mapWave||{};const prevBest=achStats.mapWave[selMap?.id]||0;if(wave>prevBest)achStats.mapWave[selMap.id]=wave;if(waveDmgTaken===0){achStats.noDmgWave=(achStats.noDmgWave||0)+1;}waveDmgTaken=0;if(!achStats.clearedMaps)achStats.clearedMaps=[];if(wave>=10&&!achStats.clearedMaps.includes(selMap.id))achStats.clearedMaps.push(selMap.id);checkAchievements();saveAch();
     const xpGain=100*(wave+(selMap.diff||1))*((pUpgLv['pxp']||0)*.1+1);
     addSeasonXP(Math.floor(xpGain));
     // 폐허도시 클리어 기록
@@ -1171,7 +1282,16 @@ function update(){
         if(wave===35)setMsg('🔓 THE ETERNAL BOB 해금!');
       }
     }
-    setTimeout(()=>{if(running||betweenWave)showUpgOv();},1500);}
+    if(selMap.challenge&&wave>=selMap.waveLimit){triggerChallengeClear();}
+    else if(selMap.challenge){
+      // 챌린지 맵: 특성 선택 없이 자동으로 바로 다음 웨이브 진행 (EXTREME 속도)
+      const coinMult=1+(pUpgLv['pc']||0)*.05,enMult=1+(pUpgLv['pe']||0)*.05;
+      coins+=Math.floor((100+(shopLv['sh_coin']||0)*20)*coinMult*(partyBonus||1));
+      energy+=Math.floor((100+(shopLv['sh_energy']||0)*30)*enMult*(partyBonus||1));
+      saveAll();updHUD();
+      setTimeout(()=>{if(running||betweenWave)nextWave();},400);
+    }
+    else{setTimeout(()=>{if(running||betweenWave)showUpgOv();},1500);}}
   }
   const slowM=P._timewarp>0?.35:1;
   zoms=zoms.filter(z=>{
@@ -1270,9 +1390,104 @@ function update(){
       // ROB: 느리지만 무적, 직진
       z.x+=ddx/dl*z.spd;z.y+=ddy/dl*z.spd;
     }
+    else if(z.type==='spider_robot'){
+      z._zigT=(z._zigT||0)+1;const zigAng=Math.atan2(ddy,ddx)+Math.sin(z._zigT*.15)*.8;
+      z.x+=Math.cos(zigAng)*spd;z.y+=Math.sin(zigAng)*spd;
+    }
+    else if(z.type==='parasite'||z.type==='dim_shard'||z.type==='worm'){
+      z._zigT=(z._zigT||0)+1;const zigAng=Math.atan2(ddy,ddx)+Math.sin(z._zigT*.2)*1.0;
+      z.x+=Math.cos(zigAng)*spd;z.y+=Math.sin(zigAng)*spd;
+    }
+    else if(z.type==='raptor_robot'||z.type==='alien'||z.type==='dim_separator'){
+      // 랩터로봇/에일리언/차원분리기: 거리 유지 + 레이저 저격
+      const keepDist=220;
+      if(dl>keepDist){z.x+=ddx/dl*spd;z.y+=ddy/dl*spd;}
+      else if(dl<140){z.x-=ddx/dl*spd;z.y-=ddy/dl*spd;}
+      z._spellT=(z._spellT||0)+1;
+      if(z._spellT>=90){z._spellT=0;
+        const ang=Math.atan2(ddy,ddx);
+        const col=z.type==='alien'?'#22c55e':z.type==='dim_separator'?'#a855f7':'#f87171';
+        buls.push({x:z.x,y:z.y,vx:Math.cos(ang)*9,vy:Math.sin(ang)*9,r:5,l:150,en:true,dmg:9,col,laser:true});
+      }
+    }
+    else if(z.type==='squid'||z.type==='space_jelly'){
+      // 오징어/우주해파리: 거리 유지 + 독 투척
+      const keepDist=180;
+      if(dl>keepDist+30){z.x+=ddx/dl*spd;z.y+=ddy/dl*spd;}
+      else if(dl<keepDist-30){z.x-=ddx/dl*spd;z.y-=ddy/dl*spd;}
+      z._potT=(z._potT||0)+1;
+      if(z._potT>=160){z._potT=0;
+        const ang=Math.atan2(P.y-z.y,P.x-z.x);
+        const px=P.x,py=P.y;
+        buls.push({x:z.x,y:z.y,vx:Math.cos(ang)*4,vy:Math.sin(ang)*4-2,r:6,l:60,en:true,dmg:0,col:'#a78bfa',_potion:true});
+        gTimeout(()=>{effs.push({type:'cloud',x:px,y:py,l:150,ml:150,r:55,dmgMult:1,dmgT:0});addExp(px,py,50,'#a78bfa');if(d2(P.x,P.y,px,py)<(50+P.r)**2)takeDmg(10);},900);
+      }
+    }
+    else if(z.type==='kraken_mob'){
+      // 크라켄(몹): 거리 유지 + 3way 촉수 탄
+      z._spellT=(z._spellT||0)+1;
+      const keepDist=200;
+      if(dl>keepDist){z.x+=ddx/dl*spd*.6;z.y+=ddy/dl*spd*.6;}
+      else if(dl<130){z.x-=ddx/dl*spd;z.y-=ddy/dl*spd;}
+      if(z._spellT>=110){z._spellT=0;
+        const ang=Math.atan2(ddy,ddx);
+        for(let wi=-1;wi<=1;wi++){const a=ang+wi*.2;buls.push({x:z.x,y:z.y,vx:Math.cos(a)*6,vy:Math.sin(a)*6,r:7,l:130,en:true,dmg:10,col:'#0891b2'});}
+      }
+    }
+    else if(z.type==='tentacle_monster'){
+      // 촉수괴물: 접근 후 붙잡기 돌진
+      z._spearT=(z._spearT||0)+1;
+      if(dl<220&&z._spearT>=110&&!z._spearDash){
+        z._spearDash=true;z._spearT=0;
+        z._dashVx=ddx/dl*8;z._dashVy=ddy/dl*8;z._dashDur=24;
+      }
+      if(z._spearDash){
+        z.x+=z._dashVx;z.y+=z._dashVy;z._dashDur--;
+        if(dl<z.r+P.r+5)takeDmg(20);
+        if(z._dashDur<=0)z._spearDash=false;
+      } else {
+        z.x+=ddx/dl*spd;z.y+=ddy/dl*spd;
+      }
+    }
+    else if(z.type==='the_thing'){
+      // 더 씽: 매우 느리게 접근, 강타
+      z.x+=ddx/dl*spd;z.y+=ddy/dl*spd;
+      z._slamT=(z._slamT||0)+1;
+      if(dl<z.r+P.r+20&&z._slamT>=50){z._slamT=0;
+        takeDmg(30);
+        addExp(z.x,z.y,65,'#57534e');
+        for(let i=0;i<8;i++)parts.push({x:z.x,y:z.y,vx:(Math.random()-.5)*8,vy:(Math.random()-.5)*8,l:20,ml:20,r:5,col:'#a8a29e'});
+      }
+    }
+    else if(z.type==='dim_rift'){
+      // 차원의틈: 거의 정지, 흡입 후 방출
+      z._potT=(z._potT||0)+1;
+      if(z._potT>=150&&z._potT<200){P.x+=(z.x-P.x)*.015;P.y+=(z.y-P.y)*.015;}
+      if(z._potT>=200){z._potT=0;
+        for(let i=0;i<16;i++){const a=i/16*Math.PI*2;buls.push({x:z.x,y:z.y,vx:Math.cos(a)*10,vy:Math.sin(a)*10,r:8,l:150,en:true,dmg:16,col:'#4c1d95'});}
+      }
+      z.x+=ddx/dl*spd*.2;z.y+=ddy/dl*spd*.2;
+    }
+    else if(z.type==='glitch_entity'){
+      // X)(#%+#@?: 순간이동 + 고속 추격
+      z._webT=(z._webT||0)+1;
+      if(z._webT>=140){z._webT=0;z.x=P.x+(Math.random()-.5)*260;z.y=P.y+(Math.random()-.5)*260;for(let i=0;i<10;i++)parts.push({x:z.x,y:z.y,vx:(Math.random()-.5)*7,vy:(Math.random()-.5)*7,l:20,ml:20,r:4,col:'#fff'});}
+      else{z.x+=ddx/dl*spd;z.y+=ddy/dl*spd;}
+    }
+    else if(z.type==='the_god'){
+      // THE GOD: 거리 유지 + 5way 광역 탄막
+      z._spellT=(z._spellT||0)+1;
+      const keepDist=260;
+      if(dl>keepDist){z.x+=ddx/dl*spd*.5;z.y+=ddy/dl*spd*.5;}
+      else if(dl<160){z.x-=ddx/dl*spd;z.y-=ddy/dl*spd;}
+      if(z._spellT>=100){z._spellT=0;
+        const ang=Math.atan2(ddy,ddx);
+        for(let wi=-2;wi<=2;wi++){const a=ang+wi*.18;buls.push({x:z.x,y:z.y,vx:Math.cos(a)*8,vy:Math.sin(a)*8,r:8,l:160,en:true,dmg:14,col:'#fbbf24'});}
+      }
+    }
     else{z.x+=ddx/dl*spd+Math.cos(z.wob)*.2;z.y+=ddy/dl*spd+Math.sin(z.wob)*.2;}
     z.x=Math.max(z.r,Math.min(MW-z.r,z.x));z.y=Math.max(z.r,Math.min(MH-z.r,z.y));
-    if(dl<z.r+P.r&&!z.isMinion){let dps=z.isBoss?1.5:z.type==='tanker'?.8:z.type==='supertank'?2:.35;dps+=(ZT[z.type]?.dmgMult||1)*.05;if(z.type==='rob'&&!P._bobPlayerMode){running=false;return true;}takeDmg(dps);if(z.type==='poison'&&poison<=0){poison=300;for(let i=0;i<6;i++)parts.push({x:P.x,y:P.y,vx:(Math.random()-.5)*4,vy:(Math.random()-.5)*4,l:20,ml:20,r:4,col:'#8DB800'});}if(z.type==='exploder'&&!z._ex){z._ex=true;z.dead=true;z.dT=30;addExp(z.x,z.y,70,'#FF6600');takeDmg(18);}}
+    if(dl<z.r+P.r&&!z.isMinion){let dps=z.isBoss?1.5:z.type==='tanker'?.8:z.type==='supertank'?2:z.type==='the_thing'?1.5:z.type==='starfish'?.6:z.type==='robot'?.7:z.type==='the_god'?2:z.type==='dim_rift'?1.2:z.type==='glitch_entity'?1.3:z.type==='super_zombie'?.9:.35;dps+=(ZT[z.type]?.dmgMult||1)*.05;if(z.type==='rob'&&!P._bobPlayerMode){running=false;return true;}takeDmg(dps);if((z.type==='poison'||z.type==='parasite'||z.type==='worm')&&poison<=0){poison=300;for(let i=0;i<6;i++)parts.push({x:P.x,y:P.y,vx:(Math.random()-.5)*4,vy:(Math.random()-.5)*4,l:20,ml:20,r:4,col:'#8DB800'});}if((z.type==='exploder'||z.type==='suicide_zombie')&&!z._ex){z._ex=true;z.dead=true;z.dT=30;addExp(z.x,z.y,z.type==='suicide_zombie'?95:70,'#FF6600');takeDmg(z.type==='suicide_zombie'?26:18);}}
     return true;
   });
   buls=buls.filter(b=>{
@@ -2247,8 +2462,15 @@ function stopGame(){
 }
 function clearToLobby(){
   window._bossMapClearing=false;
+  const wasDream = selMap && selMap.dream;
   document.getElementById('clearScreen').style.display='none';
-  stopGame();if(bgmUnlocked)startBGM();go('sLobby');
+  stopGame();
+  if(wasDream){
+    isDreamMode=true;
+    enterDreamworld();
+  } else {
+    if(bgmUnlocked)startBGM();go('sLobby');
+  }
 }
 function stopLoop(){running=false;if(rafId){cancelAnimationFrame(rafId);rafId=null;}}
 function startLoop(){running=true;rafId=requestAnimationFrame(loop);}
@@ -2262,7 +2484,7 @@ function loop(){
 }
 
 function hideAllScreens(){
-  SCREENS.forEach(s=>{const el=document.getElementById(s);if(el)el.classList.remove('on');});
+  SCREENS.forEach(s=>{const el=document.getElementById(s);if(el){el.classList.remove('on');el.style.display='';}});
 }
 
 function startGame(){
@@ -2298,6 +2520,11 @@ document.addEventListener('keydown',e=>{
   if(k==='r'&&running&&P&&!P.reloading&&!P.ws.knife)startRel();
   if(k==='e'&&running&&!paused)useSkill('E');
   if(k==='q'&&running&&!paused)useSkill('Q');
+  if(['1','2','3'].includes(k)&&running&&!paused){
+    const idx=parseInt(k,10)-1;
+    const itemId=equippedItems[idx];
+    if(itemId)useItem(itemId);
+  }
   if(k==='escape'&&running){if(paused)resumeGame();else togglePause();}
   if(e.key==='Enter'&&document.getElementById('codeModal').classList.contains('on'))submitCode();
   if(e.key==='Escape'&&document.getElementById('codeModal').classList.contains('on'))closeCode();

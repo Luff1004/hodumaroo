@@ -19,9 +19,15 @@ function resumeGame() {
 }
 function quitGame() {
   paused = false;
+  const wasDream = selMap && selMap.dream;
   document.getElementById('pauseMenu').style.display='none';
   stopGame();
-  go('sLobby');
+  if(wasDream){
+    isDreamMode=true;
+    enterDreamworld();
+  } else {
+    go('sLobby');
+  }
 }
 
 // ══════════════ 직업 스킬 시스템 ══════════════
@@ -46,10 +52,6 @@ function useSkill(key) {
   execJobSkill(job.id, key);
   // 쿨타임 UI 업데이트
   updateSkillUI();
-  itemCooldowns={};
-  activeBuffs={};
-  reviveReady=false;
-  renderItemBar();
 }
 
 function execJobSkill(jobId, key) {
