@@ -38,11 +38,11 @@ const ENCHANT_TIERS = [
 ];
 
 // ── 행운(potion) 시스템 ──
-// pendingRollLuck: 다음 인챈트 "1회"에만 적용되는 강력한 행운 (SOL'S RNG의 천상의 물약 컨셉)
-let pendingRollLuck = lJ('hd_pending_luck', 0);
+// pendingRolls: 마신 만큼 쌓이는 "1회성 대박 행운" 큐. 인챈트 1번마다 하나씩 소모됨 (SOL'S RNG의 천상의 물약 컨셉)
+let pendingRolls = lJ('hd_pending_rolls', []);
 let potionInv = lJ('hd_potion_inv', {}); // {potionId: count}
 let potionBuff = lJ('hd_potion_buff', null); // {mult, expiresAt} - 5분 임시 버프
-function savePotionState(){ sv('hd_pending_luck', pendingRollLuck); sv('hd_potion_inv', potionInv); sv('hd_potion_buff', potionBuff); }
+function savePotionState(){ sv('hd_pending_rolls', pendingRolls); sv('hd_potion_inv', potionInv); sv('hd_potion_buff', potionBuff); }
 
 function currentLuckMult(){
   let m = 1;
@@ -84,7 +84,7 @@ function drinkPotion(id){
   potionInv[id]--;
   if(potionInv[id]<=0) delete potionInv[id];
   if(p.burst){
-    pendingRollLuck = p.luck; // 단발성 - 덮어쓰기(가장 최근 마신 것 적용)
+    pendingRolls.push(p.luck); // 마신 만큼 큐에 쌓임 - 각각 인챈트 1회씩 소모
   } else {
     const curMult = potionBuff&&potionBuff.expiresAt>Date.now()?potionBuff.mult:0;
     potionBuff = {mult: curMult+p.luck, expiresAt: Date.now()+300000};
@@ -97,7 +97,7 @@ function openPotionShop(){ go('sPotionShop'); }
 function renderPotionShop(){
   const g=document.getElementById('potionGrid'); if(!g) return;
   g.innerHTML='';
-  document.getElementById('potionLuckDisp').textContent = '현재 행운 배율: x'+currentLuckMult().toFixed(2)+(pendingRollLuck>0?' · 다음 인챈트 대박 행운 대기중: x'+pendingRollLuck:'');
+  document.getElementById('potionLuckDisp').textContent = '현재 행운 배율: x'+currentLuckMult().toFixed(2)+(pendingRolls.length>0?' · 대박 행운 대기 '+pendingRolls.length+'회 (다음: x'+pendingRolls[0]+')':'');
   POTIONS.forEach(p=>{
     const owned = potionInv[p.id]||0;
     const cb = coins>=p.price;
@@ -179,14 +179,15 @@ function renderEnchantDetail(){
   det.innerHTML = `
     <div style="font-size:16px;color:#fbbf24;font-weight:800;margin-bottom:8px;">${tier!=null?'✨ '+ENCHANT_TIERS[tier].name:'미인챈트 상태'}</div>
     ${tier!=null?enchantStatText(key,enchantCat):''}
-    <div style="font-size:12px;color:#c4b5fd;margin:12px 0;">인챈트 비용: 🪙${ENCHANT_COST.toLocaleString()}<br>현재 행운 배율: x${currentLuckMult().toFixed(2)}${pendingRollLuck>0?' <span style="color:#fbbf24;">(대박 행운 x'+pendingRollLuck+' 대기중)</span>':''}</div>
+    <div style="font-size:12px;color:#c4b5fd;margin:12px 0;">인챈트 비용: 🪙${ENCHANT_COST.toLocaleString()}<br>현재 행운 배율: x${currentLuckMult().toFixed(2)}${pendingRolls.length>0?' <span style="color:#fbbf24;">(대박 행운 대기 '+pendingRolls.length+'회, 다음 x'+pendingRolls[0]+')</span>':''}</div>
     <button class="mok" id="doEnchantBtn" style="width:100%;padding:22px 0;font-size:20px;background:linear-gradient(135deg,#6d28d9,#a855f7);box-shadow:0 4px 24px #a855f760;" ${cb?'':'disabled'}>🔮 인챈트하기</button>
     <button class="mok" style="width:100%;padding:14px 0;margin-top:10px;background:linear-gradient(135deg,#4c1d95,#7c3aed);" onclick="openPotionShop()">🧪 물약 상점</button>
   `;
   document.getElementById('doEnchantBtn').onclick=doEnchant;
 }
 function rollEnchantTier(){
-  const luck=currentLuckMult()*(pendingRollLuck>0?pendingRollLuck:1);
+  const rollLuck = pendingRolls.length>0 ? pendingRolls[0] : 1;
+  const luck=currentLuckMult()*rollLuck;
   const sorted=[...ENCHANT_TIERS].map((t,i)=>({...t,idx:i})).sort((a,b)=>a.chance-b.chance);
   for(const t of sorted){
     if(Math.random()*100 < t.chance*luck) return t.idx;
@@ -198,7 +199,7 @@ function doEnchant(){
   if(!key||coins<ENCHANT_COST) return;
   coins-=ENCHANT_COST; sv('hd_c',coins); updRes();
   const resultTier=rollEnchantTier();
-  pendingRollLuck = 0; savePotionState(); // 단발 행운 소모
+  if(pendingRolls.length>0){ pendingRolls.shift(); savePotionState(); } // 대박 행운 큐에서 1회 소모
   runEnchantRoulette(resultTier);
 }
 function runEnchantRoulette(resultTier){
