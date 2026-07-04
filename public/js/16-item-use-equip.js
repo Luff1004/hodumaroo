@@ -67,12 +67,29 @@ function useItem(itemId){
     case 'berserker': activeBuffs.berserker=1200; break;
     case 'stealth': activeBuffs.stealth=480; zoms.forEach(z=>{z._igP=480;}); break;
     case 'overclock': activeBuffs.overclock=900; break;
-    case 'coin_rain': coins+=5000; sv('hd_c',coins); updRes(); break;
     case 'revive': reviveReady=true; setMsg('🪶 부활 깃털 대기 중'); break;
     case 'ammo_box': P.ammo=P.maxAmmo; updHUD(); break;
-    case 'xp_boost': addSeasonXP(500); break;
-    case 'energy_can': energy+=1000; sv('hd_e',energy); updRes(); break;
-    case 'coin_bag': coins+=2000; sv('hd_c',coins); updRes(); break;
+    case 'vortex_bomb':
+      zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,P.x,P.y)<220**2){z.x+=(P.x-z.x)*.3;z.y+=(P.y-z.y)*.3;}});
+      gTimeout(()=>{if(!running)return;addExp(P.x,P.y,180,'#a855f7');zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,P.x,P.y)<180**2)hitZ(z,90);});},400);
+      break;
+    case 'chain_orb':{
+      const tgts=zoms.filter(z=>!z.dead).sort((a,b)=>d2(a.x,a.y,P.x,P.y)-d2(b.x,b.y,P.x,P.y)).slice(0,5);
+      tgts.forEach((z,i)=>{gTimeout(()=>{if(!running||z.dead)return;hitZ(z,40);for(let k=0;k<5;k++)parts.push({x:z.x,y:z.y,vx:(Math.random()-.5)*8,vy:(Math.random()-.5)*8,l:14,ml:14,r:4,col:'#facc15'});},i*100);});
+      break;}
+    case 'mirror_shield': activeBuffs.mirror=360; break;
+    case 'vampiric_orb': activeBuffs.vampiric=720; break;
+    case 'smoke_screen': activeBuffs.smoke=480; zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,P.x,P.y)<260**2)z._frz=Math.max(z._frz||0,0);}); effs.push({type:'cloud',x:P.x,y:P.y,l:480,ml:480,r:130,dmgMult:0,dmgT:0}); break;
+    case 'homing_missile':{
+      const tgts=zoms.filter(z=>!z.dead).sort((a,b)=>d2(a.x,a.y,P.x,P.y)-d2(b.x,b.y,P.x,P.y)).slice(0,5);
+      tgts.forEach((z,i)=>{gTimeout(()=>{if(!running)return;const ang=Math.atan2(z.y-P.y,z.x-P.x);buls.push({x:P.x,y:P.y,vx:Math.cos(ang)*8,vy:Math.sin(ang)*8,r:6,l:180,en:false,dmg:35,col:'#f97316',_homing:true,homingTarget:z});},i*120);});
+      break;}
+    case 'iron_wall': zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,P.x,P.y)<220**2)z._frz=Math.max(z._frz||0,240);}); addExp(P.x,P.y,200,'#9ca3af'); break;
+    case 'meteor_call':
+      for(let i=0;i<5;i++){const mx=P.x+(Math.random()-.5)*400,my=P.y+(Math.random()-.5)*400;effs.push({type:'warn',x:mx,y:my,l:i*20+40,ml:i*20+40});gTimeout(()=>{if(!running)return;addExp(mx,my,60,'#f97316');zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,mx,my)<(60+z.r)**2)hitZ(z,70);});},i*180+700);}
+      break;
+    case 'static_field': activeBuffs.staticField=600; break;
+    case 'phoenix_feather': P.hp=Math.min(P.maxHp,P.hp+P.maxHp*.4); P._invincible=Math.max(P._invincible||0,240); break;
     case 'lucky_clover': for(let i=0;i<24;i++){const a=i/24*Math.PI*2;parts.push({x:P.x,y:P.y,vx:Math.cos(a)*6,vy:Math.sin(a)*6,l:40,ml:40,r:6,col:'#4ade80'});} setMsg('🍀 행운이 함께하길!'); break;
     case 'spatial_path': P.x=Math.max(P.r,Math.min(MW-P.r,mxW));P.y=Math.max(P.r,Math.min(MH-P.r,myW)); break;
     case 'dream_key': P.x=Math.max(P.r,Math.min(MW-P.r,mxW));P.y=Math.max(P.r,Math.min(MH-P.r,myW)); break;
@@ -99,6 +116,12 @@ function tickItems(){
   if(activeBuffs.berserker>0){activeBuffs.berserker--;}
   if(activeBuffs.stealth>0){activeBuffs.stealth--;if(activeBuffs.stealth<=0)zoms.forEach(z=>{z._igP=0;});}
   if(activeBuffs.overclock>0){activeBuffs.overclock--;}
+  if(activeBuffs.mirror>0){activeBuffs.mirror--;}
+  if(activeBuffs.vampiric>0){activeBuffs.vampiric--;}
+  if(activeBuffs.staticField>0){
+    activeBuffs.staticField--;
+    if(activeBuffs.staticField%20===0)zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,P.x,P.y)<140**2)hitZ(z,4);});
+  }
 }
 
 // 아이템 바 렌더링 (장착 슬롯 UI)

@@ -47,27 +47,36 @@ function renderEquip(){
   if(isDreamMode){renderDreamEquip();return;}
   if(curEquipTab==='item'){renderEquipItemTab();return;}
   const list=document.getElementById('eList');list.innerHTML='';let has=false;
-  ARMORS.forEach(ar=>{
-    if(!owned['ar_'+ar.id])return;has=true;
-    const lv=arLv[ar.id]||0,isEq=eqArmor===ar.id,eid='ar_'+ar.id;
-    const _rar=ar.rarity||'';
-    const _rarCls=_rar?(' rarity-'+_rar):'';
-    const d=document.createElement('div');d.className='ei'+(isEq?' eq':'')+(selEqId===eid?' sel':'')+_rarCls;
-    const _rarBadge={'rare':'<span class="rbadge rare">RARE</span>','epic':'<span class="rbadge epic">EPIC</span>','legendary':'<span class="rbadge legendary">✨ LEGEND</span>','mythic':'<span class="rbadge mythic">🌈 MYTHIC</span>'};
-    d.innerHTML=`<div class="eico">${ar.icon}</div><div><div class="enm">${ar.name}갑옷 ${_rarBadge[_rar]||''}</div><div class="elv">${lv>0?'Lv.'+lv:''} ${isEq?'<span style="font-size:8px;background:#14532d;color:#4ade80;padding:1px 5px;border-radius:5px">장착중</span>':''}</div></div>`;
-    d.onclick=()=>{selEqId=eid;renderEquip();showED('ar',ar.id);};list.appendChild(d);
-  });
-  Object.keys(WEPS).filter(id=>owned[id]&&!DFLT.includes(id)).forEach(id=>{
-    has=true;const w=WEPS[id],lv=wepLv[id]||0,isEq=eqWepId===id,eid='wep_'+id;
-    const _rar=w.rarity||'';
-    const _rarCls=_rar?(' rarity-'+_rar):'';
-    const d=document.createElement('div');d.className='ei'+(isEq?' eq':'')+(selEqId===eid?' sel':'')+_rarCls;
-    const _rarBadge2={'rare':'<span class="rbadge rare">RARE</span>','epic':'<span class="rbadge epic">EPIC</span>','legendary':'<span class="rbadge legendary">✨ LEGEND</span>','mythic':'<span class="rbadge mythic">🌈 MYTHIC</span>'};
-    d.innerHTML=`<div class="eico">${w.icon}</div><div><div class="enm">${w.name} ${_rarBadge2[_rar]||''}</div><div class="elv">${lv>0?'Lv.'+lv:''} ${isEq?'<span style="font-size:8px;background:#14532d;color:#4ade80;padding:1px 5px;border-radius:5px">장착중</span>':''}</div></div>`;
-    d.onclick=()=>{selEqId=eid;renderEquip();showED('wep',id);};list.appendChild(d);
-  });
+  if(curEquipTab==='armor'){
+    ARMORS.forEach(ar=>{
+      if(!owned['ar_'+ar.id])return;has=true;
+      const lv=arLv[ar.id]||0,isEq=eqArmor===ar.id,eid='ar_'+ar.id;
+      const _rar=ar.rarity||'';
+      const _rarCls=_rar?(' rarity-'+_rar):'';
+      const d=document.createElement('div');d.className='ei'+(isEq?' eq':'')+(selEqId===eid?' sel':'')+_rarCls;
+      const _rarBadge={'rare':'<span class="rbadge rare">RARE</span>','epic':'<span class="rbadge epic">EPIC</span>','legendary':'<span class="rbadge legendary">✨ LEGEND</span>','mythic':'<span class="rbadge mythic">🌈 MYTHIC</span>'};
+      d.innerHTML=`<div class="eico">${ar.icon}</div><div><div class="enm">${ar.name}갑옷 ${_rarBadge[_rar]||''}${enchantBadge('ar_'+ar.id)}</div><div class="elv">${lv>0?'Lv.'+lv:''} ${isEq?'<span style="font-size:8px;background:#14532d;color:#4ade80;padding:1px 5px;border-radius:5px">장착중</span>':''}</div></div>`;
+      d.onclick=()=>{selEqId=eid;renderEquip();showED('ar',ar.id);};list.appendChild(d);
+    });
+  } else {
+    Object.keys(WEPS).filter(id=>owned[id]&&!DFLT.includes(id)).forEach(id=>{
+      has=true;const w=WEPS[id],lv=wepLv[id]||0,isEq=eqWepId===id,eid='wep_'+id;
+      const _rar=w.rarity||'';
+      const _rarCls=_rar?(' rarity-'+_rar):'';
+      const d=document.createElement('div');d.className='ei'+(isEq?' eq':'')+(selEqId===eid?' sel':'')+_rarCls;
+      const _rarBadge2={'rare':'<span class="rbadge rare">RARE</span>','epic':'<span class="rbadge epic">EPIC</span>','legendary':'<span class="rbadge legendary">✨ LEGEND</span>','mythic':'<span class="rbadge mythic">🌈 MYTHIC</span>'};
+      d.innerHTML=`<div class="eico">${w.icon}</div><div><div class="enm">${w.name} ${_rarBadge2[_rar]||''}${enchantBadge(id)}</div><div class="elv">${lv>0?'Lv.'+lv:''} ${isEq?'<span style="font-size:8px;background:#14532d;color:#4ade80;padding:1px 5px;border-radius:5px">장착중</span>':''}</div></div>`;
+      d.onclick=()=>{selEqId=eid;renderEquip();showED('wep',id);};list.appendChild(d);
+    });
+  }
   if(!has)list.innerHTML='<div style="color:#6b7280;font-size:12px;padding:24px;text-align:center;">상점에서 장비를 구매하세요</div>';
   drawPP();
+}
+function enchantBadge(itemKey){
+  const tier=typeof enchants!=='undefined'?enchants[itemKey]:null;
+  if(tier===undefined||tier===null)return'';
+  const t=ENCHANT_TIERS[tier];
+  return t?`<span style="font-size:8px;background:#4c1d95;color:#e9d5ff;padding:1px 5px;border-radius:5px;margin-left:3px;">✨${t.name}</span>`:'';
 }
 function showED(type,id){
   document.getElementById('eDet').style.display='block';

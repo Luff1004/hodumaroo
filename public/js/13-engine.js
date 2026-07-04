@@ -99,7 +99,9 @@ function getWep(){
   const lv=wepLv[selWepId]||0;
   const dB=[0,1,2,3,5,8][Math.min(lv,5)];
   const aM=[1,1,1.2,1.2,1.4,2][Math.min(lv,5)];
-  return{...base,dmg:base.dmg+dB,max:Math.floor(base.max*aM),ammo:Math.floor(base.max*aM)};
+  const encTier=(typeof enchants!=='undefined')?enchants[selWepId]:null;
+  const encMul=encTier!=null&&ENCHANT_TIERS[encTier]?1+(encTier+1)*.10:1;
+  return{...base,dmg:Math.round((base.dmg+dB)*encMul),max:Math.floor(base.max*aM),ammo:Math.floor(base.max*aM)};
 }
 
 function initGame(){
@@ -108,7 +110,9 @@ function initGame(){
   const ws=getWep();
   const ar=ARMORS.find(x=>x.id===eqArmor);
   const puSpd=(pUpgLv['ps']||0)*.2,puHp=(pUpgLv['pmh']||0)*20,puArm=(pUpgLv['pa']||0)*2,puDmg=pUpgLv['pd']||0;
-  const arDef=ar?ar.def+(arLv[eqArmor]||0)*5:0;
+  const arEncTier=(typeof enchants!=='undefined'&&eqArmor)?enchants['ar_'+eqArmor]:null;
+  const arEncMul=arEncTier!=null&&ENCHANT_TIERS[arEncTier]?1+(arEncTier+1)*.10:1;
+  const arDef=ar?(ar.def+(arLv[eqArmor]||0)*5)*arEncMul:0;
   P={
     x:MW/2,y:MH-180,r:16,
     hp:100+puHp+(shopLv['sh_hp']||0)*30,
@@ -158,7 +162,8 @@ function initGame(){
   // 직업 패시브 적용
   const activeJob=JOBS.find(x=>x.id===equippedJob);
   if(activeJob){
-    const jlv=jobLv[equippedJob]||0;
+    const jobEncTier=(typeof enchants!=='undefined')?enchants['job_'+equippedJob]:null;
+    const jlv=(jobLv[equippedJob]||0)+(jobEncTier!=null&&ENCHANT_TIERS[jobEncTier]?(jobEncTier+1)*2:0);
     const jmult=jlv>21?1+(jlv-21)*.1:1+jlv*.03; // HYPER: +10%/lv, 일반: +3%/lv
     P.dmgB=(P.dmgB||0)+Math.floor(jlv*.5); // 레벨당 데미지+0.5
     if(equippedJob==='medic'){const bonus=50+jlv*10;P.maxHp+=bonus;P.hp+=bonus;}
@@ -443,6 +448,7 @@ function hitZ(z,dmg){
     score+=Math.floor((z.isBoss?z.bd.reward.c:(ZT[z.type]?.sc||10))*(1+(pUpgLv['pxp']||0)*.1));kills++;
     const vl=perkLv['vampiric']??-1;
     if(vl>=0)P.hp=Math.min(P.maxHp,P.hp+[.5,1,2,3,5][Math.min(vl,4)]);
+    if(activeBuffs.vampiric>0)P.hp=Math.min(P.maxHp,P.hp+3);
     if(P._armorLS)P.hp=Math.min(P.maxHp,P.hp+P._armorLS);
     // 분노 스택
     if(equippedJob==='berserker2')P._rageStack=(P._rageStack||0)+1;
@@ -462,6 +468,10 @@ function takeDmg(d){
   if(P._armorDodge&&Math.random()<P._armorDodge)return;
   if(P._spShield)dmg=dmg*0.1; // 성흔 방패
   const arR=1-Math.min(.65,(P.armor||0)/100);
+  if(activeBuffs.mirror>0){
+    const tgt=zoms.filter(z=>!z.dead&&!z.isMinion).sort((a,b)=>d2(a.x,a.y,P.x,P.y)-d2(b.x,b.y,P.x,P.y))[0];
+    if(tgt)hitZ(tgt,d*0.5);
+  }
   P.hp-=d*arR;
   if(P.hp<=0&&running){
     if(reviveReady){

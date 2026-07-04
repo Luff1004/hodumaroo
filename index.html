@@ -22,7 +22,7 @@
     <button id="btn-upg" class="lb upg" onclick="go('sUpg')">⬆ 영구업그레이드</button>
     <button id="btn-equip" class="lb equip" onclick="go('sEquip')">🎒 장비</button>
     <button class="lb" style="background:#dbeafe;color:#1e40af;border:1.5px solid #93c5fd;" onclick="go('sParty')">🤝 파티</button>
-    <button class="lb" style="background:linear-gradient(135deg,#374151,#1f2937);color:#9ca3af;border:1.5px solid #4b5563;" onclick="showComingSoon('인챈트')">🔮 인챈트</button>
+    <button class="lb" style="background:linear-gradient(135deg,#4c1d95,#2e1065);color:#e9d5ff;border:1.5px solid #7c3aed;" onclick="go('sEnchant')">🔮 인챈트</button>
     <button class="lb" style="background:linear-gradient(135deg,#1e1b4b,#4c1d95);color:#c4b5fd;" onclick="go('sAch')">🏆 업적</button>
     <button class="lb" style="background:linear-gradient(135deg,#1a0a3e,#2e1065);color:#fbbf24;border:1.5px solid #7c3aed;" onclick="go('sSeason')">🌟 시즌패스</button>
   </div>
@@ -286,6 +286,44 @@
   </div>
 </div>
 
+<!-- ══ 인챈트 홀 ══ -->
+<div id="sEnchant" class="screen" style="background:radial-gradient(circle at 50% 20%,#2e1065,#0f0320 70%);">
+  <button class="back" style="border-color:#7c3aed;color:#e9d5ff;background:rgba(76,29,149,.5);" onclick="go('sLobby')">← 뒤로</button>
+  <div class="stitle" style="color:#e9d5ff;text-shadow:0 0 12px #a855f7;">🔮 인챈트</div>
+  <div class="stabs">
+    <button class="stab on" style="background:#2e1065;color:#c4b5fd;" onclick="setEnchantCat('wep',this)">⚔️ 무기</button>
+    <button class="stab" style="background:#2e1065;color:#c4b5fd;" onclick="setEnchantCat('armor',this)">🛡️ 갑옷</button>
+    <button class="stab" style="background:#2e1065;color:#c4b5fd;" onclick="setEnchantCat('job',this)">💼 직업</button>
+  </div>
+  <div style="display:flex;gap:14px;width:min(720px,94vw);max-height:60vh;">
+    <div id="enchantList" style="flex:1.1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
+    <div id="enchantDetail" style="flex:1;background:rgba(76,29,149,.25);border:1px solid #7c3aed;border-radius:12px;padding:16px;"></div>
+  </div>
+  <div style="margin-top:14px;width:min(720px,94vw);max-height:26vh;overflow-y:auto;background:rgba(0,0,0,.3);border-radius:10px;padding:10px;">
+    <div style="font-size:11px;color:#c4b5fd;font-weight:700;margin-bottom:6px;">📊 확률표</div>
+    <div id="enchantProbTable" style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:10px;color:#e9d5ff;"></div>
+  </div>
+</div>
+
+<!-- ══ 인챈트 룰렛 ══ -->
+<div id="enchantRouletteOv" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,0,20,.92);z-index:400;flex-direction:column;align-items:center;justify-content:center;gap:20px;">
+  <div style="font-size:14px;color:#c4b5fd;letter-spacing:4px;">✨ INCHANTING ✨</div>
+  <div id="enchantSpinName" style="font-size:32px;font-weight:900;color:#fbbf24;text-shadow:0 0 20px #a855f7;min-height:44px;"></div>
+</div>
+<!-- ══ 인챈트 컷씬 ══ -->
+<div id="enchantCutscene" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:500;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
+  <div style="font-size:12px;color:#a855f7;letter-spacing:6px;">RARE ENCHANT</div>
+  <div id="cutsceneTierName" style="font-size:48px;font-weight:900;background:linear-gradient(135deg,#fbbf24,#a855f7,#38bdf8);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 40px #a855f7;"></div>
+</div>
+
+<!-- ══ 물약 상점 ══ -->
+<div id="sPotionShop" class="screen" style="background:radial-gradient(circle at 50% 15%,#3b0764,#0a0212 75%);">
+  <button class="back" style="border-color:#7c3aed;color:#e9d5ff;background:rgba(76,29,149,.5);" onclick="go('sEnchant')">← 뒤로</button>
+  <div class="stitle" style="color:#e9d5ff;text-shadow:0 0 12px #a855f7;">🧪 물약 상점</div>
+  <div id="potionLuckDisp" style="font-size:12px;color:#fbbf24;font-weight:700;margin-bottom:8px;"></div>
+  <div class="sgrid" id="potionGrid" style="max-height:68vh;"></div>
+</div>
+
 <!-- ══ 보스 클리어 화면 ══ -->
 <div id="clearScreen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.88);z-index:80;flex-direction:column;align-items:center;justify-content:center;gap:20px;">
   <div id="clearTitle" style="font-size:clamp(28px,5vw,52px);font-weight:900;color:#fbbf24;text-align:center;text-shadow:0 0 30px #f59e0b;"></div>
@@ -338,6 +376,7 @@
 <script src="/js/14-bgm-party-season.js"></script>
 <script src="/js/15-dreamcore.js"></script>
 <script src="/js/16-item-use-equip.js"></script>
+<script src="/js/17-enchant.js"></script>
 
 <!-- ══ 설정 모달 ══ -->
 <div id="settingsModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;">

@@ -38,7 +38,6 @@ const ITEMS = [
   {id:'time_stop',    name:'시간 정지',   icon:'⏰', price:3000,  type:'active', cd:2400, rarity:'epic',     desc:'5초간 모든 적 정지'},
   {id:'turret',       name:'포탑',        icon:'🔧', price:2000,  type:'active', cd:1800, rarity:'rare',     desc:'15초간 자동 포탑 설치'},
   {id:'clone_item',   name:'분신',        icon:'👥', price:2500,  type:'active', cd:2400, rarity:'epic',     desc:'10초간 분신 생성'},
-  {id:'coin_rain',    name:'코인 폭발',   icon:'🪙', price:1000,  type:'active', cd:1200, rarity:'rare',     desc:'즉시 코인 5000 획득'},
   // ── 버프형 ──
   {id:'rage',         name:'분노',        icon:'😡', price:1500,  type:'active', cd:1800, rarity:'rare',     desc:'10초간 데미지 3배'},
   {id:'adrenaline',   name:'아드레날린',  icon:'💉', price:1200,  type:'active', cd:1500, rarity:'rare',     desc:'10초간 이동속도 2배 + 재장전 없음'},
@@ -49,15 +48,23 @@ const ITEMS = [
   {id:'wolf',         name:'늑대',        icon:'🐺', price:2000,  type:'active', cd:2400, rarity:'epic',     desc:'늑대 3마리 소환, 30초간 동행'},
   {id:'drone_item',   name:'드론',        icon:'🤖', price:1800,  type:'active', cd:1800, rarity:'rare',     desc:'공격 드론 소환, 20초간 자동 공격'},
   {id:'golem_item',   name:'골렘',        icon:'🗿', price:3000,  type:'active', cd:3600, rarity:'epic',     desc:'아군 골렘 소환, 60초간 탱커'},
+  // ── 신규 10종 ──
+  {id:'vortex_bomb',  name:'소용돌이 폭탄', icon:'🌀', price:2200, type:'active', cd:1500, rarity:'epic',     desc:'주변 적 강제 흡입 후 대폭발, 데미지 90'},
+  {id:'chain_orb',    name:'사슬 번개 구슬', icon:'🔗', price:1600, type:'active', cd:1000, rarity:'rare',     desc:'가장 가까운 적부터 5마리 연쇄 감전'},
+  {id:'mirror_shield',name:'거울 방패',    icon:'🪞', price:1800, type:'active', cd:1400, rarity:'rare',     desc:'6초간 받는 피해 절반을 적에게 반사'},
+  {id:'vampiric_orb', name:'흡혈 구슬',    icon:'🩸', price:1500, type:'active', cd:1200, rarity:'rare',     desc:'12초간 처치 시 HP 흡수'},
+  {id:'smoke_screen', name:'연막탄',       icon:'💨', price:900,  type:'active', cd:800,  rarity:'common',   desc:'8초간 주변 적 이동속도 60% 감소'},
+  {id:'homing_missile',name:'유도 미사일', icon:'🚀', price:2000, type:'active', cd:1300, rarity:'epic',     desc:'적 5마리를 추적하는 유도탄 발사'},
+  {id:'iron_wall',    name:'강철 장벽',    icon:'🧱', price:1200, type:'active', cd:1100, rarity:'common',   desc:'주변 적 4초간 완전 정지'},
+  {id:'meteor_call',  name:'운석 소환',    icon:'☄️', price:2600, type:'active', cd:1700, rarity:'epic',     desc:'랜덤 위치에 운석 5발 낙하, 각 데미지 70'},
+  {id:'static_field', name:'정전기장',     icon:'⚡', price:1400, type:'active', cd:1000, rarity:'rare',     desc:'10초간 주변 적에게 지속 감전 데미지'},
+  {id:'phoenix_feather',name:'불사조 깃털',icon:'🔥', price:3500, type:'active', cd:2000, rarity:'epic',     desc:'즉시 HP 40% 회복 + 4초 무적'},
   // ── 특수 ──
   {id:'lucky_clover', name:'행운의 클로버',icon:'🍀',price:0,    type:'active', cd:1,    rarity:'legendary',desc:'업적: 오늘은 운이 좋군요 보상', achievement:true},
   {id:'spatial_path', name:'공간의 길',   icon:'🌌', price:0,    type:'active', cd:900,  rarity:'legendary',desc:'업적: THE DREAMCORE 보상', achievement:true},
   {id:'soul_hope',    name:'영혼의 희망', icon:'💫', price:0,    type:'active', cd:600,  rarity:'mythic',   desc:'업적: 100킬 달성 보상', achievement:true, wepBonus:true},
   {id:'dream_key',    name:'드림 열쇠',   icon:'🗝️',price:4440000, type:'active', cd:900,  rarity:'mythic',   desc:'장착 시 드림코어 진입 가능. 사용 시 마우스 위치로 순간이동'},
   // ── 소비형 (즉시 사용) ──
-  {id:'xp_boost',     name:'경험치 부스터',icon:'📈',price:800,  type:'active', cd:1,    rarity:'common',   desc:'즉시 시즌 XP 500 획득'},
-  {id:'energy_can',   name:'에너지 캔',   icon:'🔋', price:300,  type:'active', cd:1,    rarity:'common',   desc:'즉시 에너지 1000 획득'},
-  {id:'coin_bag',     name:'코인 주머니', icon:'👝', price:200,  type:'active', cd:1,    rarity:'common',   desc:'즉시 코인 2000 획득'},
   {id:'revive',       name:'부활 깃털',   icon:'🪶', price:5000, type:'active', cd:1,    rarity:'legendary',desc:'다음 사망 시 HP 50%로 자동 부활'},
   {id:'ammo_box',     name:'탄약 상자',   icon:'📦', price:500,  type:'active', cd:1,    rarity:'common',   desc:'현재 무기 탄약 완전 보충'},
   // ── 시즌 전용 ──

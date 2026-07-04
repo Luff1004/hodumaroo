@@ -131,7 +131,7 @@ setInterval(()=>{
   }
 },1000);
 
-const SCREENS=['sLobby','sMap','sWeapon','sShop','sJob','sUpg','sEquip','sParty','sSeason','sDream','sDreamMap','sAch'];
+const SCREENS=['sLobby','sMap','sWeapon','sShop','sJob','sUpg','sEquip','sParty','sSeason','sDream','sDreamMap','sAch','sEnchant','sPotionShop'];
 function go(id){
   SCREENS.forEach(s=>{const el=document.getElementById(s);if(el)el.classList.toggle('on',s===id);});
   document.getElementById('gameCanvas').style.display='none';
@@ -144,6 +144,8 @@ function go(id){
   if(id==='sUpg')renderUpg();
   if(id==='sEquip')renderEquip();
   if(id==='sAch')renderAchievements();
+  if(id==='sEnchant'){updRes();setEnchantCat('wep',document.querySelector('#sEnchant .stab'));}
+  if(id==='sPotionShop'){updRes();renderPotionShop();}
   if(id==='sDream'){
     document.getElementById('dlc').textContent=coins.toLocaleString();
     document.getElementById('dle').textContent=energy.toLocaleString();
@@ -157,19 +159,6 @@ function go(id){
     const gc=document.getElementById('gameCanvas');if(gc)gc.style.filter='';
     if(window._dreamTitleItv){clearInterval(window._dreamTitleItv);window._dreamTitleItv=null;}
   }
-}
-function showComingSoon(name){
-  let t=document.getElementById('comingSoonToast');
-  if(!t){
-    t=document.createElement('div');
-    t.id='comingSoonToast';
-    t.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.85);color:#fbbf24;padding:16px 28px;border-radius:12px;font-size:15px;font-weight:800;z-index:9999;pointer-events:none;transition:opacity .2s;';
-    document.body.appendChild(t);
-  }
-  t.textContent='🔮 '+name+' - 준비중입니다';
-  t.style.opacity='1';
-  clearTimeout(t._hideT);
-  t._hideT=setTimeout(()=>{t.style.opacity='0';},1500);
 }
 function showGame(){
   SCREENS.forEach(s=>{const el=document.getElementById(s);if(el)el.classList.remove('on');});
