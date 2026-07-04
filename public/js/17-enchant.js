@@ -202,13 +202,19 @@ function renderEnchantDetail(){
   document.getElementById('doEnchantBtn').onclick=doEnchant;
 }
 function rollEnchantTier(){
+  // 등급별 chance 값을 가중치로 삼아 "한 번의 추첨"으로 정확히 하나만 뽑는다.
+  // 행운(luck)은 지수(exp)를 완만하게 낮춰서 희귀 등급 쪽 가중치를 밀어올리는 방식 - 특정 등급이 무조건 당첨되는 "확정 구간"이 생기지 않는다.
   const rollLuck = pendingRolls.length>0 ? pendingRolls[0] : 1;
-  const luck=currentLuckMult()*rollLuck;
-  const sorted=[...ENCHANT_TIERS].map((t,i)=>({...t,idx:i})).sort((a,b)=>a.chance-b.chance);
-  for(const t of sorted){
-    if(Math.random()*100 < t.chance*luck) return t.idx;
+  const luck = Math.max(1, currentLuckMult()*rollLuck);
+  const exp = 1/(1+Math.log10(luck)); // luck=1 → exp=1(기본표 그대로), luck이 커질수록 0에 서서히 수렴
+  const weights = ENCHANT_TIERS.map(t=>Math.pow(t.chance, exp));
+  const total = weights.reduce((a,b)=>a+b,0);
+  let r = Math.random()*total;
+  for(let i=0;i<weights.length;i++){
+    r-=weights[i];
+    if(r<=0) return i;
   }
-  return 0;
+  return weights.length-1;
 }
 function doEnchant(){
   const key=enchantKey();
