@@ -34,7 +34,13 @@ const ENCHANT_TIERS = [
   {chance:0.00002,                            name:'창조주',      cutscene:2700},
   {chance:0.0000002,                          name:'태초',        cutscene:3000},
   {chance:0.0000000004,                       name:'무(無)',      cutscene:3600},
+  {chance:0.00000000000000001,                name:'관측자의 눈', cutscene:4200},
   {chance:0.000000000000000000000000001,     name:'존재 그 자체',cutscene:5400},
+  {chance:0.00000000000000000000000000001,   name:'특이점',      cutscene:5700},
+  {chance:0.00000000000000000000000000000000000000001, name:'무한의 문', cutscene:6000},
+  {chance:0.000000000000000000000000000000000000000000001, name:'허수의 저편', cutscene:6600},
+  {chance:0.00000000000000000000000000000000000000000000000001, name:'제로 포인트', cutscene:7200},
+  {chance:0.0000000000000000000000000000000000000000000000000000000001, name:'그 이름을 부를 수 없는 것', cutscene:9000},
 ];
 
 // ── 행운(potion) 시스템 ──
@@ -67,6 +73,16 @@ const BURST_POTIONS = [
   {id:'pot_perm_5', name:'초월의 물약', icon:'🌠', price:20000000,  luck:500},
   {id:'pot_perm_6', name:'전능의 물약', icon:'👁️', price:50000000,  luck:2000},
   {id:'pot_perm_7', name:'신화의 물약', icon:'🌌', price:100000000, luck:10000},
+  // ── 초고가 대박 물약 9종 (2억~250억) ──
+  {id:'pot_perm_8',  name:'무한의 물약',       icon:'♾️', price:200000000,   luck:2000},
+  {id:'pot_perm_9',  name:'창조의 물약',       icon:'🪐', price:400000000,   luck:5000},
+  {id:'pot_perm_10', name:'파괴의 물약',       icon:'💢', price:800000000,   luck:10000},
+  {id:'pot_perm_11', name:'차원붕괴의 물약',   icon:'🕳️', price:1500000000,  luck:100000},
+  {id:'pot_perm_12', name:'우주의 물약',       icon:'🌌', price:3000000000,  luck:10000000},
+  {id:'pot_perm_13', name:'절대자의 물약',     icon:'👑', price:6000000000,  luck:100000000},
+  {id:'pot_perm_14', name:'종말의 물약',       icon:'☄️', price:10000000000, luck:450000000},
+  {id:'pot_perm_15', name:'태초 이전의 물약',  icon:'⏳', price:17000000000, luck:750000000},
+  {id:'pot_perm_16', name:'만물의 물약',       icon:'🔱', price:25000000000, luck:999999999},
 ];
 BURST_POTIONS.forEach(p=>{p.burst=true;p.desc=`다음 인챈트 1회에만 행운 x${p.luck} 적용 (1회용, 영구 아님)`;POTIONS.push(p);});
 
@@ -250,6 +266,16 @@ function tierColors(idx){
   if(r<0.92) return palettes[2];
   return palettes[3];
 }
+// 등급에 따라 컷씬 연출 스타일을 다르게 - 뽑을 때마다 다른 느낌
+function cutsceneStyle(idx){
+  const total=ENCHANT_TIERS.length;
+  const r=idx/(total-1);
+  if(r<0.5) return 'rays';
+  if(r<0.65) return 'vortex';
+  if(r<0.8) return 'lightning';
+  if(r<0.9) return 'starfield';
+  return 'chaos'; // 최상위 등급: 모든 연출 총동원
+}
 function playEnchantCutscene(resultTier, durationMs, onDone){
   const tier=ENCHANT_TIERS[resultTier];
   const cs=document.getElementById('enchantCutscene');
@@ -278,11 +304,85 @@ function playEnchantCutscene(resultTier, durationMs, onDone){
   subEl.style.opacity='0'; subEl.textContent=isTop?'전설이 되었다':'등급 확정!';
   shakeWrap.classList.remove('cutshake');
 
+  const style=cutsceneStyle(resultTier);
   const startT=Date.now();
   let particles=[];
-  for(let i=0;i<80;i++){
+  const pCount=isTop?140:80;
+  for(let i=0;i<pCount;i++){
     const a=Math.random()*Math.PI*2, spd=1+Math.random()*4;
-    particles.push({x:cxp,y:cyp,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,r:2+Math.random()*4,col:colors[Math.floor(Math.random()*colors.length)],life:1});
+    particles.push({x:cxp,y:cyp,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,ang:a,dist:0,r:2+Math.random()*4,col:colors[Math.floor(Math.random()*colors.length)],life:1});
+  }
+  let bolts=[];
+  function drawRays(t){
+    const rays=isTop?24:14;
+    for(let i=0;i<rays;i++){
+      const a=(i/rays)*Math.PI*2 + t/500;
+      const len=Math.max(W,H);
+      const col=colors[i%colors.length];
+      cx2.strokeStyle=col+'33'; cx2.lineWidth=isTop?6:3;
+      cx2.beginPath(); cx2.moveTo(cxp,cyp); cx2.lineTo(cxp+Math.cos(a)*len,cyp+Math.sin(a)*len); cx2.stroke();
+    }
+    const ringR=(t/6)%Math.max(W,H);
+    cx2.strokeStyle=colors[0]+'55'; cx2.lineWidth=3;
+    cx2.beginPath();cx2.arc(cxp,cyp,ringR,0,Math.PI*2);cx2.stroke();
+    particles.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy; p.life-=0.006;
+      if(p.life<=0){const a=Math.random()*Math.PI*2,spd=1+Math.random()*4;p.x=cxp;p.y=cyp;p.vx=Math.cos(a)*spd;p.vy=Math.sin(a)*spd;p.life=1;}
+      cx2.globalAlpha=Math.max(0,p.life); cx2.fillStyle=p.col;
+      cx2.beginPath();cx2.arc(p.x,p.y,p.r,0,Math.PI*2);cx2.fill();
+    });
+    cx2.globalAlpha=1;
+  }
+  function drawVortex(t){
+    particles.forEach(p=>{
+      p.ang+=0.05; p.dist=Math.min(Math.max(W,H)*.5, p.dist+2.2);
+      p.x=cxp+Math.cos(p.ang+t/800)*p.dist;
+      p.y=cyp+Math.sin(p.ang+t/800)*p.dist*.6;
+      cx2.globalAlpha=0.85; cx2.fillStyle=p.col;
+      cx2.beginPath();cx2.arc(p.x,p.y,3+Math.random()*2,0,Math.PI*2);cx2.fill();
+      if(p.dist>=Math.max(W,H)*.5) p.dist=0;
+    });
+    cx2.globalAlpha=1;
+    cx2.strokeStyle=colors[0]+'44'; cx2.lineWidth=2;
+    for(let i=0;i<3;i++){cx2.beginPath();cx2.arc(cxp,cyp,(t/8+i*120)%(Math.max(W,H)*.5),0,Math.PI*2);cx2.stroke();}
+  }
+  function drawLightning(t){
+    if(Math.random()>.85){
+      const a=Math.random()*Math.PI*2;
+      const pts=[[cxp,cyp]];
+      let x=cxp,y=cyp;
+      for(let i=0;i<8;i++){x+=Math.cos(a+((Math.random()-.5)*1.2))*40;y+=Math.sin(a+((Math.random()-.5)*1.2))*40;pts.push([x,y]);}
+      bolts.push({pts,life:12,col:colors[Math.floor(Math.random()*colors.length)]});
+    }
+    bolts=bolts.filter(b=>{
+      b.life--;
+      cx2.globalAlpha=Math.max(0,b.life/12); cx2.strokeStyle=b.col; cx2.lineWidth=3;
+      cx2.beginPath(); cx2.moveTo(b.pts[0][0],b.pts[0][1]);
+      for(const pt of b.pts) cx2.lineTo(pt[0],pt[1]);
+      cx2.stroke();
+      return b.life>0;
+    });
+    cx2.globalAlpha=1;
+    particles.forEach(p=>{
+      p.x+=p.vx*.4; p.y+=p.vy*.4; p.life-=0.004;
+      if(p.life<=0){const a=Math.random()*Math.PI*2,spd=1+Math.random()*3;p.x=cxp;p.y=cyp;p.vx=Math.cos(a)*spd;p.vy=Math.sin(a)*spd;p.life=1;}
+      cx2.globalAlpha=Math.max(0,p.life)*.6; cx2.fillStyle=p.col;
+      cx2.beginPath();cx2.arc(p.x,p.y,2,0,Math.PI*2);cx2.fill();
+    });
+    cx2.globalAlpha=1;
+  }
+  function drawStarfield(t){
+    particles.forEach(p=>{
+      const spdMul=1+ (t/1000);
+      p.x+=p.vx*spdMul; p.y+=p.vy*spdMul; p.life-=0.01;
+      if(p.life<=0||p.x<0||p.x>W||p.y<0||p.y>H){
+        const a=Math.random()*Math.PI*2;
+        p.x=cxp;p.y=cyp;p.vx=Math.cos(a)*2;p.vy=Math.sin(a)*2;p.life=1;
+      }
+      cx2.globalAlpha=Math.max(0,p.life); cx2.strokeStyle=p.col; cx2.lineWidth=2;
+      cx2.beginPath();cx2.moveTo(p.x,p.y);cx2.lineTo(p.x-p.vx*2,p.y-p.vy*2);cx2.stroke();
+    });
+    cx2.globalAlpha=1;
   }
   let running_=true;
   function frame(){
@@ -290,36 +390,11 @@ function playEnchantCutscene(resultTier, durationMs, onDone){
     const t=Date.now()-startT;
     cx2.fillStyle='rgba(0,0,0,0.18)';
     cx2.fillRect(0,0,W,H);
-    // 회전 광선
-    const rays=isTop?24:14;
-    for(let i=0;i<rays;i++){
-      const a=(i/rays)*Math.PI*2 + t/500;
-      const len=Math.max(W,H);
-      const col=colors[i%colors.length];
-      cx2.strokeStyle=col+'33';
-      cx2.lineWidth=isTop?6:3;
-      cx2.beginPath();
-      cx2.moveTo(cxp,cyp);
-      cx2.lineTo(cxp+Math.cos(a)*len,cyp+Math.sin(a)*len);
-      cx2.stroke();
-    }
-    // 확장 링
-    const ringR=(t/6)%Math.max(W,H);
-    cx2.strokeStyle=colors[0]+'55';
-    cx2.lineWidth=3;
-    cx2.beginPath();cx2.arc(cxp,cyp,ringR,0,Math.PI*2);cx2.stroke();
-    // 파티클
-    particles.forEach(p=>{
-      p.x+=p.vx; p.y+=p.vy; p.life-=0.006;
-      if(p.life<=0){
-        const a=Math.random()*Math.PI*2, spd=1+Math.random()*4;
-        p.x=cxp;p.y=cyp;p.vx=Math.cos(a)*spd;p.vy=Math.sin(a)*spd;p.life=1;
-      }
-      cx2.globalAlpha=Math.max(0,p.life);
-      cx2.fillStyle=p.col;
-      cx2.beginPath();cx2.arc(p.x,p.y,p.r,0,Math.PI*2);cx2.fill();
-    });
-    cx2.globalAlpha=1;
+    if(style==='rays') drawRays(t);
+    else if(style==='vortex') drawVortex(t);
+    else if(style==='lightning') drawLightning(t);
+    else if(style==='starfield') drawStarfield(t);
+    else { drawRays(t); drawVortex(t); drawLightning(t); } // chaos: 최상위 등급 총동원
     if(running_) requestAnimationFrame(frame);
   }
   frame();
