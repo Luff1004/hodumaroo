@@ -226,15 +226,132 @@ function finishEnchant(resultTier){
   spin.textContent=tier.name+' 획득!';
   const cutDur=tier.cutscene||0;
   if(cutDur>0){
-    const cs=document.getElementById('enchantCutscene');
-    cs.style.display='flex';
-    document.getElementById('cutsceneTierName').textContent=tier.name;
-    setTimeout(()=>{
-      cs.style.display='none';
-      ov.style.display='none';
-      renderEnchantList();
-    }, cutDur/60*1000);
+    ov.style.display='none';
+    playEnchantCutscene(resultTier, cutDur/60*1000, ()=>{ renderEnchantList(); });
   } else {
     setTimeout(()=>{ov.style.display='none';renderEnchantList();},1200);
   }
+}
+
+// ── SOL'S RNG 스타일 컷씬 연출 ──
+function tierColors(idx){
+  // 등급이 높을수록(희귀할수록) 더 화려한 색 팔레트
+  const palettes=[
+    ['#f97316','#fbbf24'],           // 낮은 등급
+    ['#a855f7','#818cf8'],
+    ['#38bdf8','#22d3ee','#a855f7'],
+    ['#fbbf24','#ef4444','#a855f7','#38bdf8'], // 최상위 - 레인보우
+  ];
+  const total=ENCHANT_TIERS.length;
+  const r=idx/(total-1); // 0(흔함)~1(희귀)
+  if(r<0.55) return palettes[0];
+  if(r<0.75) return palettes[1];
+  if(r<0.92) return palettes[2];
+  return palettes[3];
+}
+function playEnchantCutscene(resultTier, durationMs, onDone){
+  const tier=ENCHANT_TIERS[resultTier];
+  const cs=document.getElementById('enchantCutscene');
+  const cv=document.getElementById('cutsceneCanvas');
+  const flash=document.getElementById('cutsceneFlash');
+  const shakeWrap=document.getElementById('cutsceneShakeWrap');
+  const label=document.getElementById('cutsceneRarityLabel');
+  const nameEl=document.getElementById('cutsceneTierName');
+  const subEl=document.getElementById('cutsceneSub');
+  const colors=tierColors(resultTier);
+  const isTop=resultTier>=ENCHANT_TIERS.length-4;
+
+  cs.style.display='block';
+  cv.width=window.innerWidth; cv.height=window.innerHeight;
+  const cx2=cv.getContext('2d');
+  const W=cv.width,H=cv.height,cxp=W/2,cyp=H/2;
+
+  // 초기 상태 리셋
+  flash.style.opacity='0';
+  nameEl.style.transform='scale(0)';
+  nameEl.style.background=`linear-gradient(135deg,${colors.join(',')})`;
+  nameEl.style.webkitBackgroundClip='text'; nameEl.style.backgroundClip='text';
+  nameEl.textContent=tier.name;
+  nameEl.classList.remove('cutpulse');
+  label.style.opacity='0'; label.textContent='✨ '+tier.chance+'% RARE ENCHANT ✨';
+  subEl.style.opacity='0'; subEl.textContent=isTop?'전설이 되었다':'등급 확정!';
+  shakeWrap.classList.remove('cutshake');
+
+  const startT=Date.now();
+  let particles=[];
+  for(let i=0;i<80;i++){
+    const a=Math.random()*Math.PI*2, spd=1+Math.random()*4;
+    particles.push({x:cxp,y:cyp,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,r:2+Math.random()*4,col:colors[Math.floor(Math.random()*colors.length)],life:1});
+  }
+  let running_=true;
+  function frame(){
+    if(!running_) return;
+    const t=Date.now()-startT;
+    cx2.fillStyle='rgba(0,0,0,0.18)';
+    cx2.fillRect(0,0,W,H);
+    // 회전 광선
+    const rays=isTop?24:14;
+    for(let i=0;i<rays;i++){
+      const a=(i/rays)*Math.PI*2 + t/500;
+      const len=Math.max(W,H);
+      const col=colors[i%colors.length];
+      cx2.strokeStyle=col+'33';
+      cx2.lineWidth=isTop?6:3;
+      cx2.beginPath();
+      cx2.moveTo(cxp,cyp);
+      cx2.lineTo(cxp+Math.cos(a)*len,cyp+Math.sin(a)*len);
+      cx2.stroke();
+    }
+    // 확장 링
+    const ringR=(t/6)%Math.max(W,H);
+    cx2.strokeStyle=colors[0]+'55';
+    cx2.lineWidth=3;
+    cx2.beginPath();cx2.arc(cxp,cyp,ringR,0,Math.PI*2);cx2.stroke();
+    // 파티클
+    particles.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy; p.life-=0.006;
+      if(p.life<=0){
+        const a=Math.random()*Math.PI*2, spd=1+Math.random()*4;
+        p.x=cxp;p.y=cyp;p.vx=Math.cos(a)*spd;p.vy=Math.sin(a)*spd;p.life=1;
+      }
+      cx2.globalAlpha=Math.max(0,p.life);
+      cx2.fillStyle=p.col;
+      cx2.beginPath();cx2.arc(p.x,p.y,p.r,0,Math.PI*2);cx2.fill();
+    });
+    cx2.globalAlpha=1;
+    if(running_) requestAnimationFrame(frame);
+  }
+  frame();
+
+  // 초반 스트로브 플래시 (0~700ms)
+  let flashN=0;
+  const flashItv=setInterval(()=>{
+    flashN++;
+    flash.style.transition='opacity .05s';
+    flash.style.opacity=flashN%2===0?'0.7':'0';
+    if(flashN>=(isTop?10:6)){ clearInterval(flashItv); flash.style.opacity='0'; }
+  },90);
+
+  // 흔들림 (0~600ms)
+  shakeWrap.classList.add('cutshake');
+  setTimeout(()=>shakeWrap.classList.remove('cutshake'), isTop?900:600);
+
+  // 텍스트 등장 (라벨 → 이름 zoom-in → 서브)
+  setTimeout(()=>{ label.style.transition='opacity .4s'; label.style.opacity='1'; }, 500);
+  setTimeout(()=>{
+    nameEl.style.fontSize = isTop?'56px':'42px';
+    nameEl.style.transform='scale(1)';
+    nameEl.classList.add('cutpulse');
+    // 등장 순간 추가 플래시
+    flash.style.transition='opacity .08s';
+    flash.style.opacity='0.9';
+    setTimeout(()=>{flash.style.opacity='0';},120);
+  }, 850);
+  setTimeout(()=>{ subEl.style.opacity='1'; }, 1300);
+
+  setTimeout(()=>{
+    running_=false;
+    cs.style.display='none';
+    if(onDone) onDone();
+  }, durationMs);
 }

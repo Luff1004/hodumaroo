@@ -310,10 +310,15 @@
   <div style="font-size:14px;color:#c4b5fd;letter-spacing:4px;">✨ INCHANTING ✨</div>
   <div id="enchantSpinName" style="font-size:32px;font-weight:900;color:#fbbf24;text-shadow:0 0 20px #a855f7;min-height:44px;"></div>
 </div>
-<!-- ══ 인챈트 컷씬 ══ -->
-<div id="enchantCutscene" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:500;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
-  <div style="font-size:12px;color:#a855f7;letter-spacing:6px;">RARE ENCHANT</div>
-  <div id="cutsceneTierName" style="font-size:48px;font-weight:900;background:linear-gradient(135deg,#fbbf24,#a855f7,#38bdf8);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 40px #a855f7;"></div>
+<!-- ══ 인챈트 컷씬 (SOL'S RNG 스타일) ══ -->
+<div id="enchantCutscene" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:500;overflow:hidden;">
+  <canvas id="cutsceneCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;"></canvas>
+  <div id="cutsceneFlash" style="position:absolute;top:0;left:0;width:100%;height:100%;background:#fff;opacity:0;pointer-events:none;"></div>
+  <div id="cutsceneShakeWrap" style="position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;">
+    <div id="cutsceneRarityLabel" style="font-size:13px;letter-spacing:8px;color:#fff;opacity:.85;font-weight:700;"></div>
+    <div id="cutsceneTierName" style="font-size:20px;font-weight:900;transform:scale(0);transition:transform .5s cubic-bezier(.34,1.8,.64,1);background:linear-gradient(135deg,#fbbf24,#a855f7,#38bdf8);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 40px #a855f7;text-align:center;"></div>
+    <div id="cutsceneSub" style="font-size:11px;color:#c4b5fd;letter-spacing:3px;opacity:0;transition:opacity .6s;"></div>
+  </div>
 </div>
 
 <!-- ══ 물약 상점 ══ -->
