@@ -100,8 +100,19 @@ function getWep(){
   const dB=[0,1,2,3,5,8][Math.min(lv,5)];
   const aM=[1,1,1.2,1.2,1.4,2][Math.min(lv,5)];
   const encTier=(typeof enchants!=='undefined')?enchants[selWepId]:null;
-  const encMul=encTier!=null&&ENCHANT_TIERS[encTier]?1+(encTier+1)*.10:1;
-  return{...base,dmg:Math.round((base.dmg+dB)*encMul),max:Math.floor(base.max*aM),ammo:Math.floor(base.max*aM)};
+  const encData=encTier!=null?ENCHANT_TIERS[encTier]:null;
+  const encMul=encData?1+(encTier+1)*.10:1;
+  const encEffect={};
+  if(encData&&encData.effect){
+    if(encData.effect==='fire')encEffect.enchFire=true;
+    if(encData.effect==='freeze')encEffect.enchFreeze=true;
+    if(encData.effect==='chain')encEffect.enchChain=true;
+    if(encData.effect==='explosive')encEffect.enchExplosive=true;
+    if(encData.effect==='vamp')encEffect.enchVamp=true;
+    if(encData.effect==='pierce')encEffect.enchPierce=true;
+    if(encData.effect==='crit')encEffect.enchCrit=true;
+  }
+  return{...base,...encEffect,dmg:Math.round((base.dmg+dB)*encMul),max:Math.floor(base.max*aM),ammo:Math.floor(base.max*aM)};
 }
 
 function initGame(){
@@ -125,6 +136,7 @@ function initGame(){
     ws,armor:arDef+puArm,dmgB:puDmg+(shopLv['sh_dmg']||0),
     _mdown:false,_aoeB:0,_shield:0,_frozen:0,_timewarp:0,
     reloadBonus:(shopLv['sh_reload']||0)*18+(pUpgLv['pr']||0)*9,
+    _wepCrit:ws.enchCrit?0.25:0,
   };
   if(shopLv['sh_grenade'])perkLv['grenade']=0;
   if(shopLv['sh_magnet'])perkLv['magnet']=0;
@@ -437,7 +449,7 @@ function hitZ(z,dmg){
   if(equippedJob==='berserker')dmg*=(P._berserkDmg||1);
   if(focusNextShot&&equippedJob==='sniper_job'){dmg*=5;focusNextShot=false;for(let i=0;i<10;i++)parts.push({x:z.x,y:z.y,vx:(Math.random()-.5)*8,vy:(Math.random()-.5)*8,l:20,ml:20,r:5,col:'#facc15'});}
   if(z.dead)return;
-  const cl=perkLv['crit']??-1,critC=(cl>=0?[.05,.10,.15,.20,.30][Math.min(cl,4)]:0)+(P._armorCrit||0);
+  const cl=perkLv['crit']??-1,critC=(cl>=0?[.05,.10,.15,.20,.30][Math.min(cl,4)]:0)+(P._armorCrit||0)+(P._wepCrit||0);
   let d=dmg;
   if(Math.random()<critC){d*=cl>=2?[2,2,2.5,2.5,3,3][Math.min(cl+1,5)]:2;for(let i=0;i<6;i++)parts.push({x:z.x,y:z.y,vx:(Math.random()-.5)*7,vy:(Math.random()-.5)*7,l:18,ml:18,r:4,col:'#ff0'});}
   z.hp-=d;
@@ -1888,6 +1900,13 @@ function fireWep(){
   }
   if(ws.freeze){buls.forEach(b=>{if(!b.en)b._freezeAtk=true;});}
   if(ws.chain){buls.forEach(b=>{if(!b.en)b._chainAtk=true;});}
+  // 인챈트 특수효과
+  if(ws.enchFire){buls.forEach(b=>{if(!b.en)b._fire=true;});}
+  if(ws.enchFreeze){buls.forEach(b=>{if(!b.en)b._freezeAtk=true;});}
+  if(ws.enchChain){buls.forEach(b=>{if(!b.en)b._chainAtk=true;});}
+  if(ws.enchExplosive){buls.forEach(b=>{if(!b.en)b._explosive=true;});}
+  if(ws.enchVamp){buls.forEach(b=>{if(!b.en)b._vamp=true;});}
+  if(ws.enchPierce){buls.forEach(b=>{if(!b.en)b.pierce=true;});}
   if(ws.dual){
     // 약간 다른 각도로 1발 더
     const a2=P.angle+.15;fB(a2,ws.dmg+(P.dmgB||0),ws);

@@ -67,6 +67,30 @@ const ENCHANT_STYLE_POOL = ['rays','vortex','lightning','starfield','meteor','po
   }
 }
 
+// ── 신규 40종 인챈트 (0.00000000000000000001% ~ 초극악 확률, 이름마다 고유 특수효과 부여) ──
+// 무기를 이 등급으로 인챈트하면 %강화 외에 실제 특수 효과(화염/빙결/연쇄/폭발/흡혈/관통/치명타)가 함께 붙는다.
+{
+  const effectGroups = [
+    {effect:'fire',    style:'meteor',     names:['타오르는 파편','불타는 흔적','재의 숨결','잉걸불의 조각','화염 낙인','그을린 유산']},
+    {effect:'freeze',  style:'starfield',  names:['서리 낀 파편','얼어붙은 유산','겨울의 숨결','빙결의 낙인','서리의 조각','냉기 흔적']},
+    {effect:'chain',   style:'lightning',  names:['번개 낙인','감전된 유산','스파크의 조각','뇌명의 파편','전류의 흔적','낙뢰의 숨결']},
+    {effect:'explosive',style:'supernova', names:['폭발하는 파편','뇌관의 유산','작렬하는 낙인','붕괴의 조각','파열의 흔적','충격파 숨결']},
+    {effect:'vamp',    style:'portal',     names:['흡수하는 파편','갈망하는 유산','흡혈의 낙인','탐욕의 조각','굶주린 흔적','흡정의 숨결']},
+    {effect:'pierce',  style:'vortex',     names:['관통하는 파편','꿰뚫는 유산','천공의 낙인','직선의 조각','관통의 흔적']},
+    {effect:'crit',    style:'rays',       names:['치명적 파편','급소의 유산','치명타의 낙인','예리한 조각','급습의 흔적']},
+  ];
+  const flat=[];
+  effectGroups.forEach(g=>g.names.forEach(name=>flat.push({name,effect:g.effect,style:g.style})));
+  const total=flat.length; // 40
+  const logMax=Math.log10(0.0000000000000000001), logMin=-130;
+  flat.forEach((item,i)=>{
+    const logC = logMax + (logMin-logMax)*(i/(total-1));
+    const chance = Math.pow(10, logC);
+    const cutscene = Math.round(1200 + (7200-1200)*(i/(total-1)));
+    ENCHANT_TIERS.push({chance, name:item.name, cutscene, style:item.style, effect:item.effect});
+  });
+}
+
 // ── 행운(potion) 시스템 ──
 // pendingRolls: 마신 만큼 쌓이는 "1회성 대박 행운" 큐. 인챈트 1번마다 하나씩 소모됨 (SOL'S RNG의 천상의 물약 컨셉)
 let pendingRolls = lJ('hd_pending_rolls', []);
@@ -183,12 +207,18 @@ function enchantKey(){
   return 'job_'+enchantSelId;
 }
 // 장비칸/목록에 표시할 보라빛 "성능 향상" 설명 텍스트
+const ENCHANT_EFFECT_LABEL = {
+  fire:'🔥 화염 데미지 추가', freeze:'❄️ 빙결 효과 부여', chain:'⚡ 번개 연쇄 부여',
+  explosive:'💥 폭발 효과 부여', vamp:'🩸 흡혈 효과 부여', pierce:'➡️ 관통 효과 부여', crit:'🎯 치명타 확률 증가',
+};
 function enchantStatText(itemKey,cat){
   const tier=enchants[itemKey];
   if(tier==null) return '';
   const pct=(tier+1)*10;
   const label = cat==='wep'?'데미지가':cat==='armor'?'방어력이':'능력치가';
-  return `<div style="color:#c084fc;font-size:9px;font-weight:700;margin-top:2px;">✨ 인챈트로 ${label} ${pct}% 강화됨</div>`;
+  const t=ENCHANT_TIERS[tier];
+  const effectLine = t&&t.effect?`<div style="color:#f0abfc;font-size:9px;font-weight:700;">${ENCHANT_EFFECT_LABEL[t.effect]}</div>`:'';
+  return `<div style="color:#c084fc;font-size:9px;font-weight:700;margin-top:2px;">✨ 인챈트로 ${label} ${pct}% 강화됨</div>${effectLine}`;
 }
 function renderEnchantList(){
   const list=document.getElementById('enchantList'); if(!list) return;
