@@ -26,6 +26,7 @@
     <button class="lb" style="background:linear-gradient(135deg,#1e1b4b,#4c1d95);color:#c4b5fd;" onclick="go('sAch')">🏆 업적</button>
     <button class="lb" style="background:linear-gradient(135deg,#1a0a3e,#2e1065);color:#fbbf24;border:1.5px solid #7c3aed;" onclick="go('sSeason')">🌟 시즌패스</button>
     <button class="lb" style="background:linear-gradient(135deg,#065f46,#047857);color:#d1fae5;border:1.5px solid #10b981;" onclick="go('sDailyQuest')">📅 일일퀘스트</button>
+    <button class="lb" style="background:linear-gradient(135deg,#be185d,#831843);color:#fce7f3;border:1.5px solid #ec4899;" onclick="go('sPets')">🐾 펫</button>
   </div>
   <div class="ver">호두마루 v1.0</div>
   <div style="position:fixed;bottom:10px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;z-index:25;background:rgba(255,255,255,0.85);padding:4px 14px;border-radius:20px;border:1px solid #e5e7eb;">
@@ -340,6 +341,19 @@
   <div style="font-size:10px;color:#059669;margin-top:14px;text-align:center;">💡 매일 자정에 새로운 퀘스트 3개로 초기화됩니다</div>
 </div>
 
+<!-- ══ 펫 시스템 ══ -->
+<div id="sPets" class="screen" style="background:linear-gradient(160deg,#fdf2f8,#fce7f3);">
+  <button class="back" style="border-color:#be185d;color:#831843;" onclick="go('sLobby')">← 뒤로</button>
+  <div class="stitle" style="color:#831843;">🐾 펫</div>
+  <div class="stabs">
+    <button class="stab on" style="background:#fce7f3;color:#831843;" onclick="setPetTab('collection',this)">📖 도감</button>
+    <button class="stab" style="background:#fce7f3;color:#831843;" onclick="setPetTab('eggs',this)">🥚 알 부화</button>
+  </div>
+  <div id="petEquipDisp" style="font-size:12px;color:#be185d;font-weight:700;margin-bottom:4px;"></div>
+  <div id="petHatchResult" style="font-size:13px;font-weight:800;min-height:18px;margin-bottom:8px;opacity:0;transition:opacity .3s;"></div>
+  <div class="sgrid" id="petGrid" style="max-height:62vh;"></div>
+</div>
+
 <!-- ══ 보스 클리어 화면 ══ -->
 <div id="clearScreen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.88);z-index:80;flex-direction:column;align-items:center;justify-content:center;gap:20px;">
   <div id="clearTitle" style="font-size:clamp(28px,5vw,52px);font-weight:900;color:#fbbf24;text-align:center;text-shadow:0 0 30px #f59e0b;"></div>
@@ -394,6 +408,7 @@
 <script src="/js/16-item-use-equip.js"></script>
 <script src="/js/17-enchant.js"></script>
 <script src="/js/18-daily-quest.js"></script>
+<script src="/js/19-pets.js"></script>
 
 <!-- ══ 설정 모달 ══ -->
 <div id="settingsModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;">

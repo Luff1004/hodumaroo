@@ -188,6 +188,7 @@ function initGame(){
     if(equippedJob==='god'){P.maxHp+=jlv*20;P.hp+=jlv*20;P.spd+=jlv*.05;}
     if(jlv>21)setMsg('✨ HYPER LEVEL '+equippedJob+'! 모든 스탯 대폭 강화!');
   }
+  if(typeof applyPetBonus==='function')applyPetBonus();
   document.getElementById('bossBar').style.display='none';
   spawnHpItems();
   itemCooldowns={};
@@ -463,6 +464,7 @@ function hitZ(z,dmg){
     if(vl>=0)P.hp=Math.min(P.maxHp,P.hp+[.5,1,2,3,5][Math.min(vl,4)]);
     if(activeBuffs.vampiric>0)P.hp=Math.min(P.maxHp,P.hp+3);
     if(P._armorLS)P.hp=Math.min(P.maxHp,P.hp+P._armorLS);
+    if(window._petLifesteal)P.hp=Math.min(P.maxHp,P.hp+window._petLifesteal);
     // 분노 스택
     if(equippedJob==='berserker2')P._rageStack=(P._rageStack||0)+1;
     // 광부 패시브: 추가 코인
@@ -526,8 +528,8 @@ function updBossBar(){
   if(b.bd.phases){let ph='';for(const p of b.bd.phases)if(pct<=p.t){ph=p.m;break;}document.getElementById('bPhase').textContent=ph;}
 }
 function onBossDie(z){
-  coins+=z.bd.reward.c;energy+=z.bd.reward.e;saveAll();updHUD();
-  addSeasonXP(Math.floor(z.bd.reward.c*0.5)); // 보스 XP
+  coins+=Math.floor(z.bd.reward.c*(window._petCoinMult||1));energy+=Math.floor(z.bd.reward.e*(window._petEnergyMult||1));saveAll();updHUD();
+  addSeasonXP(Math.floor(z.bd.reward.c*0.5*(window._petXpMult||1))); // 보스 XP
   // 보스 킬 기록
   if(z.bossMapId){ achStats.bossKills=achStats.bossKills||{}; achStats.bossKills[z.bossMapId]=(achStats.bossKills[z.bossMapId]||0)+1; }
   if(z.bd&&z.bd.id&&z.bd.id.startsWith('dream_')){ achStats.bossKills=achStats.bossKills||{}; const dk=z.bd.id.replace('_boss',''); achStats.bossKills[dk]=(achStats.bossKills[dk]||0)+1; }
@@ -1322,7 +1324,7 @@ function update(){
     if(selMap.boss){if(spawnedCnt===0&&!activeBossMap){spawnWave();spawnT=0;}}
     else{spawnT+=waveSpeedMul;if(spawnT>=spawnInt&&spawnedCnt<totalSpawn){spawnWave();spawnedCnt++;spawnT=0;}}
     if(!selMap.boss&&spawnedCnt>=totalSpawn&&zoms.filter(z=>!z.dead&&!z.isMinion).length===0){betweenWave=true;setMsg(`✨ 웨이브 ${wave} 클리어!`);if(wave>(achStats.maxWave||0))achStats.maxWave=wave;achStats.mapWave=achStats.mapWave||{};const prevBest=achStats.mapWave[selMap?.id]||0;if(wave>prevBest)achStats.mapWave[selMap.id]=wave;if(waveDmgTaken===0){achStats.noDmgWave=(achStats.noDmgWave||0)+1;}waveDmgTaken=0;if(!achStats.clearedMaps)achStats.clearedMaps=[];if(wave>=10&&!achStats.clearedMaps.includes(selMap.id))achStats.clearedMaps.push(selMap.id);achStats.waveClearsTotal=(achStats.waveClearsTotal||0)+1;checkAchievements();saveAch();
-    const xpGain=100*(wave+(selMap.diff||1))*((pUpgLv['pxp']||0)*.1+1);
+    const xpGain=100*(wave+(selMap.diff||1))*((pUpgLv['pxp']||0)*.1+1)*(window._petXpMult||1);
     addSeasonXP(Math.floor(xpGain));
     // 폐허도시 클리어 기록
     if(selMap.id==='city'){
@@ -1338,8 +1340,8 @@ function update(){
     else if(selMap.challenge){
       // 챌린지 맵: 특성 선택 없이 자동으로 바로 다음 웨이브 진행 (EXTREME 속도)
       const coinMult=1+(pUpgLv['pc']||0)*.05,enMult=1+(pUpgLv['pe']||0)*.05;
-      coins+=Math.floor((100+(shopLv['sh_coin']||0)*20)*coinMult*(partyBonus||1));
-      energy+=Math.floor((100+(shopLv['sh_energy']||0)*30)*enMult*(partyBonus||1));
+      coins+=Math.floor((100+(shopLv['sh_coin']||0)*20)*coinMult*(partyBonus||1)*(window._petCoinMult||1));
+      energy+=Math.floor((100+(shopLv['sh_energy']||0)*30)*enMult*(partyBonus||1)*(window._petEnergyMult||1));
       saveAll();updHUD();
       setTimeout(()=>{if(running||betweenWave)nextWave();},400);
     }

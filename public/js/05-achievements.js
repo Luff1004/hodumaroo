@@ -131,7 +131,7 @@ setInterval(()=>{
   }
 },1000);
 
-const SCREENS=['sLobby','sMap','sWeapon','sShop','sJob','sUpg','sEquip','sParty','sSeason','sDream','sDreamMap','sAch','sEnchant','sPotionShop','sDailyQuest'];
+const SCREENS=['sLobby','sMap','sWeapon','sShop','sJob','sUpg','sEquip','sParty','sSeason','sDream','sDreamMap','sAch','sEnchant','sPotionShop','sDailyQuest','sPets'];
 function go(id){
   SCREENS.forEach(s=>{const el=document.getElementById(s);if(el)el.classList.toggle('on',s===id);});
   document.getElementById('gameCanvas').style.display='none';
@@ -147,6 +147,7 @@ function go(id){
   if(id==='sEnchant'){updRes();setEnchantCat('wep',document.querySelector('#sEnchant .stab'));}
   if(id==='sPotionShop'){updRes();renderPotionShop();}
   if(id==='sDailyQuest'){updRes();renderDailyQuest();}
+  if(id==='sPets'){curPetTab='collection';renderPetScreen();}
   if(id==='sDream'){
     document.getElementById('dlc').textContent=coins.toLocaleString();
     document.getElementById('dle').textContent=energy.toLocaleString();

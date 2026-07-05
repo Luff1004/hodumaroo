@@ -109,6 +109,13 @@ function currentLuckMult(){
   let m = 1;
   if(potionBuff && potionBuff.expiresAt > Date.now()) m += potionBuff.mult;
   else if(potionBuff) { potionBuff = null; savePotionState(); }
+  if(typeof PETS!=='undefined' && typeof equippedPetId!=='undefined'){
+    const pet=PETS.find(p=>p.id===equippedPetId);
+    if(pet&&pet.bonus.luckPct){
+      const lv=petLevel(pet.id);
+      m += pet.bonus.luckPct*(1+lv*0.15)/100;
+    }
+  }
   return m;
 }
 
