@@ -50,16 +50,16 @@ const MAPS=[
   {id:'symphony',name:'FANTASTIC SYMPHONY',desc:'OMEGA FINALE. 피할 방법이 없다.',
    tags:[{t:'🎵 SSSSSSS EXTREME DEMON',c:'#fbbf24',bg:'#1a0a00'},{t:'최종 보스',c:'#fff',bg:'#7c2d12'}],
    type:'symphony',diff:10,boss:'symphony',category:'boss'},
-  // ── 챌린지 맵 (전용 몹 + 100웨이브 초고속 진행, 특성 선택 없음) ──
-  {id:'robot_factory',name:'로봇 공장',desc:'끝없이 쏟아지는 전투 로봇들. 특성 선택 없이 100웨이브까지 초고속 EXTREME으로 몰아친다.',
-   tags:[{t:'🤖 EXTREME',c:'#93c5fd',bg:'#0f172a'},{t:'100웨이브',c:'#fff',bg:'#1e3a8a'}],
-   type:'robot_factory',diff:11,boss:null,category:'challenge',challenge:true,waveLimit:100},
-  {id:'underwater',name:'UNDER WATER',desc:'심해에 잠긴 좀비 바다. 오징어·물고기·불가사리·크라켄이 특성 선택 없이 EXTREME하게 몰려온다.',
-   tags:[{t:'🐙 EXTREME',c:'#67e8f9',bg:'#083344'},{t:'100웨이브',c:'#fff',bg:'#155e75'}],
-   type:'underwater',diff:11.5,boss:null,category:'challenge',challenge:true,waveLimit:100},
-  {id:'hardest_world',name:'HARDEST OF THE WORLD',desc:'세상에서 가장 어려운 지옥. 촉수 괴물·에일리언·기생수·THE THING이 특성 선택 없이 동시에 덤빈다.',
-   tags:[{t:'👽 EXTREME',c:'#f87171',bg:'#450a0a'},{t:'최종 챌린지',c:'#fff',bg:'#7f1d1d'}],
-   type:'hardest_world',diff:12,boss:null,category:'challenge',challenge:true,waveLimit:100},
+  // ── 챌린지 맵 (전용 몹, 웨이브당 100마리 고정 소환, 10웨이브 완주, 특성 선택 없음) ──
+  {id:'robot_factory',name:'로봇 공장',desc:'끝없이 쏟아지는 전투 로봇들. 특성 선택 없이 웨이브당 100마리씩, 10웨이브를 버텨라.',
+   tags:[{t:'🤖 CHALLENGE',c:'#93c5fd',bg:'#0f172a'},{t:'10웨이브·100마리',c:'#fff',bg:'#1e3a8a'}],
+   type:'robot_factory',diff:11,boss:null,category:'challenge',challenge:true,waveLimit:10},
+  {id:'underwater',name:'UNDER WATER',desc:'심해에 잠긴 좀비 바다. 오징어·물고기·불가사리·크라켄이 특성 선택 없이 웨이브당 100마리씩 몰려온다.',
+   tags:[{t:'🐙 CHALLENGE',c:'#67e8f9',bg:'#083344'},{t:'10웨이브·100마리',c:'#fff',bg:'#155e75'}],
+   type:'underwater',diff:11.5,boss:null,category:'challenge',challenge:true,waveLimit:10},
+  {id:'hardest_world',name:'HARDEST OF THE WORLD',desc:'세상에서 가장 어려운 지옥. 촉수 괴물·에일리언·기생수·THE THING이 특성 선택 없이 웨이브당 100마리씩 덤빈다.',
+   tags:[{t:'👽 CHALLENGE',c:'#f87171',bg:'#450a0a'},{t:'10웨이브·100마리',c:'#fff',bg:'#7f1d1d'}],
+   type:'hardest_world',diff:12,boss:null,category:'challenge',challenge:true,waveLimit:10},
 ];
 let mapCategory='wave',mapIdx=0,selMap=MAPS[0];
 function catMaps(){return MAPS.filter(m=>m.category===mapCategory);}

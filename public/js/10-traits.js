@@ -147,7 +147,7 @@ function showUpgOv(){
 function hideUpgOv(){document.getElementById('upgOv').classList.remove('on');}
 function nextWave(){
   wave++;totalSpawn=calcWZ();
-  spawnInt=selMap.challenge?Math.max(4,18-Math.floor(wave/2)):Math.round(Math.max(15,80-wave*5)/(HARD_WAVE_MUL[selMap.id]||1));
+  spawnInt=selMap.challenge?60:Math.round(Math.max(15,80-wave*5)/(HARD_WAVE_MUL[selMap.id]||1));
   spawnedCnt=0;spawnT=0;betweenWave=false;
   setMsg(`🌊 웨이브 ${wave} 시작!`);setTimeout(()=>{if(running)setMsg('');},2000);
   startLoop();

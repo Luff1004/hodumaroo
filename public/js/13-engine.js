@@ -92,7 +92,7 @@ function d2(ax,ay,bx,by){return(ax-bx)**2+(ay-by)**2;}
 // 신규 웨이브맵 3종 EXTREME 난이도 배율 (아포칼립스 < 차원의 심장 < ETERNAL SPACE)
 const HARD_WAVE_MUL={apocalypse:1.5,dimension_heart:2.0,eternal_space:2.8};
 
-function calcWZ(){if(selMap.boss)return 1;if(BOSSES[wave]&&!selMap.challenge)return 1;if(selMap.challenge)return 10+Math.min(50,Math.floor(wave*1.5));const hwm=HARD_WAVE_MUL[selMap.id]||1;return Math.ceil((5+wave*4)*hwm);}
+function calcWZ(){if(selMap.boss)return 1;if(BOSSES[wave]&&!selMap.challenge)return 1;if(selMap.challenge)return 100;const hwm=HARD_WAVE_MUL[selMap.id]||1;return Math.ceil((5+wave*4)*hwm);}
 
 function getWep(){
   const base=WEPS[selWepId]||WEPS.pistol;
@@ -132,7 +132,7 @@ function initGame(){
   updBadges();
   zoms=[];buls=[];parts=[];effs=[];hpItems=[];
   wave=1;score=0;kills=0;poison=0;
-  spawnT=0;spawnedCnt=0;totalSpawn=calcWZ();spawnInt=selMap.challenge?18:Math.round(75/(HARD_WAVE_MUL[selMap.id]||1));betweenWave=false;relTimer=0;
+  spawnT=0;spawnedCnt=0;totalSpawn=calcWZ();spawnInt=selMap.challenge?60:Math.round(75/(HARD_WAVE_MUL[selMap.id]||1));betweenWave=false;relTimer=0;
   waveSpeedMul=1;
   const wsBtn=document.getElementById('waveSpeedBtn');
   if(wsBtn){wsBtn.textContent='⏩ 2배';wsBtn.classList.remove('on');}
@@ -1120,7 +1120,7 @@ function spawnZType(type){
     }
   }
   const hwm=HARD_WAVE_MUL[selMap.id]||1;
-  const T=ZT[type]||ZT.normal,sm=(1+wave*.07)*(selMap.challenge?1.2:1)*(1+(hwm-1)*.4),hm=(1+Math.floor(wave/4)*.5)*(selMap.challenge?1.8:1)*hwm;
+  const T=ZT[type]||ZT.normal,sm=(1+wave*.07)*(1+(hwm-1)*.4),hm=(1+Math.floor(wave/4)*.5)*hwm;
   zoms.push({x,y,type,r:T.r,hp:Math.ceil(T.bHp*hm),maxHp:Math.ceil(T.bHp*hm),spd:T.spd*sm,
     angle:0,dead:false,dT:0,_dshC:180+Math.random()*60,_dsh:false,_dvx:0,_dvy:0,
     _healT:0,_phT:Math.random()*120,_phased:false,_frz:0,wob:Math.random()*Math.PI*2,
@@ -2579,7 +2579,8 @@ const CODES={
   'DREAM IS TRUE':{coins:10000000,energy:100000000,dev:true},
   'YULJIN@@@!':{coins:0,energy:0,dev:true,unlockAll:true},
   '나는 개발자다 으하하':{coins:0,energy:0,dev:true,unlockAllFull:true},
-  EHDMS:{coins:0,energy:0,dev:true,infinite:true}
+  EHDMS:{coins:0,energy:0,dev:true,infinite:true},
+  BLACKFIREBACKFIRE:{coins:0,energy:0,dev:true,devMode:true}
 };
 function openSettings(){document.getElementById('settingsModal').style.display='flex';}
 function closeSettings(){document.getElementById('settingsModal').style.display='none';}
@@ -2615,6 +2616,24 @@ function submitCode(){
   if(!code.dev){usedCodes[raw]=true;sv('hd_used_codes',usedCodes);}
   saveAll();updRes();
   msgEl.style.color='#4ade80';
+  // devMode: 개발자 모드 - 돈+직업+아이템+업적 모두 완전 언락
+  if(code.devMode){
+    coins=999999999999;energy=999999999999;
+    Object.values(WEPS).forEach(w=>owned[w.id]=true);
+    ARMORS.forEach(a=>owned['ar_'+a.id]=true);
+    ITEMS.forEach(it=>ownedItems[it.id]=true);
+    JOBS.forEach(j=>ownedJobs[j.id]=true);
+    ACHIEVEMENTS.forEach(a=>{ if(!achData[a.id]){ achData[a.id]=true; grantAchReward(a); } });
+    const spO=lJ('hd_sp_owned',{});
+    Object.values(WEPS).filter(w=>w.spOnly).forEach(w=>{spO[w.id]=true;});
+    ARMORS.filter(a=>a.spOnly).forEach(a=>{spO['ar_'+a.id]=true;});
+    sv('hd_sp_owned',spO);
+    saveAll();saveItems();saveJobData();saveAch();updRes();
+    msgEl.style.color='#fbbf24';
+    msgEl.textContent='🛠️[DEV MODE] 돈+직업+아이템+업적 전부 언락!';
+    setTimeout(()=>closeCode(),2500);
+    return;
+  }
   // infinite: 무한 코인+에너지
   if(code.infinite){
     coins=999999999999;energy=999999999999;
