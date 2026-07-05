@@ -45,24 +45,30 @@ const ENCHANT_TIERS = [
 
 // ── 신규 100종 인챈트 (0.01% ~ 0.0000000000000001% 사이 로그 스케일 분포) ──
 // 각 등급마다 이름/컷씬 스타일/지속시간이 전부 다르게 생성됨
-const ENCHANT_STYLE_POOL = ['rays','vortex','lightning','starfield','meteor','portal','supernova'];
+const ENCHANT_STYLE_POOL = ['rays','vortex','lightning','starfield','meteor','portal','supernova','spiral','shatter','aurora','blackhole','kaleidoscope','shockwave','nebula'];
 {
   const adj = ['태초의','무한의','절대','영원한','붕괴하는','침묵하는','불타는','얼어붙은','빛나는','어둠의',
     '신성한','저주받은','공허한','찬란한','부서진','흐르는','잠든','깨어난','불멸의','유령의',
-    '떨리는','일그러진','메아리치는','타오르는','스러지는','응축된','증폭된','왜곡된','봉인된','해방된'];
+    '떨리는','일그러진','메아리치는','타오르는','스러지는','응축된','증폭된','왜곡된','봉인된','해방된',
+    '갈라진','뒤틀린','스며드는','넘실대는','솟아오르는','가라앉는','휘몰아치는','머금은','새겨진','흩날리는'];
   const noun = ['눈동자','심연','파편','메아리','그림자','왕관','문','불꽃','서약','기억',
     '꿈','별','달','태양','바람','파도','뿌리','씨앗','고리','문양',
-    '숨결','맥박','파동','인장','거울','지평선','우물','씨앗','깃털','뼈대'];
+    '숨결','맥박','파동','인장','거울','지평선','우물','깃털','뼈대','유성',
+    '나침반','등불','저울','실타래','파문','균열','빙하','폭풍','재','잔영'];
   const total=100;
+  // (adj,noun) 조합공간(40x40=1600) 안에서 완전 유일하게 매핑되는 선형합동식으로 뽑아
+  // 100개 전부 이름이 절대 겹치지 않게 함 (1600과 서로소인 173을 곱해 전단사 매핑)
+  const AN=adj.length, NN=noun.length, COMBO=AN*NN;
   const logMax=Math.log10(0.01), logMin=Math.log10(0.0000000000000001);
   for(let i=0;i<total;i++){
     const logC = logMax + (logMin-logMax)*(i/(total-1));
     const chance = Math.pow(10, logC);
-    const a=adj[i%adj.length], n=noun[Math.floor(i/adj.length)%noun.length];
+    const c=(i*173+37)%COMBO;
+    const a=adj[c%AN], n=noun[Math.floor(c/AN)%NN];
     const name = `${a} ${n}`;
     // 등급이 희귀할수록 컷씬이 길어짐 (3초~90초 사이 선형 보간)
     const cutscene = Math.round(180 + (5400-180)*(i/(total-1)));
-    const style = ENCHANT_STYLE_POOL[i%ENCHANT_STYLE_POOL.length];
+    const style = ENCHANT_STYLE_POOL[(i*5+2)%ENCHANT_STYLE_POOL.length];
     ENCHANT_TIERS.push({chance, name, cutscene, style});
   }
 }
@@ -71,23 +77,24 @@ const ENCHANT_STYLE_POOL = ['rays','vortex','lightning','starfield','meteor','po
 // 무기를 이 등급으로 인챈트하면 %강화 외에 실제 특수 효과(화염/빙결/연쇄/폭발/흡혈/관통/치명타)가 함께 붙는다.
 {
   const effectGroups = [
-    {effect:'fire',    style:'meteor',     names:['타오르는 파편','불타는 흔적','재의 숨결','잉걸불의 조각','화염 낙인','그을린 유산']},
-    {effect:'freeze',  style:'starfield',  names:['서리 낀 파편','얼어붙은 유산','겨울의 숨결','빙결의 낙인','서리의 조각','냉기 흔적']},
-    {effect:'chain',   style:'lightning',  names:['번개 낙인','감전된 유산','스파크의 조각','뇌명의 파편','전류의 흔적','낙뢰의 숨결']},
-    {effect:'explosive',style:'supernova', names:['폭발하는 파편','뇌관의 유산','작렬하는 낙인','붕괴의 조각','파열의 흔적','충격파 숨결']},
-    {effect:'vamp',    style:'portal',     names:['흡수하는 파편','갈망하는 유산','흡혈의 낙인','탐욕의 조각','굶주린 흔적','흡정의 숨결']},
-    {effect:'pierce',  style:'vortex',     names:['관통하는 파편','꿰뚫는 유산','천공의 낙인','직선의 조각','관통의 흔적']},
-    {effect:'crit',    style:'rays',       names:['치명적 파편','급소의 유산','치명타의 낙인','예리한 조각','급습의 흔적']},
+    {effect:'fire',    names:['타오르는 잉걸불','노을의 심장','용암의 맥박','재의 나선','화신의 손톱','불사조의 눈물']},
+    {effect:'freeze',  names:['서릿발 파문','만년설의 숨','빙하의 노래','북극성의 파편','동토의 심장','서리꽃 결정']},
+    {effect:'chain',   names:['뇌명의 고리','스파크 사슬','전격의 잔상','폭풍의 눈','뇌우의 서명','천둥의 발자국']},
+    {effect:'explosive',names:['작열하는 씨앗','뇌관의 계시','폭심의 낙인','충격파 문양','파쇄의 서약','붕괴하는 별']},
+    {effect:'vamp',    names:['갈증의 인장','탐식자의 손길','피의 맹세','굶주린 그림자','생명 흡수자','저주받은 송곳니']},
+    {effect:'pierce',  names:['천공의 화살','직선의 계율','관통자의 눈','창끝의 진실','뚫어내는 의지']},
+    {effect:'crit',    names:['급소를 아는 자','치명의 순간','필살의 예감','일격필살의 낙인','최후의 일침']},
   ];
   const flat=[];
-  effectGroups.forEach(g=>g.names.forEach(name=>flat.push({name,effect:g.effect,style:g.style})));
+  effectGroups.forEach(g=>g.names.forEach(name=>flat.push({name,effect:g.effect})));
   const total=flat.length; // 40
   const logMax=Math.log10(0.0000000000000000001), logMin=-130;
   flat.forEach((item,i)=>{
     const logC = logMax + (logMin-logMax)*(i/(total-1));
     const chance = Math.pow(10, logC);
     const cutscene = Math.round(1200 + (7200-1200)*(i/(total-1)));
-    ENCHANT_TIERS.push({chance, name:item.name, cutscene, style:item.style, effect:item.effect});
+    const style = ENCHANT_STYLE_POOL[(i*5+2)%ENCHANT_STYLE_POOL.length];
+    ENCHANT_TIERS.push({chance, name:item.name, cutscene, style, effect:item.effect});
   });
 }
 
@@ -132,7 +139,24 @@ const BURST_POTIONS = [
   {id:'pot_perm_15', name:'태초 이전의 물약',  icon:'⏳', price:17000000000, luck:750000000},
   {id:'pot_perm_16', name:'만물의 물약',       icon:'🔱', price:25000000000, luck:999999999},
 ];
-BURST_POTIONS.forEach(p=>{p.burst=true;p.desc=`다음 인챈트 1회에만 행운 x${p.luck} 적용 (1회용, 영구 아님)`;POTIONS.push(p);});
+// ── 초초고가 대박 물약 30종 (250억~1000억, 행운 x10억~x999,999,999,999,999,999) ──
+{
+  const potNames = ['공허의 정수','태초 이전의 눈물','창조주의 숨결','파괴신의 축복','시공간의 조각',
+    '무한회랑의 열쇠','절대영도의 결정','빅뱅의 씨앗','다중우주의 파편','영원의 모래시계',
+    '섭리의 인장','운명 조작자의 물약','확률 파괴자','인과율의 사슬 절단자','전지전능의 눈',
+    '만능키의 정수','붕괴하는 확률장','기적 그 자체','신들의 유산','태초의 빛',
+    '무형의 심판','절대자의 마지막 선물','존재 초월의 증표','한계 돌파의 결정체','완전무결의 물약',
+    '초월적 우연','확정된 기적','불가능의 실현체','섭리를 거스르는 자','모든 것의 어머니'];
+  const total=30;
+  const logPMin=Math.log10(25000000000), logPMax=Math.log10(100000000000);
+  const logLMin=Math.log10(1000000000), logLMax=Math.log10(999999999999999999);
+  for(let i=0;i<total;i++){
+    const price=Math.round(Math.pow(10, logPMin+(logPMax-logPMin)*(i/(total-1))));
+    const luck=Math.round(Math.pow(10, logLMin+(logLMax-logLMin)*(i/(total-1))));
+    BURST_POTIONS.push({id:'pot_ultra_'+i, name:potNames[i], icon:'🌟', price, luck});
+  }
+}
+BURST_POTIONS.forEach(p=>{p.burst=true;p.desc=`다음 인챈트 1회에만 행운 x${p.luck.toLocaleString()} 적용 (1회용, 영구 아님)`;POTIONS.push(p);});
 
 function buyPotion(id){
   const p = POTIONS.find(x=>x.id===id);
@@ -490,6 +514,101 @@ function playEnchantCutscene(resultTier, durationMs, onDone){
     });
     cx2.globalAlpha=1;
   }
+  function drawSpiral(t){
+    // 이중 나선으로 뻗어나가는 입자
+    particles.forEach((p,i)=>{
+      const arm=i%2===0?0:Math.PI;
+      const ang=t/400+i*0.15+arm;
+      const dist=((t/8)+i*10)%(Math.max(W,H)*.55);
+      p.x=cxp+Math.cos(ang)*dist; p.y=cyp+Math.sin(ang)*dist*.7;
+      cx2.fillStyle=colors[i%colors.length]; cx2.globalAlpha=.85;
+      cx2.beginPath();cx2.arc(p.x,p.y,3,0,Math.PI*2);cx2.fill();
+    });
+    cx2.globalAlpha=1;
+  }
+  function drawShatter(t){
+    // 중심에서 유리 파편처럼 갈라지는 직선 파편들
+    const n=isTop?28:16;
+    for(let i=0;i<n;i++){
+      const a=(i/n)*Math.PI*2+ (i%2?0.3:0);
+      const len=Math.min(t/4, Math.max(W,H)*.6);
+      cx2.strokeStyle=colors[i%colors.length]+'aa'; cx2.lineWidth=2+((i%3));
+      cx2.beginPath();cx2.moveTo(cxp+Math.cos(a)*20,cyp+Math.sin(a)*20);cx2.lineTo(cxp+Math.cos(a)*(len+20),cyp+Math.sin(a)*(len+20));cx2.stroke();
+    }
+    particles.forEach(p=>{
+      p.x+=p.vx*.5; p.y+=p.vy*.5; p.life-=0.005;
+      if(p.life<=0){const a=Math.random()*Math.PI*2,spd=1+Math.random()*3;p.x=cxp;p.y=cyp;p.vx=Math.cos(a)*spd;p.vy=Math.sin(a)*spd;p.life=1;}
+      cx2.globalAlpha=Math.max(0,p.life); cx2.fillStyle=p.col;
+      cx2.beginPath();cx2.arc(p.x,p.y,2,0,Math.PI*2);cx2.fill();
+    });
+    cx2.globalAlpha=1;
+  }
+  function drawAurora(t){
+    // 물결치는 오로라 밴드
+    for(let band=0;band<4;band++){
+      cx2.beginPath();
+      cx2.strokeStyle=colors[band%colors.length]+'66'; cx2.lineWidth=14-band*2;
+      for(let x=0;x<=W;x+=20){
+        const y=cyp+Math.sin(x/120+t/500+band*1.3)*(80+band*20);
+        if(x===0)cx2.moveTo(x,y); else cx2.lineTo(x,y);
+      }
+      cx2.stroke();
+    }
+  }
+  function drawBlackhole(t){
+    // 중심으로 빨려들어가다 주기적으로 방출
+    const cyclePhase=(t%2600)/2600;
+    particles.forEach((p,i)=>{
+      if(cyclePhase<0.7){
+        p.ang=(p.ang||i)+0.06; p.dist=Math.max(4,(p.dist===undefined?Math.max(W,H)*.4:p.dist)-1.5);
+        p.x=cxp+Math.cos(p.ang)*p.dist; p.y=cyp+Math.sin(p.ang)*p.dist;
+      } else {
+        p.dist=(p.dist||0)+10;
+        p.x=cxp+Math.cos(p.ang||0)*p.dist; p.y=cyp+Math.sin(p.ang||0)*p.dist;
+        if(p.dist>Math.max(W,H)*.5){p.dist=0;}
+      }
+      cx2.fillStyle=p.col||colors[i%colors.length]; cx2.globalAlpha=.8;
+      cx2.beginPath();cx2.arc(p.x,p.y,2.5,0,Math.PI*2);cx2.fill();
+    });
+    cx2.globalAlpha=1;
+    cx2.fillStyle='#000'; cx2.beginPath();cx2.arc(cxp,cyp,cyclePhase<0.7?30:10,0,Math.PI*2);cx2.fill();
+  }
+  function drawKaleidoscope(t){
+    const seg=8;
+    for(let s=0;s<seg;s++){
+      cx2.save();
+      cx2.translate(cxp,cyp); cx2.rotate((s/seg)*Math.PI*2 + t/900);
+      for(let i=0;i<5;i++){
+        cx2.strokeStyle=colors[i%colors.length]+'99'; cx2.lineWidth=2;
+        cx2.beginPath();cx2.moveTo(0,0);cx2.lineTo(30+i*30,10+Math.sin(t/300+i)*20);cx2.stroke();
+      }
+      cx2.restore();
+    }
+  }
+  function drawShockwave(t){
+    const cyc=(t%1000)/1000;
+    for(let i=0;i<3;i++){
+      const rr=((cyc+i/3)%1)*Math.max(W,H)*.7;
+      cx2.strokeStyle=colors[i%colors.length]+'88'; cx2.lineWidth=6-i;
+      cx2.beginPath();cx2.arc(cxp,cyp,rr,0,Math.PI*2);cx2.stroke();
+    }
+    particles.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy; p.life-=0.007;
+      if(p.life<=0){const a=Math.random()*Math.PI*2,spd=2+Math.random()*3;p.x=cxp;p.y=cyp;p.vx=Math.cos(a)*spd;p.vy=Math.sin(a)*spd;p.life=1;}
+      cx2.globalAlpha=Math.max(0,p.life); cx2.fillStyle=p.col;
+      cx2.beginPath();cx2.arc(p.x,p.y,2.5,0,Math.PI*2);cx2.fill();
+    });
+    cx2.globalAlpha=1;
+  }
+  function drawNebula(t){
+    particles.forEach((p,i)=>{
+      p.x+=Math.sin(t/600+i)*0.6; p.y+=Math.cos(t/700+i)*0.6;
+      if(Math.abs(p.x-cxp)>W*.4)p.vx=-p.vx; if(Math.abs(p.y-cyp)>H*.4)p.vy=-p.vy;
+      cx2.fillStyle=p.col; cx2.globalAlpha=.25;
+      cx2.beginPath();cx2.arc(p.x,p.y,10+Math.sin(t/300+i)*4,0,Math.PI*2);cx2.fill();
+    });
+    cx2.globalAlpha=1;
+  }
   let running_=true;
   function frame(){
     if(!running_) return;
@@ -503,7 +622,14 @@ function playEnchantCutscene(resultTier, durationMs, onDone){
     else if(style==='meteor') drawMeteor(t);
     else if(style==='portal') drawPortal(t);
     else if(style==='supernova') drawSupernova(t);
-    else { drawRays(t); drawVortex(t); drawLightning(t); } // chaos: 최상위 등급 총동원
+    else if(style==='spiral') drawSpiral(t);
+    else if(style==='shatter') drawShatter(t);
+    else if(style==='aurora') drawAurora(t);
+    else if(style==='blackhole') drawBlackhole(t);
+    else if(style==='kaleidoscope') drawKaleidoscope(t);
+    else if(style==='shockwave') drawShockwave(t);
+    else if(style==='nebula') drawNebula(t);
+    else { drawRays(t); drawVortex(t); drawLightning(t); drawSupernova(t); } // chaos: 최상위 등급 총동원
     if(running_) requestAnimationFrame(frame);
   }
   frame();
