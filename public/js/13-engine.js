@@ -2605,13 +2605,25 @@ function openSettings(){document.getElementById('settingsModal').style.display='
 function closeSettings(){document.getElementById('settingsModal').style.display='none';}
 function confirmReset(){document.getElementById('settingsModal').style.display='none';document.getElementById('resetConfirmModal').style.display='flex';}
 function cancelReset(){document.getElementById('resetConfirmModal').style.display='none';}
-function doReset(){
+function doResetKeepEnchant(){
+  const savedEnchants=localStorage.getItem('hd_enchants');
+  try{localStorage.clear();}catch(e){}
+  if(savedEnchants)localStorage.setItem('hd_enchants',savedEnchants);
+  coins=0;energy=0;shopLv={};pUpgLv={};owned={pistol:true,shotgun:true,knife:true};
+  eqArmor='';eqWepId='pistol';arLv={};wepLv={};ownedJobs={};equippedJob='';
+  enchants=lJ('hd_enchants',{});
+  saveAll();saveJobData();updRes();
+  document.getElementById('resetConfirmModal').style.display='none';
+  alert('✅ 초기화 완료! (인챈트는 유지됩니다)');
+}
+function doResetFull(){
   try{localStorage.clear();}catch(e){}
   coins=0;energy=0;shopLv={};pUpgLv={};owned={pistol:true,shotgun:true,knife:true};
   eqArmor='';eqWepId='pistol';arLv={};wepLv={};ownedJobs={};equippedJob='';
-  saveAll();saveJobData();updRes();
+  enchants={};
+  saveAll();saveJobData();saveEnchants();updRes();
   document.getElementById('resetConfirmModal').style.display='none';
-  alert('✅ 초기화 완료!');
+  alert('✅ 완전 초기화 완료! (인챈트 포함 모든 데이터 삭제)');
 }
 function openCode(){
   document.getElementById('codeModal').classList.add('on');
