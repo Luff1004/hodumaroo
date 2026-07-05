@@ -25,6 +25,7 @@
     <button class="lb" style="background:linear-gradient(135deg,#4c1d95,#2e1065);color:#e9d5ff;border:1.5px solid #7c3aed;" onclick="go('sEnchant')">🔮 인챈트</button>
     <button class="lb" style="background:linear-gradient(135deg,#1e1b4b,#4c1d95);color:#c4b5fd;" onclick="go('sAch')">🏆 업적</button>
     <button class="lb" style="background:linear-gradient(135deg,#1a0a3e,#2e1065);color:#fbbf24;border:1.5px solid #7c3aed;" onclick="go('sSeason')">🌟 시즌패스</button>
+    <button class="lb" style="background:linear-gradient(135deg,#065f46,#047857);color:#d1fae5;border:1.5px solid #10b981;" onclick="go('sDailyQuest')">📅 일일퀘스트</button>
   </div>
   <div class="ver">호두마루 v1.0</div>
   <div style="position:fixed;bottom:10px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;z-index:25;background:rgba(255,255,255,0.85);padding:4px 14px;border-radius:20px;border:1px solid #e5e7eb;">
@@ -330,6 +331,15 @@
   <div class="sgrid" id="potionGrid" style="max-height:68vh;"></div>
 </div>
 
+<!-- ══ 일일 퀘스트 ══ -->
+<div id="sDailyQuest" class="screen" style="background:linear-gradient(160deg,#ecfdf5,#f0fdfa);">
+  <button class="back" style="border-color:#059669;color:#047857;" onclick="go('sLobby')">← 뒤로</button>
+  <div class="stitle" style="color:#047857;">📅 일일 퀘스트</div>
+  <div id="dailyQuestReset" style="font-size:12px;color:#ef4444;font-weight:700;margin-bottom:12px;background:rgba(239,68,68,0.1);padding:4px 14px;border-radius:20px;"></div>
+  <div id="dailyQuestList" style="display:flex;flex-direction:column;gap:10px;width:min(480px,92vw);max-height:60vh;overflow-y:auto;"></div>
+  <div style="font-size:10px;color:#059669;margin-top:14px;text-align:center;">💡 매일 자정에 새로운 퀘스트 3개로 초기화됩니다</div>
+</div>
+
 <!-- ══ 보스 클리어 화면 ══ -->
 <div id="clearScreen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.88);z-index:80;flex-direction:column;align-items:center;justify-content:center;gap:20px;">
   <div id="clearTitle" style="font-size:clamp(28px,5vw,52px);font-weight:900;color:#fbbf24;text-align:center;text-shadow:0 0 30px #f59e0b;"></div>
@@ -383,6 +393,7 @@
 <script src="/js/15-dreamcore.js"></script>
 <script src="/js/16-item-use-equip.js"></script>
 <script src="/js/17-enchant.js"></script>
+<script src="/js/18-daily-quest.js"></script>
 
 <!-- ══ 설정 모달 ══ -->
 <div id="settingsModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;">

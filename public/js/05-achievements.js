@@ -131,7 +131,7 @@ setInterval(()=>{
   }
 },1000);
 
-const SCREENS=['sLobby','sMap','sWeapon','sShop','sJob','sUpg','sEquip','sParty','sSeason','sDream','sDreamMap','sAch','sEnchant','sPotionShop'];
+const SCREENS=['sLobby','sMap','sWeapon','sShop','sJob','sUpg','sEquip','sParty','sSeason','sDream','sDreamMap','sAch','sEnchant','sPotionShop','sDailyQuest'];
 function go(id){
   SCREENS.forEach(s=>{const el=document.getElementById(s);if(el)el.classList.toggle('on',s===id);});
   document.getElementById('gameCanvas').style.display='none';
@@ -146,6 +146,7 @@ function go(id){
   if(id==='sAch')renderAchievements();
   if(id==='sEnchant'){updRes();setEnchantCat('wep',document.querySelector('#sEnchant .stab'));}
   if(id==='sPotionShop'){updRes();renderPotionShop();}
+  if(id==='sDailyQuest'){updRes();renderDailyQuest();}
   if(id==='sDream'){
     document.getElementById('dlc').textContent=coins.toLocaleString();
     document.getElementById('dle').textContent=energy.toLocaleString();

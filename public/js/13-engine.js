@@ -144,6 +144,7 @@ function initGame(){
   updBadges();
   zoms=[];buls=[];parts=[];effs=[];hpItems=[];
   wave=1;score=0;kills=0;poison=0;
+  achStats.gamesPlayed=(achStats.gamesPlayed||0)+1;saveAch();
   spawnT=0;spawnedCnt=0;totalSpawn=calcWZ();spawnInt=selMap.challenge?60:Math.round(75/(HARD_WAVE_MUL[selMap.id]||1));betweenWave=false;relTimer=0;
   waveSpeedMul=1;
   const wsBtn=document.getElementById('waveSpeedBtn');
@@ -1320,7 +1321,7 @@ function update(){
   if(!betweenWave){
     if(selMap.boss){if(spawnedCnt===0&&!activeBossMap){spawnWave();spawnT=0;}}
     else{spawnT+=waveSpeedMul;if(spawnT>=spawnInt&&spawnedCnt<totalSpawn){spawnWave();spawnedCnt++;spawnT=0;}}
-    if(!selMap.boss&&spawnedCnt>=totalSpawn&&zoms.filter(z=>!z.dead&&!z.isMinion).length===0){betweenWave=true;setMsg(`✨ 웨이브 ${wave} 클리어!`);if(wave>(achStats.maxWave||0))achStats.maxWave=wave;achStats.mapWave=achStats.mapWave||{};const prevBest=achStats.mapWave[selMap?.id]||0;if(wave>prevBest)achStats.mapWave[selMap.id]=wave;if(waveDmgTaken===0){achStats.noDmgWave=(achStats.noDmgWave||0)+1;}waveDmgTaken=0;if(!achStats.clearedMaps)achStats.clearedMaps=[];if(wave>=10&&!achStats.clearedMaps.includes(selMap.id))achStats.clearedMaps.push(selMap.id);checkAchievements();saveAch();
+    if(!selMap.boss&&spawnedCnt>=totalSpawn&&zoms.filter(z=>!z.dead&&!z.isMinion).length===0){betweenWave=true;setMsg(`✨ 웨이브 ${wave} 클리어!`);if(wave>(achStats.maxWave||0))achStats.maxWave=wave;achStats.mapWave=achStats.mapWave||{};const prevBest=achStats.mapWave[selMap?.id]||0;if(wave>prevBest)achStats.mapWave[selMap.id]=wave;if(waveDmgTaken===0){achStats.noDmgWave=(achStats.noDmgWave||0)+1;}waveDmgTaken=0;if(!achStats.clearedMaps)achStats.clearedMaps=[];if(wave>=10&&!achStats.clearedMaps.includes(selMap.id))achStats.clearedMaps.push(selMap.id);achStats.waveClearsTotal=(achStats.waveClearsTotal||0)+1;checkAchievements();saveAch();
     const xpGain=100*(wave+(selMap.diff||1))*((pUpgLv['pxp']||0)*.1+1);
     addSeasonXP(Math.floor(xpGain));
     // 폐허도시 클리어 기록
