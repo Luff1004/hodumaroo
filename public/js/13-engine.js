@@ -2612,18 +2612,20 @@ function doResetKeepEnchant(){
   coins=0;energy=0;shopLv={};pUpgLv={};owned={pistol:true,shotgun:true,knife:true};
   eqArmor='';eqWepId='pistol';arLv={};wepLv={};ownedJobs={};equippedJob='';
   enchants=lJ('hd_enchants',{});
-  saveAll();saveJobData();updRes();
+  potionInv={};potionBuff=null;pendingRolls=[];
+  saveAll();saveJobData();savePotionState();updRes();
   document.getElementById('resetConfirmModal').style.display='none';
-  alert('✅ 초기화 완료! (인챈트는 유지됩니다)');
+  alert('✅ 초기화 완료! (인챈트는 유지, 물약은 초기화됩니다)');
 }
 function doResetFull(){
   try{localStorage.clear();}catch(e){}
   coins=0;energy=0;shopLv={};pUpgLv={};owned={pistol:true,shotgun:true,knife:true};
   eqArmor='';eqWepId='pistol';arLv={};wepLv={};ownedJobs={};equippedJob='';
   enchants={};
-  saveAll();saveJobData();saveEnchants();updRes();
+  potionInv={};potionBuff=null;pendingRolls=[];
+  saveAll();saveJobData();saveEnchants();savePotionState();updRes();
   document.getElementById('resetConfirmModal').style.display='none';
-  alert('✅ 완전 초기화 완료! (인챈트 포함 모든 데이터 삭제)');
+  alert('✅ 완전 초기화 완료! (인챈트+물약 포함 모든 데이터 삭제)');
 }
 function openCode(){
   document.getElementById('codeModal').classList.add('on');
