@@ -43,6 +43,30 @@ const ENCHANT_TIERS = [
   {chance:0.0000000000000000000000000000000000000000000000000000000001, name:'그 이름을 부를 수 없는 것', cutscene:9000},
 ];
 
+// ── 신규 100종 인챈트 (0.01% ~ 0.0000000000000001% 사이 로그 스케일 분포) ──
+// 각 등급마다 이름/컷씬 스타일/지속시간이 전부 다르게 생성됨
+const ENCHANT_STYLE_POOL = ['rays','vortex','lightning','starfield','meteor','portal','supernova'];
+{
+  const adj = ['태초의','무한의','절대','영원한','붕괴하는','침묵하는','불타는','얼어붙은','빛나는','어둠의',
+    '신성한','저주받은','공허한','찬란한','부서진','흐르는','잠든','깨어난','불멸의','유령의',
+    '떨리는','일그러진','메아리치는','타오르는','스러지는','응축된','증폭된','왜곡된','봉인된','해방된'];
+  const noun = ['눈동자','심연','파편','메아리','그림자','왕관','문','불꽃','서약','기억',
+    '꿈','별','달','태양','바람','파도','뿌리','씨앗','고리','문양',
+    '숨결','맥박','파동','인장','거울','지평선','우물','씨앗','깃털','뼈대'];
+  const total=100;
+  const logMax=Math.log10(0.01), logMin=Math.log10(0.0000000000000001);
+  for(let i=0;i<total;i++){
+    const logC = logMax + (logMin-logMax)*(i/(total-1));
+    const chance = Math.pow(10, logC);
+    const a=adj[i%adj.length], n=noun[Math.floor(i/adj.length)%noun.length];
+    const name = `${a} ${n}`;
+    // 등급이 희귀할수록 컷씬이 길어짐 (3초~90초 사이 선형 보간)
+    const cutscene = Math.round(180 + (5400-180)*(i/(total-1)));
+    const style = ENCHANT_STYLE_POOL[i%ENCHANT_STYLE_POOL.length];
+    ENCHANT_TIERS.push({chance, name, cutscene, style});
+  }
+}
+
 // ── 행운(potion) 시스템 ──
 // pendingRolls: 마신 만큼 쌓이는 "1회성 대박 행운" 큐. 인챈트 1번마다 하나씩 소모됨 (SOL'S RNG의 천상의 물약 컨셉)
 let pendingRolls = lJ('hd_pending_rolls', []);
@@ -149,7 +173,8 @@ function setEnchantCat(cat,btn){
 }
 function renderEnchantProbTable(){
   const t=document.getElementById('enchantProbTable'); if(!t) return;
-  t.innerHTML = ENCHANT_TIERS.map(x=>`<div>${x.chance}% : ${x.name}</div>`).join('');
+  const sorted=[...ENCHANT_TIERS].sort((a,b)=>b.chance-a.chance);
+  t.innerHTML = sorted.map(x=>`<div>${x.chance}% : ${x.name}</div>`).join('');
 }
 function enchantKey(){
   if(!enchantSelId) return null;
@@ -274,6 +299,8 @@ function tierColors(idx){
 }
 // 등급에 따라 컷씬 연출 스타일을 다르게 - 뽑을 때마다 다른 느낌
 function cutsceneStyle(idx){
+  const tier=ENCHANT_TIERS[idx];
+  if(tier&&tier.style) return tier.style; // 신규 100종은 등급마다 스타일이 고정 지정됨
   const total=ENCHANT_TIERS.length;
   const r=idx/(total-1);
   if(r<0.5) return 'rays';
@@ -394,6 +421,45 @@ function playEnchantCutscene(resultTier, durationMs, onDone){
     });
     cx2.globalAlpha=1;
   }
+  function drawMeteor(t){
+    // 화면 위쪽에서 유성이 쏟아지는 연출
+    if(Math.random()>.7){
+      particles[Math.floor(Math.random()*particles.length)]=
+        {x:Math.random()*W,y:-20,vx:(Math.random()-.5)*2,vy:6+Math.random()*6,r:3+Math.random()*3,col:colors[Math.floor(Math.random()*colors.length)],life:1};
+    }
+    particles.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.y>H+20){p.y=-20;p.x=Math.random()*W;}
+      cx2.strokeStyle=p.col; cx2.lineWidth=p.r;
+      cx2.beginPath();cx2.moveTo(p.x,p.y);cx2.lineTo(p.x-p.vx*4,p.y-p.vy*4);cx2.stroke();
+    });
+  }
+  function drawPortal(t){
+    for(let i=0;i<6;i++){
+      const rr=((t/10)+i*60)%(Math.max(W,H)*.6);
+      cx2.strokeStyle=colors[i%colors.length]+'88'; cx2.lineWidth=4;
+      cx2.beginPath();cx2.ellipse(cxp,cyp,rr,rr*.4,t/1000,0,Math.PI*2);cx2.stroke();
+    }
+    particles.forEach(p=>{
+      p.ang=(p.ang||0)+0.03; p.dist=((p.dist||0)+3)%(Math.max(W,H)*.5);
+      p.x=cxp+Math.cos(p.ang)*p.dist; p.y=cyp+Math.sin(p.ang)*p.dist*.4;
+      cx2.fillStyle=p.col; cx2.beginPath();cx2.arc(p.x,p.y,2.5,0,Math.PI*2);cx2.fill();
+    });
+  }
+  function drawSupernova(t){
+    const prog=(t/1400)%1;
+    const r=prog*Math.max(W,H)*.75;
+    const grad=cx2.createRadialGradient(cxp,cyp,0,cxp,cyp,r);
+    grad.addColorStop(0,colors[0]+'cc'); grad.addColorStop(0.6,colors[colors.length-1]+'44'); grad.addColorStop(1,'transparent');
+    cx2.fillStyle=grad; cx2.beginPath(); cx2.arc(cxp,cyp,r,0,Math.PI*2); cx2.fill();
+    particles.forEach(p=>{
+      p.x+=p.vx*1.5; p.y+=p.vy*1.5; p.life-=0.008;
+      if(p.life<=0){const a=Math.random()*Math.PI*2,spd=2+Math.random()*4;p.x=cxp;p.y=cyp;p.vx=Math.cos(a)*spd;p.vy=Math.sin(a)*spd;p.life=1;}
+      cx2.globalAlpha=Math.max(0,p.life); cx2.fillStyle=p.col;
+      cx2.beginPath();cx2.arc(p.x,p.y,3,0,Math.PI*2);cx2.fill();
+    });
+    cx2.globalAlpha=1;
+  }
   let running_=true;
   function frame(){
     if(!running_) return;
@@ -404,6 +470,9 @@ function playEnchantCutscene(resultTier, durationMs, onDone){
     else if(style==='vortex') drawVortex(t);
     else if(style==='lightning') drawLightning(t);
     else if(style==='starfield') drawStarfield(t);
+    else if(style==='meteor') drawMeteor(t);
+    else if(style==='portal') drawPortal(t);
+    else if(style==='supernova') drawSupernova(t);
     else { drawRays(t); drawVortex(t); drawLightning(t); } // chaos: 최상위 등급 총동원
     if(running_) requestAnimationFrame(frame);
   }
