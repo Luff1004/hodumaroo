@@ -73,6 +73,29 @@ const PET_EGGS = [
     weights:{common:0,rare:10,epic:35,legendary:45,mythic:10,ancient:0.15,divine:0.015,ethereal:0.0012,transcendent:0.00008,absolute:0.000003}},
 ];
 
+// ── 신규 알 15종 (전설의 알보다 비싸고 상위 등급 확률이 점점 좋아짐) ──
+{
+  const EGG_NAMES_NEW=['심연의 알','기적의 알','천상의 알','창세의 알','만물의 알','시공의 알','신화의 알','태초의 알','불멸의 알','섭리의 알','절대의 알','초월의 알','무한의 알','근원의 알','종말의 알'];
+  const total=EGG_NAMES_NEW.length;
+  for(let i=0;i<total;i++){
+    const t=i/(total-1); // 0(가장 저렴) ~ 1(최고가)
+    const price=Math.round(2000000*Math.pow(100000,t)); // 200만 ~ 2000억
+    const weights={
+      common:+Math.max(0,20*(1-t)).toFixed(4),
+      rare:+Math.max(0,30*(1-t)).toFixed(4),
+      epic:+Math.max(1,30-10*t).toFixed(4),
+      legendary:+(15+10*t).toFixed(4),
+      mythic:+(5+15*t).toFixed(4),
+      ancient:+(0.5+3*t).toFixed(6),
+      divine:+(0.05+1*t).toFixed(6),
+      ethereal:+(0.005+0.3*t).toFixed(8),
+      transcendent:+(0.0005+0.05*t).toFixed(9),
+      absolute:+(0.00005+0.01*t).toFixed(10),
+    };
+    PET_EGGS.push({id:'egg_new_'+i, name:EGG_NAMES_NEW[i], icon:i<8?'🥚':'🌠', price, weights});
+  }
+}
+
 let ownedPets = lJ('hd_pets', {}); // {petId: {count, level}}
 let equippedPetId = lS('hd_eq_pet', '');
 function savePetData(){ sv('hd_pets', ownedPets); sv('hd_eq_pet', equippedPetId||''); }
