@@ -121,6 +121,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:#f0ede8;font-family:
 .rar-epic{border-color:#a855f7!important;box-shadow:0 0 12px #a855f750;animation:glow-epic 2s infinite;}
 .rar-legendary{border-color:#f59e0b!important;box-shadow:0 0 16px #f59e0b60;animation:glow-gold 1.5s infinite;}
 .rar-mythic{border-color:#8b5cf6!important;box-shadow:0 0 20px #8b5cf680;animation:glow-rainbow 1.2s infinite;}
+.rar-ancient{border-color:#78350f!important;box-shadow:0 0 18px #78350f70;animation:glow-gold 1.4s infinite;}
+.rar-divine{border-color:#0ea5e9!important;box-shadow:0 0 20px #0ea5e980;animation:glow-epic 1.2s infinite;}
+.rar-ethereal{border-color:#67e8f9!important;box-shadow:0 0 22px #67e8f990;animation:glow-rainbow 1s infinite;}
+.rar-transcendent{border-color:#f472b6!important;box-shadow:0 0 26px #f472b6a0;animation:glow-rainbow .8s infinite;}
+.rar-absolute{border-color:#ffffff!important;box-shadow:0 0 32px #ffffffcc;animation:glow-rainbow .6s infinite;}
 
 .si.cb2{border-color:#f59e0b;cursor:pointer;}.si.cb2:hover{transform:translateY(-2px);box-shadow:0 4px 12px #f59e0b25;}
 .si.own{border-color:#6ee7b7;background:#f0fdf4;}.si.mx{border-color:#c4b5fd;background:#faf5ff;}

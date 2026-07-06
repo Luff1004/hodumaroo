@@ -29,14 +29,48 @@ const PETS = [
   {id:'pet_whale',   name:'별고래',      icon:'🐋', rarity:'mythic', bonus:{hpPct:40,coinPct:25}},
   {id:'pet_turtle',  name:'시간의 거북', icon:'🐢', rarity:'mythic', bonus:{xpPct:45,energyPct:35}},
 ];
+// ── 극악 확률 초레어 등급 50종 (신화보다 훨씬 희귀, 5개 신규 등급 x 10종) ──
+const PET_ULTRA_TIERS = [
+  {key:'ancient',       label:'고대',   color:'#78350f', scale:1.5},
+  {key:'divine',        label:'신성',   color:'#0ea5e9', scale:2.2},
+  {key:'ethereal',      label:'천계',   color:'#67e8f9', scale:3.2},
+  {key:'transcendent',  label:'초월',   color:'#f472b6', scale:4.5},
+  {key:'absolute',      label:'절대',   color:'#ffffff', scale:7},
+];
+{
+  const adj2=['태초의','만물의','불멸하는','전능한','초자연적인','우주적인','시공을 초월한','신비로운','절대적인','영원불멸의',
+    '근원적인','창세의','종말의','섭리의','불가침의'];
+  const noun2=['용','불사조','기린','신수','정령','수호자','파괴자','창조자','현자','군주',
+    '드래곤킹','피닉스로드','스핑크스','케르베로스','레비아탄'];
+  const bonusKeys=['dmgPct','hpPct','coinPct','xpPct','critPct','lifestealFlat','luckPct','spdFlat'];
+  const bonusBase={dmgPct:40,hpPct:40,coinPct:25,xpPct:45,critPct:12,lifestealFlat:5,luckPct:60,spdFlat:0.6};
+  const AN=adj2.length, NN=noun2.length, COMBO=AN*NN; // 15x15=225, i=0..49 유니크 보장
+  let idx=0;
+  PET_ULTRA_TIERS.forEach(tier=>{
+    for(let j=0;j<10;j++){
+      const c=(idx*97+13)%COMBO;
+      const a=adj2[c%AN], n=noun2[Math.floor(c/AN)%NN];
+      const bk=bonusKeys[idx%bonusKeys.length];
+      const bonus={}; bonus[bk]=+(bonusBase[bk]*tier.scale).toFixed(2);
+      PETS.push({id:'pet_ultra_'+idx, name:`${a} ${n}`, icon:'👑', rarity:tier.key, bonus});
+      idx++;
+    }
+  });
+}
+
 const PET_RARITY_LABEL={common:'커먼',rare:'레어',epic:'에픽',legendary:'레전더리',mythic:'신화'};
 const PET_RARITY_COLOR={common:'#9ca3af',rare:'#3b82f6',epic:'#a855f7',legendary:'#f59e0b',mythic:'#ec4899'};
+PET_ULTRA_TIERS.forEach(t=>{PET_RARITY_LABEL[t.key]=t.label;PET_RARITY_COLOR[t.key]=t.color;});
 
 const PET_EGGS = [
-  {id:'egg_common',    name:'평범한 알',  icon:'🥚', price:5000,    weights:{common:70,rare:25,epic:4,legendary:0.9,mythic:0.1}},
-  {id:'egg_rare',      name:'빛나는 알',  icon:'🥚', price:30000,   weights:{common:30,rare:50,epic:16,legendary:3.5,mythic:0.5}},
-  {id:'egg_epic',      name:'신비한 알',  icon:'🌟', price:150000,  weights:{common:5,rare:30,epic:45,legendary:18,mythic:2}},
-  {id:'egg_legendary', name:'전설의 알',  icon:'✨', price:800000,  weights:{common:0,rare:10,epic:35,legendary:45,mythic:10}},
+  {id:'egg_common',    name:'평범한 알',  icon:'🥚', price:5000,
+    weights:{common:70,rare:25,epic:4,legendary:0.9,mythic:0.1,ancient:0.0005,divine:0.00003,ethereal:0.000002,transcendent:0.0000001,absolute:0.000000005}},
+  {id:'egg_rare',      name:'빛나는 알',  icon:'🥚', price:30000,
+    weights:{common:30,rare:50,epic:16,legendary:3.5,mythic:0.5,ancient:0.003,divine:0.0002,ethereal:0.00001,transcendent:0.0000008,absolute:0.00000003}},
+  {id:'egg_epic',      name:'신비한 알',  icon:'🌟', price:150000,
+    weights:{common:5,rare:30,epic:45,legendary:18,mythic:2,ancient:0.02,divine:0.0015,ethereal:0.0001,transcendent:0.000006,absolute:0.0000002}},
+  {id:'egg_legendary', name:'전설의 알',  icon:'✨', price:800000,
+    weights:{common:0,rare:10,epic:35,legendary:45,mythic:10,ancient:0.15,divine:0.015,ethereal:0.0012,transcendent:0.00008,absolute:0.000003}},
 ];
 
 let ownedPets = lJ('hd_pets', {}); // {petId: {count, level}}
