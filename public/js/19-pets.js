@@ -96,6 +96,28 @@ const PET_EGGS = [
   }
 }
 
+// ── 신규 알 20종 추가 (종말의 알보다도 더 위, 최상위 등급 위주로만 편성) ──
+{
+  const EGG_NAMES_NEW2=['공허의 알','파멸의 알','섭리 파괴자의 알','완전한 알','절대자의 알','신들의 알','창조주의 알','파괴신의 알','현실 초월의 알','인과율의 알',
+    '무한회랑의 알','확률 조작자의 알','기적 그 자체의 알','존재 그 자체의 알','시간 밖의 알','차원 너머의 알','근원 최심부의 알','태초 이전의 알','만물 이후의 알','궁극의 알'];
+  const total2=EGG_NAMES_NEW2.length;
+  for(let i=0;i<total2;i++){
+    const t=i/(total2-1); // 0 ~ 1
+    const price=Math.round(500000000000*Math.pow(10000,t)); // 5000억 ~ 5000조
+    const weights={
+      epic:+Math.max(0,10*(1-t)).toFixed(4),
+      legendary:+Math.max(1,25-15*t).toFixed(4),
+      mythic:+(20+10*t).toFixed(4),
+      ancient:+(3.5+6.5*t).toFixed(6),
+      divine:+(1+4*t).toFixed(6),
+      ethereal:+(0.3+1.7*t).toFixed(8),
+      transcendent:+(0.05+0.45*t).toFixed(9),
+      absolute:+(0.01+0.29*t).toFixed(10),
+    };
+    PET_EGGS.push({id:'egg_new2_'+i, name:EGG_NAMES_NEW2[i], icon:'💫', price, weights});
+  }
+}
+
 let ownedPets = lJ('hd_pets', {}); // {petId: {count, level}}
 let equippedPetId = lS('hd_eq_pet', '');
 function savePetData(){ sv('hd_pets', ownedPets); sv('hd_eq_pet', equippedPetId||''); }
