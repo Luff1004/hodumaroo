@@ -475,6 +475,13 @@
       <button id="orientPortraitBtn" class="orient-btn" onclick="setScreenMode('portrait')">📱 세로 모드</button>
       <button id="orientLandscapeBtn" class="orient-btn" onclick="setScreenMode('landscape')">📱 가로 모드</button>
     </div>
+    <div id="controlSettingRow" style="display:none;flex-direction:column;gap:6px;margin-bottom:16px;">
+      <div style="display:flex;gap:8px;">
+        <button id="controlNormalBtn" class="orient-btn" onclick="setControlMode('normal')">🕹️ 일반 조작</button>
+        <button id="controlSimpleBtn" class="orient-btn" onclick="setControlMode('simple')">👆 간단 조작</button>
+      </div>
+      <p style="font-size:10px;color:#9ca3af;text-align:left;margin:0;">간단 조작: 화면 아무 곳이나 터치해서 이동, 발사는 자동으로 고정됩니다</p>
+    </div>
     <button onclick="confirmReset()" style="width:100%;padding:10px 0;background:linear-gradient(135deg,#ef4444,#dc2626);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;">🗑️ 데이터 초기화</button>
     <button onclick="closeSettings()" class="code-cancel">닫기</button>
   </div>

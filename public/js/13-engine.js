@@ -2687,8 +2687,25 @@ const CODES={
   EHDMS:{coins:0,energy:0,dev:true,infinite:true},
   BLACKFIREBACKFIRE:{coins:0,energy:0,dev:true,devMode:true}
 };
-function openSettings(){document.getElementById('settingsModal').style.display='flex';updOrientUI();}
+function openSettings(){document.getElementById('settingsModal').style.display='flex';updOrientUI();updControlUI();}
 function closeSettings(){document.getElementById('settingsModal').style.display='none';}
+
+// ── 조작 모드(일반/간단) 설정 ──
+function getControlMode(){return localStorage.getItem('hd_controlMode')||'normal';}
+function updControlUI(){
+  const row=document.getElementById('controlSettingRow');
+  if(!row)return;
+  row.style.display=(typeof isMobileTouch!=='undefined'&&isMobileTouch)?'flex':'none';
+  const mode=getControlMode();
+  const nb=document.getElementById('controlNormalBtn'),sb=document.getElementById('controlSimpleBtn');
+  if(nb)nb.classList.toggle('sel',mode==='normal');
+  if(sb)sb.classList.toggle('sel',mode==='simple');
+}
+function setControlMode(mode){
+  localStorage.setItem('hd_controlMode',mode);
+  updControlUI();
+  if(typeof applyControlMode==='function')applyControlMode();
+}
 
 // ── 화면 방향(세로/가로) 설정 ──
 function getScreenMode(){return localStorage.getItem('hd_screenMode')||'portrait';}
@@ -2728,6 +2745,7 @@ function applySavedScreenMode(){
 // ── 발사 모드 (게임 화면 상단 버튼): manual(수동) / semi(반자동) / auto(자동) ──
 let fireMode='manual';
 function cycleFireMode(){
+  if(typeof getControlMode==='function'&&getControlMode()==='simple')return;
   fireMode=fireMode==='manual'?'semi':fireMode==='semi'?'auto':'manual';
   localStorage.setItem('hd_fireMode',fireMode);
   if(P)P._semiOn=false;
