@@ -150,6 +150,10 @@ function initGame(){
   waveSpeedMul=1;
   const wsBtn=document.getElementById('waveSpeedBtn');
   if(wsBtn){wsBtn.textContent='⏩ 2배';wsBtn.classList.remove('on');}
+  fireMode=localStorage.getItem('hd_fireMode')||'manual';
+  P._semiOn=false;
+  updFireModeBtn();
+  updSemiIndicator();
   camY=clampC(P.y-VH()/2);activeBoss=null;
   // 맵 장애물 초기화
   obstacles=[];
@@ -1343,12 +1347,18 @@ function update(){
     P.angle=Math.atan2(myW-P.y,mxW-P.x);
   }
   if(P._infiniteAmmo)P.ammo=P.maxAmmo;
-  if(P.ws.auto&&P._mdown&&!P.reloading&&P.ammo>0){
+  const wsid=P.ws.id;
+  const fr=wsid==='minigun'?3:wsid==='gatling'?2:wsid==='machinegun'?4:wsid==='smg'?4:wsid==='laser_gun'?4:wsid==='flamer'?5:P.ws.knife?1:wsid==='sniper'?45:wsid==='railgun'?60:wsid==='shotgun'?32:wsid==='autocannon'?30:P.ws.auto?6:14;
+  // 발사 모드: manual(기존, 클릭 필요) / semi(클릭으로 발사 토글) / auto(계속 발사)
+  const held=fireMode==='auto'?true:fireMode==='semi'?!!P._semiOn:P._mdown;
+  const firing=fireMode==='manual'?(P.ws.auto&&held):held;
+  if(firing&&!P.reloading&&P.ammo>0){
     P._autoT=(P._autoT||0)+1;
-    const wsid=P.ws.id;
-    const fr=wsid==='minigun'?3:wsid==='gatling'?2:wsid==='machinegun'?4:wsid==='smg'?4:wsid==='laser_gun'?4:wsid==='flamer'?5:6;
     if(P._autoT>=fr){P._autoT=0;fireWep();}
+  } else if(!held){
+    P._autoT=0;
   }
+  if(fireMode==='semi')updSemiIndicator();
   if(P.reloading){relTimer--;if(relTimer<=0){P.reloading=false;P.ammo=P.maxAmmo;}}
   if(poison>0){poison--;P.hp-=.05;if(Math.random()<.04)parts.push({x:P.x,y:P.y,vx:(Math.random()-.5)*3,vy:(Math.random()-.5)*3,l:18,ml:18,r:3,col:'#8DB800'});}
   if(P.hp<=0&&running){
@@ -2578,6 +2588,8 @@ function stopGame(){
   document.getElementById('bossBar').style.display='none';
   document.getElementById('pauseBtn').style.display='none';
   document.getElementById('waveSpeedBtn').style.display='none';
+  document.getElementById('fireModeBtn').style.display='none';
+  document.getElementById('semiFireIndicator').style.display='none';
   document.getElementById('skillBar').style.display='none';
   document.getElementById('pauseMenu').style.display='none';
   document.getElementById('clearScreen').style.display='none';
@@ -2612,11 +2624,13 @@ function hideAllScreens(){
 
 function startGame(){
   stopBGM();
+  applySavedScreenMode();
   hideAllScreens();
   document.getElementById('gameCanvas').style.display='block';
   document.getElementById('gameUI').style.display='block';
   document.getElementById('pauseBtn').style.display='block';
   document.getElementById('waveSpeedBtn').style.display='block';
+  document.getElementById('fireModeBtn').style.display='block';
   document.getElementById('skillBar').style.display='flex';
   if(typeof showMobileControls==='function')showMobileControls();
   skillCooldowns={E:0,Q:0};
@@ -2634,7 +2648,10 @@ gC.addEventListener('mousemove',e=>{
 gC.addEventListener('mousedown',e=>{
   if(e.button!==0)return;
   if(!running&&gC.style.display==='block'){go('sLobby');return;}
-  if(!P)return;P._mdown=true;
+  if(!P)return;
+  if(fireMode==='semi'){P._semiOn=!P._semiOn;updSemiIndicator();return;}
+  if(fireMode==='auto')return;
+  P._mdown=true;
   if(!P.ws.auto)fireWep();
 });
 gC.addEventListener('mouseup',()=>{if(P)P._mdown=false;});
@@ -2666,8 +2683,69 @@ const CODES={
   EHDMS:{coins:0,energy:0,dev:true,infinite:true},
   BLACKFIREBACKFIRE:{coins:0,energy:0,dev:true,devMode:true}
 };
-function openSettings(){document.getElementById('settingsModal').style.display='flex';}
+function openSettings(){document.getElementById('settingsModal').style.display='flex';updOrientUI();}
 function closeSettings(){document.getElementById('settingsModal').style.display='none';}
+
+// ── 화면 방향(세로/가로) 설정 ──
+function getScreenMode(){return localStorage.getItem('hd_screenMode')||'portrait';}
+function updOrientUI(){
+  const row=document.getElementById('orientSettingRow');
+  if(!row)return;
+  row.style.display=(typeof isMobileTouch!=='undefined'&&isMobileTouch)?'flex':'none';
+  const mode=getScreenMode();
+  const pb=document.getElementById('orientPortraitBtn'),lb=document.getElementById('orientLandscapeBtn');
+  if(pb)pb.classList.toggle('sel',mode==='portrait');
+  if(lb)lb.classList.toggle('sel',mode==='landscape');
+}
+async function requestLandscapeLock(silent){
+  try{
+    if(document.documentElement.requestFullscreen&&!document.fullscreenElement)await document.documentElement.requestFullscreen();
+    if(screen.orientation&&screen.orientation.lock)await screen.orientation.lock('landscape');
+    return true;
+  }catch(e){
+    if(!silent)alert('📱 이 기기/브라우저는 자동 가로 전환을 지원하지 않아요. 기기를 직접 가로로 돌려서 플레이해주세요!');
+    return false;
+  }
+}
+function setScreenMode(mode){
+  localStorage.setItem('hd_screenMode',mode);
+  updOrientUI();
+  if(mode==='landscape'){
+    requestLandscapeLock(false);
+  } else {
+    try{if(screen.orientation&&screen.orientation.unlock)screen.orientation.unlock();}catch(e){}
+    if(document.fullscreenElement){document.exitFullscreen().catch(()=>{});}
+  }
+}
+function applySavedScreenMode(){
+  if(getScreenMode()==='landscape')requestLandscapeLock(true);
+}
+
+// ── 발사 모드 (게임 화면 상단 버튼): manual(수동) / semi(반자동) / auto(자동) ──
+let fireMode='manual';
+function cycleFireMode(){
+  fireMode=fireMode==='manual'?'semi':fireMode==='semi'?'auto':'manual';
+  localStorage.setItem('hd_fireMode',fireMode);
+  if(P)P._semiOn=false;
+  updFireModeBtn();
+  updSemiIndicator();
+}
+function updFireModeBtn(){
+  const btn=document.getElementById('fireModeBtn');
+  if(!btn)return;
+  const label=fireMode==='manual'?'🖱️ 수동':fireMode==='semi'?'🔁 반자동':'🔫 자동';
+  btn.textContent=label;
+  btn.classList.toggle('on',fireMode!=='manual');
+}
+function updSemiIndicator(){
+  const el=document.getElementById('semiFireIndicator');
+  if(!el)return;
+  if(fireMode!=='semi'){el.style.display='none';return;}
+  el.style.display='block';
+  const on=!!(P&&P._semiOn);
+  el.textContent=on?'🔥 발사중':'⏸ 대기';
+  el.classList.toggle('on',on);
+}
 function confirmReset(){document.getElementById('settingsModal').style.display='none';document.getElementById('resetConfirmModal').style.display='flex';}
 function cancelReset(){document.getElementById('resetConfirmModal').style.display='none';}
 function doResetKeepEnchant(){

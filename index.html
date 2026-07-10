@@ -418,8 +418,10 @@
 </div>
 
 <!-- ══ 일시정지 버튼 ══ -->
-<button id="pauseBtn" onclick="togglePause()" style="display:none;position:fixed;top:8px;right:10px;z-index:8;padding:5px 14px;background:rgba(0,0,0,.65);border:1.5px solid rgba(255,255,255,.3);border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;backdrop-filter:blur(4px);">⏸ 일시정지</button>
-<button id="waveSpeedBtn" onclick="toggleWaveSpeed()" style="display:none;position:fixed;top:8px;right:110px;z-index:8;padding:5px 14px;background:rgba(0,0,0,.65);border:1.5px solid rgba(255,255,255,.3);border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;backdrop-filter:blur(4px);">⏩ 2배</button>
+<button id="pauseBtn" class="hudTopBtn" onclick="togglePause()" style="display:none;">⏸ 일시정지</button>
+<button id="waveSpeedBtn" class="hudTopBtn" onclick="toggleWaveSpeed()" style="display:none;">⏩ 2배</button>
+<button id="fireModeBtn" class="hudTopBtn" onclick="cycleFireMode()" style="display:none;">🖱️ 수동</button>
+<div id="semiFireIndicator" class="hudTopBtn" style="display:none;pointer-events:none;"></div>
 
 <!-- ══ 모바일 터치 컨트롤 (이동 조이스틱 + 발사/재장전 버튼) ══ -->
 <div id="mobileControls" style="display:none;">
@@ -468,7 +470,11 @@
 <div id="settingsModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;">
   <div class="code-box" style="max-width:340px;">
     <h3 style="color:#6d28d9;">⚙️ 설정</h3>
-    <p style="margin-bottom:20px;">게임 옵션을 설정하세요</p>
+    <p style="margin-bottom:12px;">게임 옵션을 설정하세요</p>
+    <div id="orientSettingRow" style="display:none;gap:8px;margin-bottom:16px;">
+      <button id="orientPortraitBtn" class="orient-btn" onclick="setScreenMode('portrait')">📱 세로 모드</button>
+      <button id="orientLandscapeBtn" class="orient-btn" onclick="setScreenMode('landscape')">📱 가로 모드</button>
+    </div>
     <button onclick="confirmReset()" style="width:100%;padding:10px 0;background:linear-gradient(135deg,#ef4444,#dc2626);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;">🗑️ 데이터 초기화</button>
     <button onclick="closeSettings()" class="code-cancel">닫기</button>
   </div>

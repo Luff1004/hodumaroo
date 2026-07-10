@@ -61,6 +61,8 @@ function mobileReload(){
   fireBtn.addEventListener('touchstart',e=>{
     e.preventDefault();
     if(!P) return;
+    if(fireMode==='semi'){P._semiOn=!P._semiOn;updSemiIndicator();return;}
+    if(fireMode==='auto')return;
     P._mdown=true;
     if(!P.ws.auto) fireWep();
   },{passive:false});
