@@ -2611,15 +2611,31 @@ function clearToLobby(){
     if(bgmUnlocked)startBGM();go('sLobby');
   }
 }
+// 게임 로직은 60fps 기준으로 프레임당 고정값을 사용하므로, 화면 주사율이
+// 90/120Hz인 모바일 기기에서 requestAnimationFrame이 더 자주 호출돼도
+// update()는 항상 초당 60회로 고정해 PC(60Hz)와 동일한 체감 속도를 유지한다.
+const FRAME_MS=1000/60;
+let _loopAccum=0,_loopLastTs=0;
 function stopLoop(){running=false;if(rafId){cancelAnimationFrame(rafId);rafId=null;}}
-function startLoop(){running=true;rafId=requestAnimationFrame(loop);}
-function loop(){
+function startLoop(){running=true;_loopAccum=0;_loopLastTs=0;rafId=requestAnimationFrame(loop);}
+function loop(ts){
   if(!running){
     // 게임오버/클리어 화면을 위해 마지막 draw 호출
     if(window._needLastDraw){window._needLastDraw=false;draw();}
     return;
   }
-  update();draw();rafId=requestAnimationFrame(loop);
+  if(!_loopLastTs)_loopLastTs=ts;
+  let dt=ts-_loopLastTs;
+  _loopLastTs=ts;
+  if(dt>250)dt=FRAME_MS; // 탭 백그라운드 복귀 등 큰 공백은 한 프레임으로 처리
+  _loopAccum+=dt;
+  let steps=0;
+  while(_loopAccum>=FRAME_MS&&steps<5){
+    update();
+    _loopAccum-=FRAME_MS;
+    steps++;
+  }
+  draw();rafId=requestAnimationFrame(loop);
 }
 
 function hideAllScreens(){
