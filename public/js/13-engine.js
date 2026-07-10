@@ -6,8 +6,9 @@ const mmc=mmCv.getContext('2d');
 const MW=800,MH=3000;
 function VW(){return gC.width;}function VH(){return gC.height;}
 function clampC(y){return Math.max(0,Math.min(MH-VH(),y));}
+function clampCX(x){return Math.max(0,Math.min(Math.max(0,MW-VW()),x));}
 function resize(){gC.width=window.innerWidth;gC.height=window.innerHeight;}
-resize();window.addEventListener('resize',()=>{resize();if(P)camY=clampC(P.y-VH()/2);});
+resize();window.addEventListener('resize',()=>{resize();if(P){camY=clampC(P.y-VH()/2);camX=clampCX(P.x-VW()/2);}});
 
 let P,zoms,buls,parts,effs,hpItems;
 let wave,score,kills,poison;
@@ -19,7 +20,7 @@ function toggleWaveSpeed(){
   const btn=document.getElementById('waveSpeedBtn');
   if(btn){btn.textContent=waveSpeedMul===2?'⏩ 2배 ON':'⏩ 2배';btn.classList.toggle('on',waveSpeedMul===2);}
 }
-let relTimer=0,camY=0,mxW=400,myW=MH-100;
+let relTimer=0,camY=0,camX=0,mxW=400,myW=MH-100;
 const keys={};
 let touchDX=0,touchDY=0;
 let rafId=null,running=false,activeBoss=null,mx=0,my=0;
@@ -154,7 +155,7 @@ function initGame(){
   P._semiOn=false;
   updFireModeBtn();
   updSemiIndicator();
-  camY=clampC(P.y-VH()/2);activeBoss=null;
+  camY=clampC(P.y-VH()/2);camX=clampCX(P.x-VW()/2);activeBoss=null;
   // 맵 장애물 초기화
   obstacles=[];
   if(selMap.id==='desert'){
@@ -1340,6 +1341,7 @@ function update(){
     if(!by)P.y=ny;
   }
   camY+=(clampC(P.y-VH()/2)-camY)*.1;
+  camX+=(clampCX(P.x-VW()/2)-camX)*.1;
   if(isMobileTouch){
     const nearestZ=zoms.filter(z=>!z.dead).sort((a,b)=>d2(a.x,a.y,P.x,P.y)-d2(b.x,b.y,P.x,P.y))[0];
     if(nearestZ)P.angle=Math.atan2(nearestZ.y-P.y,nearestZ.x-P.x);
@@ -1983,7 +1985,7 @@ const THEMES={city:{bg:'#7a7a7a',bd:'rgba(60,60,60,.6)'},forest:{bg:'#1a2e1a',bd
 function draw(){
   ctx.clearRect(0,0,VW(),VH());
   ctx.shadowBlur=0;ctx.shadowColor='transparent';
-  const _ox=Math.max(0,(VW()-MW)/2);
+  const _ox=VW()>=MW?(VW()-MW)/2:-camX;
   ctx.save();ctx.translate(_ox,-camY);
   {
     const th=THEMES[selMap?.id]||THEMES.city;
@@ -2153,7 +2155,9 @@ function draw(){
     if(z.type==='ghost'&&z._phased&&vl2<2)return;
     mmc.fillStyle=z.isBoss?z.bd.col:(ZT[z.type]?.col||'#888');mmc.fillRect(z.x/MW*72-1,z.y/MH*108-1,z.isBoss?5:2,z.isBoss?5:2);});
   mmc.fillStyle='#1D9E75';mmc.beginPath();mmc.arc(P.x/MW*72,P.y/MH*108,3,0,Math.PI*2);mmc.fill();
-  const v1=camY/MH*108,v2=(camY+VH())/MH*108;mmc.strokeStyle='rgba(168,85,247,.5)';mmc.lineWidth=1.5;mmc.strokeRect(0,v1,72,v2-v1);
+  const v1=camY/MH*108,v2=(camY+VH())/MH*108;
+  const vx1=VW()>=MW?0:camX/MW*72,vx2=VW()>=MW?72:Math.min(72,(camX+VW())/MW*72);
+  mmc.strokeStyle='rgba(168,85,247,.5)';mmc.lineWidth=1.5;mmc.strokeRect(vx1,v1,vx2-vx1,v2-v1);
   if(!running&&!window._bossMapClearing&&gC.style.display==='block'&&document.getElementById('clearScreen').style.display==='none'){ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(0,0,VW(),VH());ctx.fillStyle='#fbbf24';ctx.font='bold 40px sans-serif';ctx.textAlign='center';ctx.fillText('☠ GAME OVER ☠',VW()/2,VH()/2-30);ctx.fillStyle='#fff';ctx.font='20px sans-serif';ctx.fillText(`점수: ${score}  킬: ${kills}  웨이브: ${wave}`,VW()/2,VH()/2+8);ctx.fillStyle='rgba(255,255,255,.6)';ctx.font='14px sans-serif';ctx.fillText('클릭하면 로비로',VW()/2,VH()/2+40);}
 }
 
@@ -2641,7 +2645,7 @@ function startGame(){
 
 // ── 입력 ──
 gC.addEventListener('mousemove',e=>{
-  const ox=Math.max(0,(VW()-MW)/2);
+  const ox=VW()>=MW?(VW()-MW)/2:-camX;
   mx=e.clientX;my=e.clientY;
   mxW=e.clientX-ox;myW=e.clientY+camY;
 });
