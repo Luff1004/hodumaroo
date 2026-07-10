@@ -168,6 +168,7 @@ function refreshEventPointsUI(period){
   const ptDisp=document.getElementById('eventGamePoints');
   if(ptDisp) ptDisp.innerHTML = period.useCoins ? `🪙 ${coins.toLocaleString()}` : `${period.ptIcon} ${(gd.points||0).toLocaleString()} ${period.ptName}`;
   if(period.id!=='treasure') renderEventRewardPanel(period);
+  renderPeriodShop(period);
   updRes();
 }
 
@@ -686,7 +687,7 @@ function digTreasureCell(i){
   else if(cell.reward==='empty'){ msgColor='#9ca3af'; msgText='💨 꽝... 아무것도 없네요'; }
   else { const amt=TREASURE_COIN_TABLE[cell.reward]||0; coins+=amt; sv('hd_c',coins); msgText='🪙 +'+amt.toLocaleString()+' 코인 발견!'; }
   saveEventGameData();
-  updRes();
+  refreshEventPointsUI(period);
   const area=document.getElementById('eventGameArea');
   if(area){ area.innerHTML=''; renderTreasure(area); }
   const newMsg=document.getElementById('trMsg');
