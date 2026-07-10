@@ -214,7 +214,15 @@ html,body{width:100%;height:100%;overflow:hidden;background:#f0ede8;font-family:
 /* ── GAME HUD ── */
 .hbar{display:flex;justify-content:space-between;align-items:flex-start;padding:7px 10px;}
 .hsts{display:flex;gap:6px;flex-wrap:wrap;}
-.hs{font-size:11px;font-weight:700;background:rgba(255,255,255,.88);color:#1f2937;padding:2px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.15);backdrop-filter:blur(4px);}
+.hs{font-size:11px;font-weight:700;background:rgba(255,255,255,.88);color:#1f2937;padding:2px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.15);backdrop-filter:blur(4px);box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums;}
+/* 값이 바뀌어도(웨이브/HP/탄약 등 자릿수 변화) HUD 칸 크기가 흔들리지 않도록 실측한 최대치 기준 고정폭 */
+#hw{min-width:100px;}
+#hhp{min-width:96px;}
+#hsc{min-width:84px;}
+#ham{min-width:80px;}
+#hkl{min-width:64px;}
+#hco{min-width:84px;}
+#hen{min-width:84px;}
 .mmbox{width:72px;height:108px;border:1.5px solid rgba(255,255,255,.5);border-radius:6px;overflow:hidden;background:rgba(0,0,0,.5);flex-shrink:0;}
 #mmC{display:block;width:72px;height:108px;}
 #hmsg{text-align:center;font-size:13px;font-weight:700;color:#dc2626;padding:2px;min-height:18px;}
