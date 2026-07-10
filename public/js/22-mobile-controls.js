@@ -105,22 +105,8 @@ function applyControlMode(){
 
   const FREE_RADIUS=45;
   let freeTouchId=null, originX=0, originY=0;
-  let fBase=null, fKnob=null;
-
-  function ensureIndicator(){
-    if(fBase)return;
-    fBase=document.createElement('div');
-    fBase.id='freeJoyBase';
-    fBase.style.cssText='position:fixed;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.3);z-index:7;pointer-events:none;display:none;transform:translate(-50%,-50%);';
-    fKnob=document.createElement('div');
-    fKnob.id='freeJoyKnob';
-    fKnob.style.cssText='position:absolute;left:50%;top:50%;width:44px;height:44px;margin-left:-22px;margin-top:-22px;border-radius:50%;background:rgba(255,255,255,.4);border:2px solid rgba(255,255,255,.7);';
-    fBase.appendChild(fKnob);
-    document.body.appendChild(fBase);
-  }
   function resetFreeJoystick(){
     touchDX=0;touchDY=0;
-    if(fBase)fBase.style.display='none';
   }
   window.resetFreeJoystick=resetFreeJoystick;
 
@@ -129,7 +115,6 @@ function applyControlMode(){
     const dist=Math.hypot(dx,dy);
     if(dist>FREE_RADIUS){ dx=dx/dist*FREE_RADIUS; dy=dy/dist*FREE_RADIUS; }
     touchDX=dx/FREE_RADIUS; touchDY=dy/FREE_RADIUS;
-    if(fKnob)fKnob.style.transform=`translate(${dx}px,${dy}px)`;
   }
 
   canvas.addEventListener('touchstart',e=>{
@@ -137,13 +122,8 @@ function applyControlMode(){
     if(freeTouchId!==null)return;
     e.preventDefault();
     const t=e.changedTouches[0];
-    ensureIndicator();
     freeTouchId=t.identifier;
     originX=t.clientX;originY=t.clientY;
-    fBase.style.left=originX+'px';
-    fBase.style.top=originY+'px';
-    fBase.style.display='block';
-    fKnob.style.transform='translate(0,0)';
     updateFree(t.clientX,t.clientY);
   },{passive:false});
   canvas.addEventListener('touchmove',e=>{
