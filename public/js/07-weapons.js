@@ -64,6 +64,14 @@ const WEPS={
   reanimation_drop:{id:'reanimation_drop',name:'죽음의 낫',icon:'☠️',price:0,ammo:999,max:999,rel:0,spd:0,dmg:42,r:0,life:0,knife:true,sg:false,rarity:'legendary',bossReward:'reanimation',desc:'REANIMATION 클리어 보상. 처치 시 아군 소환'},
   kraken_drop:{id:'kraken_drop',name:'심해의 눈',icon:'🐙',price:0,ammo:10,max:10,rel:100,spd:10,dmg:35,r:8,life:180,knife:false,sg:false,explosive:true,rarity:'legendary',bossReward:'kraken',desc:'KRAKEN 클리어 보상. 폭발+촉수 소환'},
   symphony_drop:{id:'symphony_drop',name:'오메가 지휘봉',icon:'🎵',price:0,ammo:999,max:999,rel:0,spd:0,dmg:55,r:0,life:0,knife:true,sg:false,chain:true,rarity:'mythic',bossReward:'symphony',desc:'SYMPHONY 클리어 보상. [근접] 공격 시 무지개 탄막 48발 동시 방사. 데미지100'},
+  event_firework:{id:'event_firework',name:'축제의 폭죽포',icon:'🎆',price:0,ammo:20,max:20,rel:70,spd:12,dmg:22,r:8,life:150,knife:false,sg:false,explosive:true,auto:true,rarity:'mythic',bossReward:'event',desc:'이벤트 상점 획득. [자동] 폭죽 연사, 착탄 시 화려한 폭발'},
+  // ── 시즌 이벤트(2개월 순환) 전용 무기 ──
+  ev_cw_wep:{id:'ev_cw_wep',name:'셰프의 식칼',icon:'🔪',price:0,ammo:999,max:999,rel:0,spd:0,dmg:38,r:0,life:0,knife:true,sg:false,chain:true,rarity:'legendary',bossReward:'ev_cookwar',desc:'요리전쟁 이벤트 보상. [근접] 참격+화염 번짐'},
+  ev_gd_wep:{id:'ev_gd_wep',name:'농부의 낫',icon:'🌱',price:0,ammo:999,max:999,rel:0,spd:0,dmg:34,r:0,life:0,knife:true,sg:false,pierce:true,rarity:'legendary',bossReward:'ev_garden',desc:'봄맞이 텃밭 가꾸기 이벤트 보상. [근접] 관통 참격+새싹 흩날림'},
+  ev_tr_wep:{id:'ev_tr_wep',name:'보물의 곡괭이',icon:'⛏️',price:0,ammo:999,max:999,rel:0,spd:0,dmg:40,r:0,life:0,knife:true,sg:false,explosive:true,rarity:'legendary',bossReward:'ev_treasure',desc:'보물찾기 대회 이벤트 보상. [근접] 폭발 강타'},
+  ev_wm_wep:{id:'ev_wm_wep',name:'수박 격파포',icon:'🍉',price:0,ammo:18,max:18,rel:80,spd:12,dmg:30,r:9,life:180,knife:false,sg:false,explosive:true,rarity:'legendary',bossReward:'ev_watermelon',desc:'여름 수박격파 대회 이벤트 보상. 폭발 과육탄 연사'},
+  ev_as_wep:{id:'ev_as_wep',name:'사과 폭탄 슬링',icon:'🍎',price:0,ammo:16,max:16,rel:85,spd:12,dmg:30,r:8,life:180,knife:false,sg:false,explosive:true,rarity:'legendary',bossReward:'ev_slingshot',desc:'가을 사과 슬링샷 대회 이벤트 보상. 폭발 사과탄 연사'},
+  ev_gr_wep:{id:'ev_gr_wep',name:'선물상자 발사기',icon:'🎁',price:0,ammo:14,max:14,rel:90,spd:11,dmg:32,r:9,life:180,knife:false,sg:false,explosive:true,freeze:true,rarity:'legendary',bossReward:'ev_giftrhythm',desc:'산타의 선물배달 이벤트 보상. 폭발+동결 선물상자탄'},
 
   // ── 시즌패스 전용 무기 6종 ──
   sp_winter:{id:'sp_winter',name:'[시즌] 겨울의 창',icon:'❄️',price:0,ammo:999,max:999,rel:0,spd:0,dmg:35,r:0,life:0,knife:true,sg:false,freeze:true,chain:true,spOnly:true,rarity:'legendary',spMonth:1,spLv:25,desc:'1월 시즌Lv.25. 데미지70, 동결+번개연쇄'},

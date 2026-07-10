@@ -35,6 +35,16 @@ const BOSSES={
   symphony_boss:{id:'symphony_boss',name:'FANTASTIC SYMPHONY',icon:'🎵',hp:50000,r:75,col:'#fbbf24',ol:'#d97706',
     phases:[{t:.75,m:'🎵 2악장: 격자 폭탄'},{t:.5,m:'🎶 3악장: 수평 레이저'},{t:.25,m:'🎷 4악장'},{t:.05,m:'💀 OMEGA FINALE!!!'}],
     atk:['noteBurst','crescendo','symphonyGrid','noteStorm','noteRing','omegaFinale','crescendo','symphonyGrid','noteStorm','omegaFinale'],reward:{c:30000,e:15000}},
+  // ── 신규 보스맵 3종 ──
+  volcano_boss:{id:'volcano_boss',name:'VOLCANO',icon:'🌋',hp:17000,r:66,col:'#f97316',ol:'#7c2d12',
+    phases:[{t:.65,m:'🌋 2페이즈: 용암 폭발!'},{t:.35,m:'🔥 3페이즈: 대분화!'},{t:.1,m:'💀 마그마 폭풍'}],
+    atk:['lavaPool','burst16','fireBreath','spikeField','lavaPool','burst16','fireBreath'],reward:{c:9000,e:4000}},
+  frost_boss:{id:'frost_boss',name:'FROST EMPRESS',icon:'🧊',hp:19000,r:64,col:'#7dd3fc',ol:'#0369a1',
+    phases:[{t:.6,m:'❄️ 2페이즈: 절대 빙결!'},{t:.3,m:'🌨️ 3페이즈: 블리자드!'},{t:.1,m:'💀 영원한 겨울'}],
+    atk:['iceSpear','freeze','burst12','blink','iceSpear','freeze','burst12'],reward:{c:9500,e:4200}},
+  void_boss:{id:'void_boss',name:'VOID REAPER',icon:'🌌',hp:21000,r:70,col:'#7c3aed',ol:'#1e1b4b',
+    phases:[{t:.65,m:'🌌 2페이즈: 차원 균열!'},{t:.35,m:'⚫ 3페이즈: 소멸장!'},{t:.1,m:'💀 완전한 공허'}],
+    atk:['voidRift','poisonCloud','lightning','summonAll','blink','voidRift','lightning'],reward:{c:10000,e:4500}},
 };
 
 // ══════════════ 지형 그리기 ══════════════
@@ -211,13 +221,15 @@ function drawBossArena(ctx,m){
   const colors={
     sun:'rgba(251,191,36,',machine:'rgba(59,130,246,',bacteria:'rgba(34,197,94,',
     clock:'rgba(139,92,246,',skeleton:'rgba(156,163,175,',reanimation:'rgba(239,68,68,',
-    kraken:'rgba(8,145,178,',symphony:'rgba(251,191,36,'
+    kraken:'rgba(8,145,178,',symphony:'rgba(251,191,36,',
+    volcano:'rgba(249,115,22,',frost:'rgba(125,211,252,',void:'rgba(124,58,237,'
   };
   const col=colors[t]||'rgba(255,255,255,';
   const fills={
     sun:'rgba(80,40,0,0.12)',machine:'rgba(0,20,60,0.15)',bacteria:'rgba(0,40,10,0.12)',
     clock:'rgba(30,0,60,0.15)',skeleton:'rgba(10,10,10,0.2)',reanimation:'rgba(60,0,0,0.18)',
-    kraken:'rgba(0,30,50,0.2)',symphony:'rgba(20,0,40,0.15)'
+    kraken:'rgba(0,30,50,0.2)',symphony:'rgba(20,0,40,0.15)',
+    volcano:'rgba(80,20,0,0.15)',frost:'rgba(0,40,60,0.15)',void:'rgba(20,0,50,0.2)'
   };
 
   for(let sec=0;sec<4;sec++){
@@ -264,6 +276,19 @@ function drawBossArena(ctx,m){
     } else if(t==='symphony'){
       // 무지개 동심원
       for(let i=0;i<6;i++){ctx.strokeStyle=`hsla(${i*60},70%,60%,0.06)`;ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx,cy,50+i*50,0,Math.PI*2);ctx.stroke();}
+    } else if(t==='volcano'){
+      // 균열 무늬 + 용암 웅덩이
+      ctx.strokeStyle=col+'0.1)';ctx.lineWidth=2;
+      for(let i=0;i<6;i++){const a=i/6*Math.PI*2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*320,cy+Math.sin(a)*320);ctx.stroke();}
+      [[cx-200,cy-150,40],[cx+180,cy+120,50],[cx-100,cy+200,35]].forEach(([px,py,pr])=>{ctx.fillStyle='rgba(249,115,22,0.1)';ctx.beginPath();ctx.arc(px,py,pr,0,Math.PI*2);ctx.fill();});
+    } else if(t==='frost'){
+      // 눈꽃 육각 무늬
+      ctx.strokeStyle=col+'0.1)';ctx.lineWidth=1;
+      for(let i=0;i<6;i++){const a=i/6*Math.PI*2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*260,cy+Math.sin(a)*260);ctx.stroke();}
+      ctx.beginPath();ctx.arc(cx,cy,180,0,Math.PI*2);ctx.stroke();
+    } else if(t==='void'){
+      // 소용돌이 균열
+      for(let r=40;r<340;r+=50){ctx.strokeStyle=col+'0.09)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*1.6);ctx.stroke();}
     }
   }
 }

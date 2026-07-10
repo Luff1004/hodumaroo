@@ -51,6 +51,13 @@ const ARMORS=[
   {id:'sp_armor_dec',name:'[시즌] 별빛 갑옷',icon:'⭐',price:0,def:82,bc:'#fbbf24',ac:'#f59e0b',desc:'12월 시즌Lv.25. 방어+82%, 모든 스탯 대폭 강화',bonus:{hp:400,dmg:12,crit:40,lifesteal:10,regen:12,spd:1},spOnly:true,rarity:'mythic',spMonth:12,spLv:25},
   {id:'sp_armor25',name:'[시즌] 성흔의 갑옷',rarity:'legendary',icon:'🌠',price:0,def:70,bc:'#6366f1',ac:'#4338ca',desc:'【시즌Lv.25 전용】방어+70%, HP+300, 재생+10, 회피+25%',bonus:{hp:300,regen:10,dodge:25},spOnly:true},
   {id:'sp_armor50',name:'[시즌] 별의 화신',rarity:'mythic',icon:'💫',price:0,def:88,bc:'#fbbf24',ac:'#f59e0b',desc:'【시즌Lv.50 전용】방어+88%, HP+999, 데미지+20, 치명타+50%, 흡혈+15, 재생+20',bonus:{hp:999,dmg:20,crit:50,lifesteal:15,regen:20},spOnly:true},
+  // ── 시즌 이벤트(2개월 순환) 전용 갑옷 ──
+  {id:'ev_cw_armor',name:'요리사 앞치마',icon:'🍳',price:0,def:55,bc:'#f97316',ac:'#c2410c',desc:'요리전쟁 이벤트 보상. 방어+55%, 재생+10, HP+150',bonus:{regen:10,hp:150},rarity:'legendary',eventOnly:true},
+  {id:'ev_gd_armor',name:'텃밭지기 작업복',icon:'🌱',price:0,def:58,bc:'#4ade80',ac:'#16a34a',desc:'봄맞이 텃밭 가꾸기 이벤트 보상. 방어+58%, 회피+20%, 이동속도+1',bonus:{dodge:20,spd:1},rarity:'legendary',eventOnly:true},
+  {id:'ev_tr_armor',name:'탐험가 갑옷',icon:'🗺️',price:0,def:52,bc:'#b45309',ac:'#92400e',desc:'보물찾기 대회 이벤트 보상. 방어+52%, 코인+30%, 데미지+6',bonus:{coinBonus:0.3,dmg:6},rarity:'legendary',eventOnly:true},
+  {id:'ev_wm_armor',name:'여름 축제 반다나',icon:'🍉',price:0,def:56,bc:'#22c55e',ac:'#16a34a',desc:'여름 수박격파 대회 이벤트 보상. 방어+56%, 이동속도+1, HP+180',bonus:{spd:1,hp:180},rarity:'legendary',eventOnly:true},
+  {id:'ev_as_armor',name:'사과농장 조끼',icon:'🍎',price:0,def:50,bc:'#dc2626',ac:'#991b1b',desc:'가을 사과 슬링샷 대회 이벤트 보상. 방어+50%, 데미지+7, HP+150',bonus:{dmg:7,hp:150},rarity:'legendary',eventOnly:true},
+  {id:'ev_gr_armor',name:'산타 코트',icon:'🎅',price:0,def:60,bc:'#ef4444',ac:'#b91c1c',desc:'산타의 선물배달 이벤트 보상. 방어+60%, 냉기오라, HP+250',bonus:{coldAura:true,hp:250},rarity:'legendary',eventOnly:true},
 ];
 
 // ══════════════ 상점 ══════════════
@@ -90,7 +97,7 @@ function renderShop(){
       g.appendChild(d);
     });
   } else if(curShopTab==='armor'){
-    ARMORS.filter(ar=>!ar.spOnly).forEach(ar=>{
+    ARMORS.filter(ar=>!ar.spOnly&&!ar.eventOnly).forEach(ar=>{
       const ow=owned['ar_'+ar.id]||false,eq=eqArmor===ar.id,cb=!ow&&coins>=ar.price;
       const d=document.createElement('div');const arRarCls=ar.rarity?' rar-'+ar.rarity:'';d.className='si'+(eq?' own':cb?' cb2':ow?' own':'')+arRarCls;
       const ico=document.createElement('div');ico.className='sico';ico.textContent=ar.icon;d.appendChild(ico);
@@ -185,7 +192,7 @@ function renderShop(){
       if(!ow){
         if(isBossWep){
           // 보스 클리어 잠금 표시
-          const bossNames={sun:'THE SUN',machine:'MACHINE',bacteria:'BACTERIA',skeleton:'SKELETON',clock:'CLOCK',reanimation:'REANIMATION',kraken:'KRAKEN',symphony:'SYMPHONY'};
+          const bossNames={sun:'THE SUN',machine:'MACHINE',bacteria:'BACTERIA',skeleton:'SKELETON',clock:'CLOCK',reanimation:'REANIMATION',kraken:'KRAKEN',symphony:'SYMPHONY',volcano:'VOLCANO',frost:'FROST EMPRESS',void:'VOID REAPER',event:'이벤트 상점',ev_cookwar:'요리전쟁',ev_garden:'봄맞이 텃밭 가꾸기',ev_treasure:'보물찾기 대회',ev_watermelon:'여름 수박격파 대회',ev_slingshot:'가을 사과 슬링샷 대회',ev_giftrhythm:'산타의 선물배달'};
           const lockDiv=document.createElement('div');lockDiv.style.cssText='font-size:9px;background:#1e1b4b;color:#a78bfa;padding:4px 6px;border-radius:6px;border:1px solid #4c1d95;text-align:center;margin-top:3px;';
           lockDiv.textContent='🔒 '+( bossNames[w.bossReward]||w.bossReward)+' 처치 보상';d.appendChild(lockDiv);
         } else {
@@ -213,7 +220,7 @@ function renderShop(){
       const _rBdg={'rare':'<span style="font-size:7px;padding:1px 4px;border-radius:4px;background:#6366f1;color:#fff">RARE</span>','epic':'<span style="font-size:7px;padding:1px 4px;border-radius:4px;background:#a855f7;color:#fff">EPIC</span>','legendary':'<span style="font-size:7px;padding:1px 4px;border-radius:4px;background:#f59e0b;color:#fff">✨LEGEND</span>','mythic':'<span style="font-size:7px;padding:1px 4px;border-radius:4px;background:linear-gradient(90deg,#ec4899,#8b5cf6);color:#fff">🌈MYTHIC</span>'};
       nm.innerHTML=w.name+(_rBdg[w.rarity]||'');d.appendChild(nm);
       const ds=document.createElement('div');ds.className='sds';ds.textContent=w.desc;d.appendChild(ds);
-      const bossNames={sun:'THE SUN',machine:'MACHINE',bacteria:'BACTERIA',skeleton:'SKELETON',clock:'CLOCK',reanimation:'REANIMATION',kraken:'KRAKEN',symphony:'SYMPHONY'};
+      const bossNames={sun:'THE SUN',machine:'MACHINE',bacteria:'BACTERIA',skeleton:'SKELETON',clock:'CLOCK',reanimation:'REANIMATION',kraken:'KRAKEN',symphony:'SYMPHONY',volcano:'VOLCANO',frost:'FROST EMPRESS',void:'VOID REAPER',event:'이벤트 상점',ev_cookwar:'요리전쟁',ev_garden:'봄맞이 텃밭 가꾸기',ev_treasure:'보물찾기 대회',ev_watermelon:'여름 수박격파 대회',ev_slingshot:'가을 사과 슬링샷 대회',ev_giftrhythm:'산타의 선물배달'};
       if(ow){
         const done=document.createElement('div');done.style.cssText='font-size:9px;color:#4ade80;font-weight:700;margin-top:3px;';done.textContent='✅ 보스 클리어 획득';d.appendChild(done);
       } else {

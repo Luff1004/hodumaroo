@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>호두마루 - Zombie Survival</title>
 <link rel="stylesheet" href="/css/style.css">
 </head>
@@ -11,6 +12,7 @@
 <div id="sLobby" class="screen on">
   <div class="logo">호두마루</div>
   <div class="logo-sub">ZOMBIE SURVIVAL</div>
+  <div id="titleDisp" style="display:none;margin:2px auto 6px;padding:3px 12px;background:linear-gradient(135deg,#4c1d95,#7c3aed);color:#fff;font-size:11px;font-weight:800;border-radius:12px;width:fit-content;"></div>
   <div class="res-row">
     <div class="rb cb">🪙 <span id="lc">0</span></div>
     <div class="rb eb">⚡ <span id="le">0</span></div>
@@ -27,6 +29,7 @@
     <button class="lb" style="background:linear-gradient(135deg,#1a0a3e,#2e1065);color:#fbbf24;border:1.5px solid #7c3aed;" onclick="go('sSeason')">🌟 시즌패스</button>
     <button class="lb" style="background:linear-gradient(135deg,#065f46,#047857);color:#d1fae5;border:1.5px solid #10b981;" onclick="go('sDailyQuest')">📅 일일퀘스트</button>
     <button class="lb" style="background:linear-gradient(135deg,#be185d,#831843);color:#fce7f3;border:1.5px solid #ec4899;" onclick="go('sPets')">🐾 펫</button>
+    <button class="lb" style="background:linear-gradient(135deg,#db2777,#7c3aed,#0891b2);color:#fff;border:1.5px solid #f0abfc;" onclick="go('sEvent')">🎉 이벤트</button>
   </div>
   <div class="ver">호두마루 v1.0</div>
   <div style="position:fixed;bottom:10px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;z-index:25;background:rgba(255,255,255,0.85);padding:4px 14px;border-radius:20px;border:1px solid #e5e7eb;">
@@ -95,9 +98,15 @@
   <button class="back" onclick="go('sLobby')">← 뒤로</button>
   <div style="text-align:center;margin-bottom:16px;">
     <div style="font-size:22px;font-weight:900;color:#fbbf24;letter-spacing:4px;">🏆 업적</div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:10px;">
+      <button class="stab on" data-tab="ach" onclick="setAchTab('ach',this)">🏆 업적</button>
+      <button class="stab" data-tab="title" onclick="setAchTab('title',this)">👑 칭호</button>
+    </div>
     <div id="achProgress" style="font-size:11px;color:#6b7280;margin-top:4px;"></div>
+    <div id="titleProgress" style="font-size:11px;color:#6b7280;margin-top:4px;"></div>
   </div>
   <div id="achList" style="display:flex;flex-direction:column;gap:8px;max-width:700px;margin:0 auto;padding-bottom:40px;"></div>
+  <div id="titleList" style="display:none;flex-direction:column;gap:8px;max-width:700px;margin:0 auto;padding-bottom:40px;"></div>
 </div>
 
 <!-- ══ MAP SELECT ══ -->
@@ -354,6 +363,40 @@
   <div class="sgrid" id="petGrid" style="max-height:62vh;"></div>
 </div>
 
+<!-- ══ 이벤트 화면 ══ -->
+<div id="sEvent" class="screen" style="background:#1a0a2e;overflow-y:auto;align-items:stretch;justify-content:flex-start;padding-bottom:20px;position:relative;transition:background 0.6s;">
+  <canvas id="eventAmbientCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
+  <div style="position:relative;z-index:1;">
+  <button class="back" style="border-color:#f0abfc;color:#f0abfc;" onclick="go('sLobby')">← 뒤로</button>
+  <div class="stitle" style="color:#f0abfc;">🎉 이벤트</div>
+  <div class="stabs" style="justify-content:center;">
+    <button class="stab on" data-tab="game" style="background:#1a0a2e;color:#f0abfc;" onclick="setEventTab('game',this)">🎮 이벤트</button>
+    <button class="stab" data-tab="shop" style="background:#1a0a2e;color:#f0abfc;" onclick="setEventTab('shop',this)">🛍 상점</button>
+  </div>
+  <div id="eventDevBar" style="display:none;justify-content:center;align-items:center;gap:10px;margin:10px 0;">
+    <button class="bybtn" onclick="devCycleEvent(-1)">◀</button>
+    <span id="eventDevLabel" style="font-size:11px;color:#fbbf24;font-weight:800;"></span>
+    <button class="bybtn" onclick="devCycleEvent(1)">▶</button>
+  </div>
+  <div id="eventGameTab">
+    <div id="eventBanner" style="text-align:center;margin-bottom:6px;"></div>
+    <div id="eventGamePoints" style="text-align:center;font-size:15px;font-weight:900;color:#fbbf24;margin-bottom:12px;"></div>
+    <div id="eventGameArea" style="padding-bottom:10px;"></div>
+    <div style="text-align:center;font-size:12px;color:#e5e7eb;font-weight:800;margin:14px 0 4px;">🏆 이벤트 전용 보상</div>
+    <div id="eventRewardPanel" class="sgrid" style="max-width:640px;margin:0 auto 10px;"></div>
+    <div id="eventPeriodShopWrap">
+      <div style="text-align:center;font-size:12px;color:#e5e7eb;font-weight:800;margin:14px 0 4px;">🏪 이벤트 전용 교환소</div>
+      <div id="eventPeriodShop" class="sgrid" style="max-width:640px;margin:0 auto;"></div>
+    </div>
+  </div>
+  <div id="eventShopTab" style="display:none;">
+    <div style="font-size:12px;color:#e9d5ff;margin-bottom:2px;text-align:center;">좀비 처치 +1, 웨이브 클리어 +10, 보스 처치 +100 이벤트 포인트 획득</div>
+    <div style="font-size:16px;font-weight:900;color:#fbbf24;margin:6px 0 10px;text-align:center;">🎫 <span id="eventPoints">0</span> 포인트</div>
+    <div class="sgrid" id="eventShopList" style="max-height:56vh;margin:0 auto;"></div>
+  </div>
+  </div>
+</div>
+
 <!-- ══ 보스 클리어 화면 ══ -->
 <div id="clearScreen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.88);z-index:80;flex-direction:column;align-items:center;justify-content:center;gap:20px;">
   <div id="clearTitle" style="font-size:clamp(28px,5vw,52px);font-weight:900;color:#fbbf24;text-align:center;text-shadow:0 0 30px #f59e0b;"></div>
@@ -377,6 +420,15 @@
 <!-- ══ 일시정지 버튼 ══ -->
 <button id="pauseBtn" onclick="togglePause()" style="display:none;position:fixed;top:8px;right:10px;z-index:8;padding:5px 14px;background:rgba(0,0,0,.65);border:1.5px solid rgba(255,255,255,.3);border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;backdrop-filter:blur(4px);">⏸ 일시정지</button>
 <button id="waveSpeedBtn" onclick="toggleWaveSpeed()" style="display:none;position:fixed;top:8px;right:110px;z-index:8;padding:5px 14px;background:rgba(0,0,0,.65);border:1.5px solid rgba(255,255,255,.3);border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;backdrop-filter:blur(4px);">⏩ 2배</button>
+
+<!-- ══ 모바일 터치 컨트롤 (이동 조이스틱 + 발사/재장전 버튼) ══ -->
+<div id="mobileControls" style="display:none;">
+  <div id="joystickBase" style="position:fixed;left:22px;bottom:22px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.35);z-index:7;touch-action:none;backdrop-filter:blur(2px);">
+    <div id="joystickKnob" style="position:absolute;left:50%;top:50%;width:52px;height:52px;margin-left:-26px;margin-top:-26px;border-radius:50%;background:rgba(255,255,255,.55);border:2px solid rgba(255,255,255,.8);"></div>
+  </div>
+  <button id="mobileReloadBtn" onclick="mobileReload()" style="position:fixed;right:96px;bottom:118px;width:48px;height:48px;border-radius:50%;background:rgba(0,0,0,.6);border:2px solid rgba(255,255,255,.4);color:#fff;font-size:18px;z-index:7;touch-action:none;">🔄</button>
+  <button id="mobileFireBtn" style="position:fixed;right:90px;bottom:20px;width:88px;height:88px;border-radius:50%;background:rgba(239,68,68,.5);border:3px solid rgba(255,255,255,.65);color:#fff;font-size:30px;z-index:7;touch-action:none;">🔫</button>
+</div>
 
 <!-- ══ UPGRADE OVERLAY ══ -->
 <div id="upgOv">
@@ -409,6 +461,8 @@
 <script src="/js/17-enchant.js"></script>
 <script src="/js/18-daily-quest.js"></script>
 <script src="/js/19-pets.js"></script>
+<script src="/js/21-events-game.js"></script>
+<script src="/js/22-mobile-controls.js"></script>
 
 <!-- ══ 설정 모달 ══ -->
 <div id="settingsModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;">

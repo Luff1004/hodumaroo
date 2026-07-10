@@ -260,6 +260,87 @@ function execJobSkill(jobId, key) {
         setMsg('🐲 드래곤 소환!');
       }
       break;
+    case 'demolitionist':
+      if(key==='E'){
+        for(let i=0;i<3;i++){
+          const ang=Math.random()*Math.PI*2,dist=60+Math.random()*120;
+          const tx=P.x+Math.cos(ang)*dist,ty=P.y+Math.sin(ang)*dist;
+          effs.push({type:'warn',x:tx,y:ty,l:40,ml:40});
+          setTimeout(()=>{if(!running)return;addExp(tx,ty,70+(P._aoeB||0),'#f97316');zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,tx,ty)<(70+(P._aoeB||0)+z.r)**2)hitZ(z,25+(P.dmgB||0));});},650);
+        }
+        setMsg('💣 지뢰 설치!');
+      } else if(key==='Q'){
+        for(let i=0;i<8;i++){
+          setTimeout(()=>{
+            if(!running)return;
+            const tx=P.x+(Math.random()-.5)*500,ty=P.y+(Math.random()-.5)*500;
+            effs.push({type:'warn',x:tx,y:ty,l:25,ml:25});
+            setTimeout(()=>{if(!running)return;addExp(tx,ty,60+(P._aoeB||0),'#fb923c');zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,tx,ty)<(60+(P._aoeB||0)+z.r)**2)hitZ(z,20+(P.dmgB||0));});},450);
+          },i*150);
+        }
+        setMsg('🎯 융단폭격!');
+      }
+      break;
+    case 'elementalist':
+      if(key==='E'){
+        addExp(P.x,P.y,180,'#a855f7');
+        zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,P.x,P.y)<180**2){hitZ(z,30+(P.dmgB||0));z._frz=(z._frz||0)+120;}});
+        setMsg('🌈 원소 폭발! 화염+빙결+번개 동시 발동');
+      } else if(key==='Q'){
+        P._invincible=(P._invincible||0)+300;
+        setMsg('🛡️ 원소 방벽! 5초간 무적');
+      }
+      break;
+    case 'ev_cw_job':
+      if(key==='E'){
+        for(let i=-2;i<=2;i++){const ang=P.angle+i*.1;buls.push({x:P.x,y:P.y,vx:Math.cos(ang)*10,vy:Math.sin(ang)*10,r:8,l:100,en:false,dmg:14+(P.dmgB||0),col:'#f97316',fire:true});}
+        setMsg('🔥 불맛 참격!');
+      } else if(key==='Q'){
+        P.hp=P.maxHp;P.dmgB=(P.dmgB||0)+6;P._fastFire=true;
+        setTimeout(()=>{P.dmgB-=6;P._fastFire=false;},10000);
+        setMsg('🍽️ 명품 코스요리! 완전회복+10초 강화');
+      }
+      break;
+    case 'ev_tr_job':
+      if(key==='E'){ P._goldRush=(P._goldRush||0)+600; setMsg('💰 황금손! 10초간 코인 4배'); }
+      else if(key==='Q'){
+        addExp(P.x,P.y,200,'#b45309');
+        zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,P.x,P.y)<200**2)hitZ(z,35+(P.dmgB||0));});
+        coins+=500;sv('hd_c',coins);updRes();
+        setMsg('💥 보물 폭발! +500 코인');
+      }
+      break;
+    case 'ev_wm_job':
+      if(key==='E'){
+        for(let i=0;i<10;i++){const a=i/10*Math.PI*2;buls.push({x:P.x,y:P.y,vx:Math.cos(a)*10,vy:Math.sin(a)*10,r:9,l:130,en:false,dmg:16+(P.dmgB||0),col:'#22c55e',_explosive:true});}
+        setMsg('🍉 수박 폭발!');
+      } else if(key==='Q'){
+        P.spd+=2;setTimeout(()=>{P.spd-=2;},15000);
+        const bonus=300; coins+=bonus; sv('hd_c',coins); updRes();
+        setMsg('🎉 여름 축제! 15초간 이동속도+2, +'+bonus+' 코인');
+      }
+      break;
+    case 'ev_as_job':
+      if(key==='E'){
+        for(let i=0;i<5;i++){gTimeout(()=>{if(!running)return;const ang=P.angle;buls.push({x:P.x,y:P.y,vx:Math.cos(ang)*11,vy:Math.sin(ang)*11,r:8,l:130,en:false,dmg:14+(P.dmgB||0),col:'#dc2626',_explosive:true});},i*90);}
+        setMsg('🍎 사과 폭격!');
+      } else if(key==='Q'){
+        P._wepCrit=(P._wepCrit||0)+0.4;
+        setTimeout(()=>{P._wepCrit=Math.max(0,(P._wepCrit||0)-0.4);},10000);
+        setMsg('🎯 명중 집중! 10초간 치명타율+40%');
+      }
+      break;
+    case 'ev_gr_job':
+      if(key==='E'){
+        addExp(P.x,P.y,250,'#7dd3fc');
+        zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,P.x,P.y)<250**2){hitZ(z,25+(P.dmgB||0));z._frz=(z._frz||0)+180;}});
+        setMsg('🎁 선물 폭탄!');
+      } else if(key==='Q'){
+        P.spd+=3;P._invincible=(P._invincible||0)+600;
+        setTimeout(()=>{P.spd-=3;},10000);
+        setMsg('🦌 루돌프 질주! 10초간 이동속도+3, 무적');
+      }
+      break;
   }
   setTimeout(()=>{if(running)setMsg('');},2500);
 }

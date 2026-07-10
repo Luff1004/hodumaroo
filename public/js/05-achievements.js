@@ -37,6 +37,10 @@ const ACHIEVEMENTS = [
   {id:'boss_kraken',name:'심해 정복자',        desc:'KRAKEN 처치',                         reward:{coins:20000},  cond:'bossKills.kraken>=1'},
   {id:'boss_sym',   name:'심포니의 끝',        desc:'FANTASTIC SYMPHONY 처치',             reward:{energy:50000}, cond:'bossKills.symphony>=1'},
   {id:'boss_all',   name:'보스 사냥꾼',        desc:'일반 보스 8종 모두 처치',             reward:{item:'spatial_path'}, cond:'Object.keys(bossKills).filter(k=>!k.startsWith("dream")).length>=8'},
+  {id:'boss_volcano',name:'화산을 잠재운 자',  desc:'VOLCANO 보스 처치',                   reward:{coins:22000},  cond:'bossKills.volcano>=1'},
+  {id:'boss_frost', name:'겨울을 끝낸 자',     desc:'FROST EMPRESS 보스 처치',             reward:{coins:24000},  cond:'bossKills.frost>=1'},
+  {id:'boss_void',  name:'공허를 가른 자',     desc:'VOID REAPER 보스 처치',               reward:{energy:60000}, cond:'bossKills.void>=1'},
+  {id:'boss_all_new',name:'신규 보스 정복자',  desc:'VOLCANO·FROST·VOID 모두 처치',       reward:{item:'black_hole'}, cond:'bossKills.volcano>=1&&bossKills.frost>=1&&bossKills.void>=1'},
   // ── 드림코어 업적 ──
   {id:'dream_enter',name:'THE DREAMCORE',      desc:'드림코어 세계에 진입',                reward:{item:'spatial_path'}, cond:'dreamEntered>=1'},
   {id:'dream_sun',  name:'태양이 뜨지 않는다', desc:'THE SUN IS RISE 처치',                reward:{coins:50000},  cond:'bossKills.dream_sun>=1'},
@@ -73,6 +77,16 @@ const ACHIEVEMENTS = [
   {id:'boss_nodmg', name:'퍼펙트 클리어',     desc:'피해 없이 보스 처치',                  reward:{energy:30000}, cond:'noDmgBoss>=1'},
   {id:'party_play', name:'우리 함께',          desc:'파티 플레이 1회',                     reward:{coins:5000},   cond:'partyPlayed>=1'},
   {id:'all_maps',   name:'탐험가',             desc:'모든 일반 맵에서 웨이브 10 달성',     reward:{energy:15000}, cond:'clearedMaps.length>=5'},
+  // ── 확장 업적 (인챈트/펫/도전/플레이) ──
+  {id:'enchant_10', name:'행운의 초보',        desc:'인챈트 10회 시도',                    reward:{coins:5000},   cond:'(achStats.enchantAttempts||0)>=10'},
+  {id:'enchant_100',name:'인챈트 중독자',      desc:'인챈트 100회 시도',                   reward:{energy:20000}, cond:'(achStats.enchantAttempts||0)>=100'},
+  {id:'enchant_1000',name:'운명의 도박사',     desc:'인챈트 1000회 시도',                  reward:{energy:150000},cond:'(achStats.enchantAttempts||0)>=1000'},
+  {id:'games_10',   name:'단골 생존자',        desc:'게임 10회 플레이',                    reward:{coins:5000},   cond:'(achStats.gamesPlayed||0)>=10'},
+  {id:'games_100',  name:'끝없는 생존',        desc:'게임 100회 플레이',                   reward:{energy:40000}, cond:'(achStats.gamesPlayed||0)>=100'},
+  {id:'challenge_all',name:'챌린지 정복자',    desc:'챌린지 맵 3종 모두 클리어',           reward:{item:'spatial_path'}, cond:'(achStats.challengeCleared||[]).length>=3'},
+  {id:'pet_first',  name:'첫 반려동물',        desc:'펫 1마리 획득',                       reward:{coins:5000},   cond:'typeof ownedPets!=="undefined"&&Object.keys(ownedPets).length>=1'},
+  {id:'pet_10',     name:'펫 애호가',          desc:'펫 10종 획득',                        reward:{energy:25000}, cond:'typeof ownedPets!=="undefined"&&Object.keys(ownedPets).length>=10'},
+  {id:'pet_30',     name:'펫 마스터',          desc:'펫 30종 획득',                        reward:{energy:100000},cond:'typeof ownedPets!=="undefined"&&Object.keys(ownedPets).length>=30'},
   // ── 운 업적 ──
   {id:'lucky',      name:'오늘은 운이 좋군요', desc:'매 1초마다 20000분의 1 확률로 획득',  reward:{item:'lucky_clover'}, cond:'luckyAchieved>=1'},
   // ── 히든 ──
@@ -112,6 +126,7 @@ function checkAchievements(){
     } catch(e){}
   });
   if(newUnlock) saveAch();
+  checkTitles();
 }
 
 // 업적 보상 지급
@@ -124,6 +139,98 @@ function grantAchReward(a){
   updRes();
 }
 
+// ════════════════════════════════════════════
+// ══ 칭호 시스템 ══
+// ════════════════════════════════════════════
+const TITLES = [
+  {id:'t_novice',      icon:'🔰', name:'새내기 생존자',   desc:'좀비 10마리 처치',                 cond:'achStats.kills>=10'},
+  {id:'t_slayer',      icon:'⚔️', name:'좀비 학살자',     desc:'좀비 1,000마리 처치',              cond:'achStats.kills>=1000'},
+  {id:'t_annihilator', icon:'☠️', name:'절멸자',         desc:'좀비 10,000마리 처치',             cond:'achStats.kills>=10000'},
+  {id:'t_veteran',     icon:'🎖️', name:'베테랑',         desc:'웨이브 25 달성',                  cond:'achStats.maxWave>=25'},
+  {id:'t_survivor',    icon:'🏕️', name:'생존왕',         desc:'웨이브 50 달성',                  cond:'achStats.maxWave>=50'},
+  {id:'t_immortal',    icon:'♾️', name:'불멸자',         desc:'웨이브 100 달성',                 cond:'achStats.maxWave>=100'},
+  {id:'t_bosshunter',  icon:'👹', name:'보스 사냥꾼',     desc:'일반 보스 모두 처치',              cond:'Object.keys(achStats.bossKills||{}).filter(k=>!k.startsWith("dream")).length>=8'},
+  {id:'t_dreamwalker', icon:'🌙', name:'드림워커',       desc:'드림코어 세계 진입',               cond:'(achStats.dreamEntered||0)>=1'},
+  {id:'t_dreamender',  icon:'🌌', name:'꿈의 종결자',     desc:'드림코어 보스 4종 모두 처치',       cond:'["dream_sun","dream_limbo","dream_eye","dream_wakeup"].every(k=>(achStats.bossKills||{})[k]>=1)'},
+  {id:'t_rich',        icon:'💰', name:'대부호',         desc:'코인 1,000,000 보유',              cond:'coins>=1000000'},
+  {id:'t_energized',   icon:'⚡', name:'에너지 마스터',   desc:'에너지 100,000 보유',              cond:'energy>=100000'},
+  {id:'t_collector',   icon:'🗃️', name:'무기 수집가',     desc:'무기 20종 보유',                  cond:'Object.keys(owned).filter(k=>!k.startsWith("ar_")).length>=20'},
+  {id:'t_armormaster', icon:'🛡️', name:'갑옷 마스터',     desc:'갑옷 20종 보유',                  cond:'Object.keys(owned).filter(k=>k.startsWith("ar_")).length>=20'},
+  {id:'t_jobmaster',   icon:'🎭', name:'직업 마스터',     desc:'직업 10종 보유',                  cond:'Object.keys(ownedJobs).length>=10'},
+  {id:'t_gambler',     icon:'🎰', name:'도박사',         desc:'인챈트 100회 시도',               cond:'(achStats.enchantAttempts||0)>=100'},
+  {id:'t_petlover',    icon:'🐾', name:'펫 애호가',       desc:'펫 10종 보유',                    cond:'typeof ownedPets!=="undefined"&&Object.keys(ownedPets).length>=10'},
+  {id:'t_hardcore',    icon:'🔥', name:'하드코어 게이머', desc:'50회 플레이',                     cond:'(achStats.gamesPlayed||0)>=50'},
+  {id:'t_perfectionist',icon:'✨', name:'완벽주의자',      desc:'피해 없이 보스 처치',              cond:'(achStats.noDmgBoss||0)>=1'},
+  {id:'t_challenger',  icon:'🏆', name:'챌린저',         desc:'챌린지 맵 모두 클리어',            cond:'(achStats.challengeCleared||[]).length>=3'},
+  {id:'t_legend',      icon:'👑', name:'전설',           desc:'모든 업적 달성',                  cond:'ACHIEVEMENTS.every(a=>achData[a.id])'},
+  {id:'t_event',       icon:'🎉', name:'축제의 주인공',   desc:'이벤트 상점에서 구매',            cond:'false'},
+];
+let titleData = lJ('hd_titles', {unlocked:{}, equipped:''});
+function saveTitles(){ sv('hd_titles', titleData); }
+function checkTitles(){
+  let newUnlock=false;
+  TITLES.forEach(t=>{
+    if(titleData.unlocked[t.id]) return;
+    try{
+      if(eval(t.cond)){
+        titleData.unlocked[t.id]=true;
+        newUnlock=true;
+        setMsg('👑 칭호 획득: '+t.name+'!');
+        setTimeout(()=>{if(running)setMsg('');},3000);
+      }
+    } catch(e){}
+  });
+  if(newUnlock) saveTitles();
+}
+function equipTitle(id){
+  titleData.equipped = titleData.equipped===id ? '' : id;
+  saveTitles();
+  updateTitleDisp();
+  renderTitleList();
+}
+function updateTitleDisp(){
+  const el=document.getElementById('titleDisp');
+  if(!el) return;
+  const t=TITLES.find(x=>x.id===titleData.equipped);
+  el.textContent = t ? (t.icon+' '+t.name) : '';
+  el.style.display = t ? 'inline-block' : 'none';
+}
+function renderTitleList(){
+  const list=document.getElementById('titleList');
+  if(!list) return;
+  checkTitles();
+  list.innerHTML='';
+  const doneCnt=TITLES.filter(t=>titleData.unlocked[t.id]).length;
+  const prog=document.getElementById('titleProgress');
+  if(prog) prog.textContent=doneCnt+'/'+TITLES.length+' 칭호 보유';
+  TITLES.forEach(t=>{
+    const isDone=!!titleData.unlocked[t.id];
+    const isEq=titleData.equipped===t.id;
+    const card=document.createElement('div');
+    card.className='ach-card'+(isDone?' done':'');
+    card.innerHTML=
+      '<div class="ach-ico">'+(isDone?t.icon:'⬜')+'</div>'+
+      '<div class="ach-info">'+
+        '<div class="ach-name">'+(isDone?t.name:'???')+'</div>'+
+        '<div class="ach-desc">'+(isDone?t.desc:'???')+'</div>'+
+      '</div>'+
+      (isDone
+        ? '<button onclick="equipTitle(\''+t.id+'\')" style="padding:6px 10px;border:none;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer;background:'+(isEq?'#fee2e2':'linear-gradient(135deg,#7c3aed,#a855f7)')+';color:'+(isEq?'#dc2626':'#fff')+';">'+(isEq?'해제':'장착')+'</button>'
+        : '<div style="font-size:10px;color:#374151;">미달성</div>');
+    list.appendChild(card);
+  });
+}
+let curAchTab='ach';
+function setAchTab(tab,btn){
+  curAchTab=tab;
+  document.querySelectorAll('#sAch .stab').forEach(b=>b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  const achEl=document.getElementById('achList'), titleEl=document.getElementById('titleList');
+  if(achEl) achEl.style.display = tab==='ach' ? 'flex' : 'none';
+  if(titleEl) titleEl.style.display = tab==='title' ? 'flex' : 'none';
+  if(tab==='ach') renderAchievements(); else renderTitleList();
+}
+
 // 랜덤 행운 업적 체크 (1초마다)
 setInterval(()=>{
   if(!achData['lucky'] && Math.random() < 1/20000){
@@ -131,23 +238,24 @@ setInterval(()=>{
   }
 },1000);
 
-const SCREENS=['sLobby','sMap','sWeapon','sShop','sJob','sUpg','sEquip','sParty','sSeason','sDream','sDreamMap','sAch','sEnchant','sPotionShop','sDailyQuest','sPets'];
+const SCREENS=['sLobby','sMap','sWeapon','sShop','sJob','sUpg','sEquip','sParty','sSeason','sDream','sDreamMap','sAch','sEnchant','sPotionShop','sDailyQuest','sPets','sEvent'];
 function go(id){
   SCREENS.forEach(s=>{const el=document.getElementById(s);if(el)el.classList.toggle('on',s===id);});
   document.getElementById('gameCanvas').style.display='none';
   document.getElementById('gameUI').style.display='none';
-  if(id==='sLobby'){updRes();stopGame();if(bgmUnlocked)startBGM();}
+  if(id==='sLobby'){updRes();stopGame();if(typeof stopEventPresentation==='function')stopEventPresentation();if(bgmUnlocked)startBGM();updateTitleDisp();}
   if(id==='sMap')drawMP();
   if(id==='sWeapon')renderWepSel();
   if(id==='sShop'){curShopTab='items';renderShop();}
   if(id==='sJob')renderJob();
   if(id==='sUpg')renderUpg();
   if(id==='sEquip')renderEquip();
-  if(id==='sAch')renderAchievements();
+  if(id==='sAch')setAchTab(curAchTab,document.querySelector('#sAch .stab[data-tab="'+curAchTab+'"]'));
   if(id==='sEnchant'){updRes();setEnchantCat('wep',document.querySelector('#sEnchant .stab'));}
   if(id==='sPotionShop'){updRes();renderPotionShop();}
   if(id==='sDailyQuest'){updRes();renderDailyQuest();}
   if(id==='sPets'){curPetTab='collection';renderPetScreen();}
+  if(id==='sEvent')setEventTab(curEventTab,document.querySelector('#sEvent .stab[data-tab="'+curEventTab+'"]'));
   if(id==='sDream'){
     document.getElementById('dlc').textContent=coins.toLocaleString();
     document.getElementById('dle').textContent=energy.toLocaleString();
@@ -173,3 +281,4 @@ function updRes(){
   
 }
 updRes();
+updateTitleDisp();

@@ -1,5 +1,6 @@
 // ══════════════ BGM (Barista Ballad) ══════════════
 let bgmUnlocked = false;
+let bgmPlaying = false;
 
 function getBGM(){ return document.getElementById('bgmAudio'); }
 
@@ -11,13 +12,18 @@ function unlockBGM(){
 
 function startBGM(){
   const a=getBGM(); if(!a)return;
+  // 드림코어 BGM과 겹치지 않도록 항상 먼저 정지
+  const d=document.getElementById('dreamBGM'); if(d&&!d.paused){d.pause();d.currentTime=0;}
+  if(bgmPlaying&&!a.paused) return; // 중복 재생 방지
   a.volume=0.35;
   const p=a.play();
   if(p!==undefined) p.catch(()=>{});
+  bgmPlaying=true;
 }
 function stopBGM(){
   const a=getBGM(); if(!a)return;
   a.pause();
+  bgmPlaying=false;
 }
 function setBGMVol(v){
   const a=getBGM(); if(!a)return;

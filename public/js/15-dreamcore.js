@@ -630,6 +630,7 @@ function startDreamGame(m){
     document.getElementById('pauseBtn').style.display='block';
     document.getElementById('waveSpeedBtn').style.display='block';
     document.getElementById('skillBar').style.display='flex';
+    if(typeof showMobileControls==='function')showMobileControls();
     skillCooldowns={E:0,Q:0};
     turrets=[];timeFreezeTimer=0;overclockTimer=0;focusNextShot=false;hpSnapshot=0;
     initGame();
@@ -652,9 +653,8 @@ function startDreamGame(m){
 function startDreamBGM(){
   const el = document.getElementById('dreamBGM');
   if(!el) return;
-  // 일반 BGM 정지
-  const bgm = document.getElementById('bgmAudio');
-  if(bgm){ bgm.pause(); bgm.currentTime=0; }
+  // 일반 BGM 정지 (겹침 방지)
+  stopBGM();
   el.volume = 0.6;
   el.play().catch(()=>{});
 }

@@ -21,6 +21,7 @@ function toggleWaveSpeed(){
 }
 let relTimer=0,camY=0,mxW=400,myW=MH-100;
 const keys={};
+let touchDX=0,touchDY=0;
 let rafId=null,running=false,activeBoss=null,mx=0,my=0;
 let pTimers={};
 
@@ -186,6 +187,8 @@ function initGame(){
     if(equippedJob==='miner'){P._minerPassive=true;}
     if(equippedJob==='engineer'){P.ws={...P.ws,pierce:true};}
     if(equippedJob==='god'){P.maxHp+=jlv*20;P.hp+=jlv*20;P.spd+=jlv*.05;}
+    if(equippedJob==='demolitionist'){P._aoeB=(P._aoeB||0)+15+jlv*3;}
+    if(equippedJob==='elementalist'){P._fireAura=true;P._coldAura=true;P._thunderAura=true;}
     if(jlv>21)setMsg('✨ HYPER LEVEL '+equippedJob+'! 모든 스탯 대폭 강화!');
   }
   if(typeof applyPetBonus==='function')applyPetBonus();
@@ -460,6 +463,8 @@ function hitZ(z,dmg){
     if((z.type==='exploder'||z.type==='suicide_zombie')&&!z._ex){z._ex=true;addExp(z.x,z.y,z.type==='suicide_zombie'?95:70,'#FF6600');}
     z.dead=true;z.dT=z.isBoss?80:35;z._justDied=true;
     score+=Math.floor((z.isBoss?z.bd.reward.c:(ZT[z.type]?.sc||10))*(1+(pUpgLv['pxp']||0)*.1));kills++;
+    achStats.kills=(achStats.kills||0)+1;
+    if(typeof eventData!=='undefined'){eventData.points=(eventData.points||0)+1;}
     const vl=perkLv['vampiric']??-1;
     if(vl>=0)P.hp=Math.min(P.maxHp,P.hp+[.5,1,2,3,5][Math.min(vl,4)]);
     if(activeBuffs.vampiric>0)P.hp=Math.min(P.maxHp,P.hp+3);
@@ -469,6 +474,13 @@ function hitZ(z,dmg){
     if(equippedJob==='berserker2')P._rageStack=(P._rageStack||0)+1;
     // 광부 패시브: 추가 코인
     if(equippedJob==='miner'&&!z.isBoss){const bonus=Math.floor((P._goldRush>0?3:1)*.2*(ZT[z.type]?.sc||10));coins+=bonus;}
+    // 폭파전문가 패시브: 20% 확률 연쇄 폭발
+    if(equippedJob==='demolitionist'&&!z.isBoss&&!z._chainProc){
+      if(Math.random()<0.2){
+        addExp(z.x,z.y,50,'#f97316');
+        zoms.forEach(zz=>{if(!zz.dead&&zz!==z&&d2(zz.x,zz.y,z.x,z.y)<50**2){zz._chainProc=true;hitZ(zz,8+(P.dmgB||0));zz._chainProc=false;}});
+      }
+    }
     if(z.isBoss)onBossDie(z);
   }
 }
@@ -535,6 +547,7 @@ function onBossDie(z){
   if(z.bd&&z.bd.id&&z.bd.id.startsWith('dream_')){ achStats.bossKills=achStats.bossKills||{}; const dk=z.bd.id.replace('_boss',''); achStats.bossKills[dk]=(achStats.bossKills[dk]||0)+1; }
   if(waveDmgTaken===0){achStats.noDmgBoss=(achStats.noDmgBoss||0)+1;}
   if(P.hp<=z.bd.hp*0.1+1){achStats.dreamCloseKill=(achStats.dreamCloseKill||0)+1;}
+  if(typeof eventData!=='undefined'){eventData.points=(eventData.points||0)+100;saveEventData();}
   checkAchievements(); saveAch();
   activeBoss=null;document.getElementById('bossBar').style.display='none';
   // 보스맵 클리어
@@ -586,6 +599,26 @@ function doBossAtk(z){
   else if(ab==='freeze'){P._frozen=(P._frozen||0)+120;for(let i=0;i<12;i++)parts.push({x:P.x,y:P.y,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5,l:25,ml:25,r:5,col:'#7dd3fc'});}
   else if(ab==='lightning'){const tx=P.x,ty=P.y;effs.push({type:'warn',x:tx,y:ty,l:30,ml:30});gTimeout(()=>{if(!running)return;addExp(tx,ty,65,'#facc15');if(d2(P.x,P.y,tx,ty)<(65+P.r)**2)takeDmg(15);},500);}
   else if(ab==='fireBreath')for(let i=0;i<7;i++){const a=z.angle+(i-3)*.15;buls.push({x:z.x,y:z.y,vx:Math.cos(a)*8,vy:Math.sin(a)*8,r:8,l:70,en:true,dmg:12,col:'#ff6600'});}
+  // 🌋 VOLCANO - 용암 웅덩이 (지연 폭발)
+  else if(ab==='lavaPool'){
+    for(let i=0;i<4;i++){
+      const ang=Math.random()*Math.PI*2,dist=50+Math.random()*160;
+      const tx=P.x+Math.cos(ang)*dist,ty=P.y+Math.sin(ang)*dist;
+      effs.push({type:'warn',x:tx,y:ty,l:50,ml:50});
+      gTimeout(()=>{if(!running)return;addExp(tx,ty,55,'#f97316');zoms.forEach(zz=>{if(!zz.dead&&d2(zz.x,zz.y,tx,ty)<(55+zz.r)**2)hitZ(zz,10);});if(d2(P.x,P.y,tx,ty)<(55+P.r)**2)takeDmg(45);},800);
+    }
+  }
+  // 🧊 FROST EMPRESS - 얼음창 3연발
+  else if(ab==='iceSpear'){
+    const ang=Math.atan2(P.y-z.y,P.x-z.x);
+    for(let i=-1;i<=1;i++)buls.push({x:z.x,y:z.y,vx:Math.cos(ang+i*.1)*11,vy:Math.sin(ang+i*.1)*11,r:8,l:180,en:true,dmg:40,col:'#7dd3fc'});
+  }
+  // 🌌 VOID REAPER - 차원 균열
+  else if(ab==='voidRift'){
+    const tx=Math.random()*MW,ty=camY+Math.random()*VH();
+    effs.push({type:'warn',x:tx,y:ty,l:40,ml:40});
+    gTimeout(()=>{if(!running)return;for(let i=0;i<10;i++){const a=i/10*Math.PI*2;buls.push({x:tx,y:ty,vx:Math.cos(a)*7,vy:Math.sin(a)*7,r:8,l:150,en:true,dmg:35,col:'#7c3aed'});}},700);
+  }
   // ── 보스맵 전용 공격 (맵 지형 활용 + 데미지 대폭 강화) ──
 
   // ☀️ THE SUN - 태양 광선 + 맵 경계 불꽃벽
@@ -1288,7 +1321,9 @@ function update(){
   if(P._frozen>0){P._frozen--;}else{
     if(keys['w']||keys['arrowup'])dy--;if(keys['s']||keys['arrowdown'])dy++;
     if(keys['a']||keys['arrowleft'])dx--;if(keys['d']||keys['arrowright'])dx++;
-    if(dx&&dy){dx*=.707;dy*=.707;}
+    dx+=touchDX;dy+=touchDY;
+    const mag=Math.hypot(dx,dy);
+    if(mag>1){dx/=mag;dy/=mag;}
   }
   const nx=Math.max(P.r,Math.min(MW-P.r,P.x+dx*P.spd));
   const ny=Math.max(P.r,Math.min(MH-P.r,P.y+dy*P.spd));
@@ -1301,7 +1336,12 @@ function update(){
     if(!by)P.y=ny;
   }
   camY+=(clampC(P.y-VH()/2)-camY)*.1;
-  P.angle=Math.atan2(myW-P.y,mxW-P.x);
+  if(isMobileTouch){
+    const nearestZ=zoms.filter(z=>!z.dead).sort((a,b)=>d2(a.x,a.y,P.x,P.y)-d2(b.x,b.y,P.x,P.y))[0];
+    if(nearestZ)P.angle=Math.atan2(nearestZ.y-P.y,nearestZ.x-P.x);
+  } else {
+    P.angle=Math.atan2(myW-P.y,mxW-P.x);
+  }
   if(P._infiniteAmmo)P.ammo=P.maxAmmo;
   if(P.ws.auto&&P._mdown&&!P.reloading&&P.ammo>0){
     P._autoT=(P._autoT||0)+1;
@@ -1323,7 +1363,7 @@ function update(){
   if(!betweenWave){
     if(selMap.boss){if(spawnedCnt===0&&!activeBossMap){spawnWave();spawnT=0;}}
     else{spawnT+=waveSpeedMul;if(spawnT>=spawnInt&&spawnedCnt<totalSpawn){spawnWave();spawnedCnt++;spawnT=0;}}
-    if(!selMap.boss&&spawnedCnt>=totalSpawn&&zoms.filter(z=>!z.dead&&!z.isMinion).length===0){betweenWave=true;setMsg(`✨ 웨이브 ${wave} 클리어!`);if(wave>(achStats.maxWave||0))achStats.maxWave=wave;achStats.mapWave=achStats.mapWave||{};const prevBest=achStats.mapWave[selMap?.id]||0;if(wave>prevBest)achStats.mapWave[selMap.id]=wave;if(waveDmgTaken===0){achStats.noDmgWave=(achStats.noDmgWave||0)+1;}waveDmgTaken=0;if(!achStats.clearedMaps)achStats.clearedMaps=[];if(wave>=10&&!achStats.clearedMaps.includes(selMap.id))achStats.clearedMaps.push(selMap.id);achStats.waveClearsTotal=(achStats.waveClearsTotal||0)+1;checkAchievements();saveAch();
+    if(!selMap.boss&&spawnedCnt>=totalSpawn&&zoms.filter(z=>!z.dead&&!z.isMinion).length===0){betweenWave=true;setMsg(`✨ 웨이브 ${wave} 클리어!`);if(wave>(achStats.maxWave||0))achStats.maxWave=wave;achStats.mapWave=achStats.mapWave||{};const prevBest=achStats.mapWave[selMap?.id]||0;if(wave>prevBest)achStats.mapWave[selMap.id]=wave;if(waveDmgTaken===0){achStats.noDmgWave=(achStats.noDmgWave||0)+1;}waveDmgTaken=0;if(!achStats.clearedMaps)achStats.clearedMaps=[];if(wave>=10&&!achStats.clearedMaps.includes(selMap.id))achStats.clearedMaps.push(selMap.id);achStats.waveClearsTotal=(achStats.waveClearsTotal||0)+1;checkAchievements();saveAch();if(typeof eventData!=='undefined'){eventData.points=(eventData.points||0)+10;saveEventData();}
     const xpGain=100*(wave+(selMap.diff||1))*((pUpgLv['pxp']||0)*.1+1)*(window._petXpMult||1);
     addSeasonXP(Math.floor(xpGain));
     // 폐허도시 클리어 기록
@@ -2473,6 +2513,26 @@ function drawBossMapBoss(z,t,pct){
     ctx.fillStyle='rgba(0,0,0,.6)';ctx.font='bold 24px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🎵',0,0);
     // 바깥 오라
     ctx.beginPath();ctx.arc(0,0,r+Math.sin(t/200)*5,0,Math.PI*2);ctx.strokeStyle=`hsla(${t/3%360},90%,60%,.4)`;ctx.lineWidth=8;ctx.stroke();
+  } else if(id==='volcano'){
+    // 화산: 균열 몸체 + 용암 아지랑이
+    for(let i=0;i<10;i++){const a=i/10*Math.PI*2+t/900;const rr=r+8+Math.sin(t/200+i)*6;ctx.strokeStyle=`rgba(249,115,22,${.3+.1*Math.sin(t/150+i)})`;ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*.6,Math.sin(a)*r*.6);ctx.lineTo(Math.cos(a)*rr,Math.sin(a)*rr);ctx.stroke();}
+    const vg=ctx.createRadialGradient(0,0,0,0,0,r);vg.addColorStop(0,'#fed7aa');vg.addColorStop(.5,'#f97316');vg.addColorStop(1,'#7c2d12');
+    ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fillStyle=vg;ctx.fill();ctx.strokeStyle='#ea580c';ctx.lineWidth=3;ctx.stroke();
+    ctx.fillStyle='#450a0a';ctx.beginPath();ctx.arc(-16,-6,9,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(16,-6,9,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fde047';ctx.beginPath();ctx.arc(-16,-6,4,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(16,-6,4,0,Math.PI*2);ctx.fill();
+  } else if(id==='frost'){
+    // 서리 여제: 얼음 왕관 + 결정체
+    for(let i=0;i<6;i++){const a=i/6*Math.PI*2;ctx.strokeStyle='rgba(224,242,254,.5)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*.7,Math.sin(a)*r*.7);ctx.lineTo(Math.cos(a)*(r+20),Math.sin(a)*(r+20));ctx.stroke();}
+    const fg=ctx.createRadialGradient(0,0,0,0,0,r);fg.addColorStop(0,'#f0f9ff');fg.addColorStop(.5,'#7dd3fc');fg.addColorStop(1,'#0369a1');
+    ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fillStyle=fg;ctx.fill();ctx.strokeStyle='#38bdf8';ctx.lineWidth=3;ctx.stroke();
+    ctx.fillStyle='#0c4a6e';ctx.beginPath();ctx.arc(-16,-6,8,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(16,-6,8,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(-16,-6,3,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(16,-6,3,0,Math.PI*2);ctx.fill();
+  } else if(id==='void'){
+    // 보이드 리퍼: 공허의 소용돌이 + 균열
+    for(let i=0;i<8;i++){const a=i/8*Math.PI*2+t/700;const rr=r+15+Math.sin(t/300+i)*8;ctx.strokeStyle=`rgba(124,58,237,${.35+.1*Math.sin(t/200+i)})`;ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,rr,a,a+Math.PI*.6);ctx.stroke();}
+    const vg2=ctx.createRadialGradient(0,0,0,0,0,r);vg2.addColorStop(0,'#c4b5fd');vg2.addColorStop(.5,'#7c3aed');vg2.addColorStop(1,'#1e1b4b');
+    ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fillStyle=vg2;ctx.fill();ctx.strokeStyle='#a78bfa';ctx.lineWidth=3;ctx.stroke();
+    ctx.fillStyle='#000';ctx.beginPath();ctx.arc(0,0,r*.35,0,Math.PI*2);ctx.fill();
   }
 
   ctx.restore();
@@ -2521,6 +2581,7 @@ function stopGame(){
   document.getElementById('skillBar').style.display='none';
   document.getElementById('pauseMenu').style.display='none';
   document.getElementById('clearScreen').style.display='none';
+  if(typeof hideMobileControls==='function')hideMobileControls();
 }
 function clearToLobby(){
   window._bossMapClearing=false;
@@ -2557,6 +2618,7 @@ function startGame(){
   document.getElementById('pauseBtn').style.display='block';
   document.getElementById('waveSpeedBtn').style.display='block';
   document.getElementById('skillBar').style.display='flex';
+  if(typeof showMobileControls==='function')showMobileControls();
   skillCooldowns={E:0,Q:0};
   turrets=[];timeFreezeTimer=0;overclockTimer=0;focusNextShot=false;hpSnapshot=0;
   initGame();startLoop();
@@ -2654,6 +2716,9 @@ function submitCode(){
   msgEl.style.color='#4ade80';
   // devMode: 개발자 모드 - 돈+직업+아이템+업적 모두 완전 언락
   if(code.devMode){
+    sv('hd_devmode',true);
+    if(typeof devModeUnlocked!=='undefined')devModeUnlocked=true;
+    if(typeof renderEventGameScreen==='function')renderEventGameScreen();
     coins=999999999999;energy=999999999999;
     Object.values(WEPS).forEach(w=>owned[w.id]=true);
     ARMORS.forEach(a=>owned['ar_'+a.id]=true);

@@ -28,6 +28,15 @@ const PETS = [
   {id:'pet_voidcat', name:'공허의 냥이', icon:'🐈‍⬛', rarity:'mythic', bonus:{luckPct:60}},
   {id:'pet_whale',   name:'별고래',      icon:'🐋', rarity:'mythic', bonus:{hpPct:40,coinPct:25}},
   {id:'pet_turtle',  name:'시간의 거북', icon:'🐢', rarity:'mythic', bonus:{xpPct:45,energyPct:35}},
+  // ── 이벤트 전용 (상점 구매로만 획득) ──
+  {id:'pet_event_carnival', name:'축제 마스코트', icon:'🎪', rarity:'event', bonus:{dmgPct:20,hpPct:20,coinPct:20,xpPct:20}},
+  // ── 시즌 이벤트(2개월 순환) 전용 알/펫 ──
+  {id:'pet_ev_cookwar',     name:'미식가 고양이', icon:'🐈', rarity:'event', bonus:{hpPct:15,coinPct:15}},
+  {id:'pet_ev_garden',      name:'텃밭 꿀벌',     icon:'🐝', rarity:'event', bonus:{spdFlat:0.4,xpPct:15}},
+  {id:'pet_ev_treasure',    name:'보물 앵무새',   icon:'🦜', rarity:'event', bonus:{coinPct:25}},
+  {id:'pet_ev_watermelon',  name:'수박 요정',     icon:'🍉', rarity:'event', bonus:{dmgPct:10,hpPct:10}},
+  {id:'pet_ev_slingshot',   name:'사과 다람쥐',   icon:'🐿️', rarity:'event', bonus:{critPct:10}},
+  {id:'pet_ev_giftrhythm',  name:'루돌프 새끼',   icon:'🦌', rarity:'event', bonus:{hpPct:20,dmgPct:10}},
 ];
 // ── 극악 확률 초레어 등급 50종 (신화보다 훨씬 희귀, 5개 신규 등급 x 10종) ──
 const PET_ULTRA_TIERS = [
@@ -58,8 +67,8 @@ const PET_ULTRA_TIERS = [
   });
 }
 
-const PET_RARITY_LABEL={common:'커먼',rare:'레어',epic:'에픽',legendary:'레전더리',mythic:'신화'};
-const PET_RARITY_COLOR={common:'#9ca3af',rare:'#3b82f6',epic:'#a855f7',legendary:'#f59e0b',mythic:'#ec4899'};
+const PET_RARITY_LABEL={common:'커먼',rare:'레어',epic:'에픽',legendary:'레전더리',mythic:'신화',event:'이벤트 한정'};
+const PET_RARITY_COLOR={common:'#9ca3af',rare:'#3b82f6',epic:'#a855f7',legendary:'#f59e0b',mythic:'#ec4899',event:'#22d3ee'};
 PET_ULTRA_TIERS.forEach(t=>{PET_RARITY_LABEL[t.key]=t.label;PET_RARITY_COLOR[t.key]=t.color;});
 
 const PET_EGGS = [

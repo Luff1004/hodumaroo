@@ -71,6 +71,43 @@ const ITEMS = [
   {id:'sp_item_jan',  name:'[시즌] 빙결의 핵', icon:'🧊',price:0,type:'active',cd:1200,rarity:'legendary',desc:'시즌 보상. 맵 전체 적 5초 빙결',spOnly:true,spMonth:1,spLv:15},
   {id:'sp_item_jun',  name:'[시즌] 파도의 심장',icon:'🌊',price:0,type:'active',cd:1000,rarity:'legendary',desc:'시즌 보상. 파도 폭발 + 이동속도 버프',spOnly:true,spMonth:6,spLv:15},
   {id:'sp_item_dec',  name:'[시즌] 별의 눈물', icon:'⭐',price:0,type:'active',cd:1500,rarity:'mythic',   desc:'시즌 보상. 별빛 쏟아짐 + 전체 회복',spOnly:true,spMonth:12,spLv:15},
+  // ── 이벤트 전용 ──
+  {id:'ev_charm', name:'축제의 부적', icon:'🎊', price:0, type:'active', cd:600, rarity:'legendary', desc:'이벤트 상점 획득. 반경 220 폭죽 폭발 90 데미지', achievement:true},
+  // ── 이벤트 상점(상시) 전용 아이템 10종 ──
+  {id:'ev_shop_item1', name:'축제 폭죽', icon:'🎇', price:0, type:'active', cd:500, rarity:'epic', desc:'이벤트 상점 획득. 반경 200 폭죽 폭발 70 데미지', achievement:true},
+  {id:'ev_shop_item2', name:'만능 강장제', icon:'💊', price:0, type:'active', cd:900, rarity:'epic', desc:'이벤트 상점 획득. HP 완전 회복 + 15초간 재생', achievement:true},
+  {id:'ev_shop_item3', name:'풍선 방패', icon:'🎈', price:0, type:'active', cd:800, rarity:'epic', desc:'이벤트 상점 획득. 5초간 완전 무적', achievement:true},
+  {id:'ev_shop_item4', name:'축제 가면', icon:'🎭', price:0, type:'active', cd:700, rarity:'epic', desc:'이벤트 상점 획득. 5초간 은신, 첫 공격 데미지 3배', achievement:true},
+  {id:'ev_shop_item5', name:'경품 룰렛', icon:'🎡', price:0, type:'active', cd:600, rarity:'rare', desc:'이벤트 상점 획득. 즉시 코인 500~3000 랜덤 획득', achievement:true},
+  {id:'ev_shop_item6', name:'팡파레 나팔', icon:'📯', price:0, type:'active', cd:700, rarity:'epic', desc:'이벤트 상점 획득. 10초간 데미지+6', achievement:true},
+  {id:'ev_shop_item7', name:'축제 대폭탄', icon:'🧨', price:0, type:'active', cd:900, rarity:'legendary', desc:'이벤트 상점 획득. 반경 260 대폭발 120 데미지', achievement:true},
+  {id:'ev_shop_item8', name:'솜사탕', icon:'🍭', price:0, type:'active', cd:700, rarity:'rare', desc:'이벤트 상점 획득. 10초간 이동속도+2', achievement:true},
+  {id:'ev_shop_item9', name:'행운의 부적', icon:'🧿', price:0, type:'active', cd:800, rarity:'epic', desc:'이벤트 상점 획득. 즉시 코인 1000~5000 랜덤 획득 + 파티클', achievement:true},
+  {id:'ev_shop_item10', name:'서커스 사자 소환', icon:'🦁', price:0, type:'active', cd:1000, rarity:'legendary', desc:'이벤트 상점 획득. 강력한 사자 소환수 30초', achievement:true},
+  // ── 요리전쟁 전용 아이템 3종 ──
+  {id:'ev_cw_item1', name:'매콤 소스탄', icon:'🌶️', price:0, type:'active', cd:500, rarity:'rare', desc:'요리전쟁 이벤트 보상. 반경 180 화상 폭발 50 데미지', achievement:true},
+  {id:'ev_cw_item2', name:'달콤 디저트', icon:'🍰', price:0, type:'active', cd:700, rarity:'rare', desc:'요리전쟁 이벤트 보상. HP 40% 회복 + 10초 재생', achievement:true},
+  {id:'ev_cw_item3', name:'웍 파워', icon:'🥘', price:0, type:'active', cd:800, rarity:'epic', desc:'요리전쟁 이벤트 보상. 8초간 데미지+5', achievement:true},
+  // ── 봄맞이 텃밭 가꾸기 전용 아이템 3종 ──
+  {id:'ev_gd_item1', name:'비료 폭탄', icon:'🌾', price:0, type:'active', cd:500, rarity:'rare', desc:'봄맞이 텃밭 가꾸기 이벤트 보상. 반경 180 폭발 50 데미지', achievement:true},
+  {id:'ev_gd_item2', name:'단비', icon:'🌧️', price:0, type:'active', cd:700, rarity:'rare', desc:'봄맞이 텃밭 가꾸기 이벤트 보상. HP 40% 회복 + 10초 재생', achievement:true},
+  {id:'ev_gd_item3', name:'들꽃 요정 소환', icon:'🧚', price:0, type:'active', cd:900, rarity:'epic', desc:'봄맞이 텃밭 가꾸기 이벤트 보상. 요정 소환수 25초', achievement:true},
+  // ── 보물찾기 대회 전용 아이템 3종 ──
+  {id:'ev_tr_item1', name:'다이너마이트', icon:'🧨', price:0, type:'active', cd:500, rarity:'rare', desc:'보물찾기 대회 이벤트 보상. 반경 200 폭발 60 데미지', achievement:true},
+  {id:'ev_tr_item2', name:'행운의 동전', icon:'🍀', price:0, type:'active', cd:700, rarity:'rare', desc:'보물찾기 대회 이벤트 보상. 반경 150 폭발+즉시 코인 800 획득', achievement:true},
+  {id:'ev_tr_item3', name:'순간이동 지도', icon:'🗺️', price:0, type:'active', cd:400, rarity:'epic', desc:'보물찾기 대회 이벤트 보상. 마우스 위치로 즉시 순간이동', achievement:true},
+  // ── 여름 수박격파 대회 전용 아이템 3종 ──
+  {id:'ev_wm_item1', name:'수박 폭탄', icon:'🍉', price:0, type:'active', cd:500, rarity:'rare', desc:'여름 수박격파 대회 이벤트 보상. 반경 180 폭발 50 데미지', achievement:true},
+  {id:'ev_wm_item2', name:'시원한 화채', icon:'🍹', price:0, type:'active', cd:700, rarity:'rare', desc:'여름 수박격파 대회 이벤트 보상. HP 30% 회복 + 10초간 이동속도+1.5', achievement:true},
+  {id:'ev_wm_item3', name:'여름 불꽃놀이', icon:'🎆', price:0, type:'active', cd:800, rarity:'epic', desc:'여름 수박격파 대회 이벤트 보상. 360도 폭죽 탄막', achievement:true},
+  // ── 가을 사과 슬링샷 대회 전용 아이템 3종 ──
+  {id:'ev_as_item1', name:'사과 폭탄', icon:'🍎', price:0, type:'active', cd:500, rarity:'rare', desc:'가을 사과 슬링샷 대회 이벤트 보상. 반경 180 폭발 50 데미지', achievement:true},
+  {id:'ev_as_item2', name:'사과주스', icon:'🧃', price:0, type:'active', cd:700, rarity:'rare', desc:'가을 사과 슬링샷 대회 이벤트 보상. HP 40% 회복', achievement:true},
+  {id:'ev_as_item3', name:'허수아비 소환', icon:'🧑‍🌾', price:0, type:'active', cd:900, rarity:'epic', desc:'가을 사과 슬링샷 대회 이벤트 보상. 허수아비 소환수 25초', achievement:true},
+  // ── 산타의 선물배달 전용 아이템 3종 ──
+  {id:'ev_gr_item1', name:'폭죽 선물상자', icon:'🎁', price:0, type:'active', cd:500, rarity:'rare', desc:'산타의 선물배달 이벤트 보상. 반경 190 폭발 55 데미지', achievement:true},
+  {id:'ev_gr_item2', name:'따뜻한 코코아', icon:'☕', price:0, type:'active', cd:700, rarity:'rare', desc:'산타의 선물배달 이벤트 보상. HP 40% 회복 + 10초 재생', achievement:true},
+  {id:'ev_gr_item3', name:'루돌프 소환', icon:'🦌', price:0, type:'active', cd:900, rarity:'epic', desc:'산타의 선물배달 이벤트 보상. 빠른 루돌프 소환수 25초', achievement:true},
 ];
 
 // 플레이어 보유 아이템

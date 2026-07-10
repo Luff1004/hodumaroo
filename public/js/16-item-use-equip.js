@@ -96,6 +96,116 @@ function useItem(itemId){
     case 'sp_item_jan': zoms.forEach(z=>{if(!z.dead)z._frz=Math.max(z._frz||0,300);}); addExp(MW/2,camY+300,350,'#bae6fd'); break;
     case 'sp_item_jun': for(let i=-2;i<=2;i++)for(let j=0;j<8;j++){const a=j/8*Math.PI*2;buls.push({x:P.x+i*60,y:P.y,vx:Math.cos(a)*9,vy:Math.sin(a)*9,r:7,l:130,en:false,dmg:35,col:'#38bdf8',_freezeAtk:true,_explosive:true});} break;
     case 'sp_item_dec': for(let i=0;i<50;i++){gTimeout(()=>{if(!running)return;const rx=Math.random()*MW,ry=camY-10;buls.push({x:rx,y:ry,vx:0,vy:8,r:6,l:100,en:false,dmg:25,col:'#fbbf24'});},i*60);} P.hp=P.maxHp; break;
+    case 'ev_charm':
+      addExp(P.x,P.y,220,'#ec4899');
+      zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,P.x,P.y)<220**2)hitZ(z,90);});
+      for(let i=0;i<20;i++){const a=i/20*Math.PI*2;parts.push({x:P.x,y:P.y,vx:Math.cos(a)*7,vy:Math.sin(a)*7,l:35,ml:35,r:5,col:['#ec4899','#fbbf24','#22d3ee'][i%3]});}
+      break;
+    // ── 이벤트 상점(상시) 아이템 10종 ──
+    case 'ev_shop_item1':
+      addExp(P.x,P.y,200,'#fbbf24');
+      zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,P.x,P.y)<200**2)hitZ(z,70);});
+      break;
+    case 'ev_shop_item2':
+      P.hp=P.maxHp; activeBuffs.regen=900;
+      break;
+    case 'ev_shop_item3':
+      P._invincible=Math.max(P._invincible||0,300);
+      break;
+    case 'ev_shop_item4':
+      activeBuffs.stealth=300; P._stealthDmgMult=3; zoms.forEach(z=>{z._igP=300;});
+      break;
+    case 'ev_shop_item5':{
+      const amt=500+Math.floor(Math.random()*2501);
+      coins+=amt; sv('hd_c',coins); updRes();
+      for(let i=0;i<14;i++){const a=i/14*Math.PI*2;parts.push({x:P.x,y:P.y,vx:Math.cos(a)*5,vy:Math.sin(a)*5,l:28,ml:28,r:4,col:'#fbbf24'});}
+      break;}
+    case 'ev_shop_item6':
+      P.dmgB=(P.dmgB||0)+6; setTimeout(()=>{P.dmgB-=6;},10000);
+      break;
+    case 'ev_shop_item7':
+      addExp(P.x,P.y,260,'#f97316');
+      zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,P.x,P.y)<260**2)hitZ(z,120);});
+      break;
+    case 'ev_shop_item8':
+      P.spd+=2; setTimeout(()=>{P.spd-=2;},10000);
+      break;
+    case 'ev_shop_item9':{
+      const amt2=1000+Math.floor(Math.random()*4001);
+      coins+=amt2; sv('hd_c',coins); updRes();
+      for(let i=0;i<18;i++){const a=i/18*Math.PI*2;parts.push({x:P.x,y:P.y,vx:Math.cos(a)*6,vy:Math.sin(a)*6,l:32,ml:32,r:4,col:'#a855f7'});}
+      break;}
+    case 'ev_shop_item10':
+      zoms.push({x:P.x-40,y:P.y,type:'lion_ally',r:20,hp:180,maxHp:180,spd:3.4,angle:0,dead:false,dT:0,isMinion:true,minionTimer:1800,_dshC:999,_dsh:false,_dvx:0,_dvy:0,_healT:0,_phT:60,_phased:false,_frz:0,wob:0,col:'#d97706'});
+      break;
+    // ── 요리전쟁 아이템 3종 ──
+    case 'ev_cw_item1':
+      addExp(P.x,P.y,180,'#ea580c');
+      zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,P.x,P.y)<180**2){hitZ(z,50);z._burnT=180;}});
+      break;
+    case 'ev_cw_item2':
+      P.hp=Math.min(P.maxHp,P.hp+P.maxHp*.4); activeBuffs.regen=600;
+      break;
+    case 'ev_cw_item3':
+      P.dmgB=(P.dmgB||0)+5; setTimeout(()=>{P.dmgB-=5;},8000);
+      break;
+    // ── 봄맞이 텃밭 가꾸기 아이템 3종 ──
+    case 'ev_gd_item1':
+      addExp(P.x,P.y,180,'#84cc16');
+      zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,P.x,P.y)<180**2)hitZ(z,50);});
+      break;
+    case 'ev_gd_item2':
+      P.hp=Math.min(P.maxHp,P.hp+P.maxHp*.4); activeBuffs.regen=600;
+      break;
+    case 'ev_gd_item3':
+      zoms.push({x:P.x+40,y:P.y,type:'fairy_ally',r:12,hp:35,maxHp:35,spd:3.6,angle:0,dead:false,dT:0,isMinion:true,isRangedMinion:true,minionTimer:1500,_dshC:999,_dsh:false,_dvx:0,_dvy:0,_healT:0,_phT:60,_phased:false,_frz:0,wob:0,fireT:0,col:'#bef264'});
+      break;
+    // ── 보물찾기 대회 아이템 3종 ──
+    case 'ev_tr_item1':
+      addExp(P.x,P.y,200,'#b45309');
+      zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,P.x,P.y)<200**2)hitZ(z,60);});
+      break;
+    case 'ev_tr_item2':
+      addExp(P.x,P.y,150,'#4ade80');
+      zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,P.x,P.y)<150**2)hitZ(z,40);});
+      coins+=800; sv('hd_c',coins); updRes();
+      break;
+    case 'ev_tr_item3':
+      P.x=Math.max(P.r,Math.min(MW-P.r,mxW)); P.y=Math.max(P.r,Math.min(MH-P.r,myW));
+      break;
+    // ── 여름 수박격파 대회 아이템 3종 ──
+    case 'ev_wm_item1':
+      addExp(P.x,P.y,180,'#22c55e');
+      zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,P.x,P.y)<180**2)hitZ(z,50);});
+      break;
+    case 'ev_wm_item2':
+      P.hp=Math.min(P.maxHp,P.hp+P.maxHp*.3); P.spd+=1.5; setTimeout(()=>{P.spd-=1.5;},10000);
+      break;
+    case 'ev_wm_item3':
+      for(let i=0;i<24;i++){const a=i/24*Math.PI*2;buls.push({x:P.x,y:P.y,vx:Math.cos(a)*9,vy:Math.sin(a)*9,r:7,l:120,en:false,dmg:14+(P.dmgB||0),col:['#f97316','#fbbf24','#22c55e','#ec4899'][i%4]});}
+      break;
+    // ── 가을 사과 슬링샷 대회 아이템 3종 ──
+    case 'ev_as_item1':
+      addExp(P.x,P.y,180,'#dc2626');
+      zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,P.x,P.y)<180**2)hitZ(z,50);});
+      break;
+    case 'ev_as_item2':
+      P.hp=Math.min(P.maxHp,P.hp+P.maxHp*.4);
+      break;
+    case 'ev_as_item3':
+      zoms.push({x:P.x-40,y:P.y,type:'scarecrow_ally',r:18,hp:120,maxHp:120,spd:1.6,angle:0,dead:false,dT:0,isMinion:true,minionTimer:1500,_dshC:999,_dsh:false,_dvx:0,_dvy:0,_healT:0,_phT:60,_phased:false,_frz:0,wob:0,col:'#78350f'});
+      break;
+    // ── 산타의 선물배달 아이템 3종 ──
+    case 'ev_gr_item1':
+      addExp(P.x,P.y,190,'#ef4444');
+      zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,P.x,P.y)<190**2)hitZ(z,55);});
+      break;
+    case 'ev_gr_item2':
+      P.hp=Math.min(P.maxHp,P.hp+P.maxHp*.4); activeBuffs.regen=600;
+      break;
+    case 'ev_gr_item3':
+      zoms.push({x:P.x+40,y:P.y,type:'rudolph_ally',r:16,hp:70,maxHp:70,spd:4.2,angle:0,dead:false,dT:0,isMinion:true,minionTimer:1500,_dshC:999,_dsh:false,_dvx:0,_dvy:0,_healT:0,_phT:60,_phased:false,_frz:0,wob:0,col:'#ef4444'});
+      break;
   }
   setMsg('✨ '+it.name+' 사용!');
   setTimeout(()=>{if(running&&P)setMsg('');},1500);

@@ -126,6 +126,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#f0ede8;font-family:
 .rar-ethereal{border-color:#67e8f9!important;box-shadow:0 0 22px #67e8f990;animation:glow-rainbow 1s infinite;}
 .rar-transcendent{border-color:#f472b6!important;box-shadow:0 0 26px #f472b6a0;animation:glow-rainbow .8s infinite;}
 .rar-absolute{border-color:#ffffff!important;box-shadow:0 0 32px #ffffffcc;animation:glow-rainbow .6s infinite;}
+.rar-event{border-color:#22d3ee!important;box-shadow:0 0 22px #22d3ee90;animation:glow-rainbow 1s infinite;}
 
 .si.cb2{border-color:#f59e0b;cursor:pointer;}.si.cb2:hover{transform:translateY(-2px);box-shadow:0 4px 12px #f59e0b25;}
 .si.own{border-color:#6ee7b7;background:#f0fdf4;}.si.mx{border-color:#c4b5fd;background:#faf5ff;}
@@ -134,6 +135,33 @@ html,body{width:100%;height:100%;overflow:hidden;background:#f0ede8;font-family:
 .slv{font-size:9px;color:#7c3aed;margin-bottom:3px;}
 .bybtn{padding:3px 12px;border:none;border-radius:7px;font-size:10px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;}
 .bybtn:disabled{background:#e5e7eb;color:#9ca3af;cursor:not-allowed;}
+
+/* ── 이벤트 카드 (다크 글래스 스타일) ── */
+.ev-card{position:relative;background:rgba(255,255,255,0.07);backdrop-filter:blur(6px);border:2px solid rgba(255,255,255,0.14);border-radius:14px;padding:14px 8px 10px;text-align:center;transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s,border-color .2s;overflow:hidden;}
+.ev-card.can{border-color:#fbbf24;box-shadow:0 0 14px rgba(251,191,36,.22);}
+.ev-card.can:hover{transform:translateY(-4px) scale(1.03);box-shadow:0 10px 24px rgba(251,191,36,.35);}
+.ev-card.done{border-color:#4ade80;background:rgba(74,222,128,.1);}
+.ev-card .ev-ico{font-size:30px;margin-bottom:6px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));display:inline-block;animation:ev-ico-float 3s ease-in-out infinite;}
+@keyframes ev-ico-float{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-4px) rotate(-4deg);}}
+.ev-card .ev-nm{font-size:11.5px;font-weight:800;color:#fff;margin-bottom:2px;}
+.ev-card .ev-ds{font-size:9.5px;color:#e5e7eb;opacity:.85;line-height:1.4;margin-bottom:6px;min-height:22px;}
+.ev-card .ev-cost{font-size:11px;font-weight:800;margin-bottom:6px;}
+.ev-card .ev-btn{padding:5px 16px;border:none;border-radius:8px;font-size:10px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#3f1d02;transition:transform .15s;}
+.ev-card .ev-btn:hover{transform:scale(1.07);}
+.ev-card .ev-btn:disabled{background:rgba(255,255,255,.12);color:rgba(255,255,255,.35);cursor:not-allowed;}
+.ev-card .ev-done-badge{font-size:9.5px;color:#4ade80;font-weight:800;}
+.ev-card.flash{animation:ev-flash .6s ease;}
+@keyframes ev-flash{0%{box-shadow:0 0 0 rgba(251,191,36,0);}30%{box-shadow:0 0 34px rgba(251,191,36,.95);}100%{box-shadow:0 0 0 rgba(251,191,36,0);}}
+
+/* ── 봄 이벤트: 벚꽃잎 ── */
+@keyframes petal-sway{0%{margin-left:calc(var(--sway) * -1);}100%{margin-left:var(--sway);}}
+.petal-spin{animation:petal-spin 2.4s linear infinite;}
+@keyframes petal-spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+
+/* ── 수박격파 이벤트: 파도 + 통통 튀는 수박 ── */
+.fs-wave{animation:fs-wave-move 3s linear infinite;}
+@keyframes fs-wave-move{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+@keyframes wm-bob{from{margin-top:-6px;}to{margin-top:6px;}}
 
 /* ── PERM UPGRADE ── */
 #sUpg{background:linear-gradient(160deg,#f0f9ff,#fdf4ff);justify-content:flex-start;padding-top:16px;}

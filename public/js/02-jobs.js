@@ -175,6 +175,15 @@ const JOBS = [
    desc:'신의 피. 모든 스탯+30%, 부활 가능.',
    color:'#fbbf24',skinBg:'linear-gradient(135deg,#1a0a00,#451a03)',
    skills:[{key:'E',name:'신격화',icon:'🌟',desc:'10초간 무적+데미지×5+전방위 탄막',cd:1200,fn:'jobSkillE'},{key:'Q',name:'신의 심판2',icon:'⚡',desc:'화면 전체 적 즉시 30% HP 감소',cd:900,fn:'jobSkillQ'}]},
+  // ── 신규 직업 2종 ──
+  {id:'demolitionist',name:'폭파전문가',icon:'💣',price:340000,
+   desc:'폭발 데미지+4, 폭발 범위 증가.\n처치 시 20% 확률로 연쇄 폭발.',
+   color:'#f97316',skinBg:'linear-gradient(135deg,#451a03,#7c2d12)',
+   skills:[{key:'E',name:'지뢰 설치',icon:'💣',desc:'전방 3곳에 지뢰 설치, 잠시 후 연쇄 폭발',cd:540,fn:'jobSkillE'},{key:'Q',name:'융단폭격',icon:'🎯',desc:'무작위 위치에 폭탄 8발 낙하',cd:900,fn:'jobSkillQ'}]},
+  {id:'elementalist',name:'정령술사',icon:'🌈',price:360000,
+   desc:'화염+빙결+번개 오라 상시 유지.\n주변 적에게 지속 피해+빙결+감전.',
+   color:'#a855f7',skinBg:'linear-gradient(135deg,#2e1065,#7c3aed)',
+   skills:[{key:'E',name:'원소 폭발',icon:'🌈',desc:'범위 180 원소 피해+빙결',cd:600,fn:'jobSkillE'},{key:'Q',name:'원소 방벽',icon:'🛡️',desc:'5초간 완전 무적',cd:900,fn:'jobSkillQ'}]},
   // ── 시즌패스 전용 직업 12종 (월별) ──
   {id:'sp_job_jan',name:'[시즌] 빙하술사',icon:'🧊',price:0,desc:'1월 시즌Lv.50. 냉기 마법사. 모든 적 동결+극강 빙결 공격.',color:'#7dd3fc',skinBg:'linear-gradient(135deg,#0c4a6e,#0ea5e9)',spOnly:true,rarity:'legendary',spMonth:1,spLv:50,
     skills:[{key:'E',name:'빙하 폭발',icon:'🧊',desc:'반경 350 전체 동결+120 데미지',cd:600,fn:'jobSkillE'},{key:'Q',name:'눈보라',icon:'❄️',desc:'15초간 모든 적 이동속도 -70%',cd:900,fn:'jobSkillQ'}]},
@@ -221,6 +230,22 @@ const JOBS = [
       {key:'Q',name:'신성 부활',icon:'✨',desc:'즉시 HP 완전회복 + 30초 무적 + 이동속도 2배',cd:1800,fn:'jobSkillQ'},
     ]
   },
+  // ── 시즌 이벤트(2개월 순환) 전용 직업 4종 ──
+  {id:'ev_cw_job',name:'미슐랭 셰프',icon:'👨‍🍳',price:0,desc:'요리전쟁 이벤트 보상. 요리 실력으로 전장을 지배.',
+   color:'#f97316',skinBg:'linear-gradient(135deg,#7c2d12,#c2410c)',spOnly:true,eventOnly:true,rarity:'legendary',
+   skills:[{key:'E',name:'불맛 참격',icon:'🔥',desc:'전방 화염 참격+화상 데미지',cd:540,fn:'jobSkillE'},{key:'Q',name:'명품 코스요리',icon:'🍽️',desc:'HP 완전회복+10초간 데미지+공격속도 강화',cd:1200,fn:'jobSkillQ'}]},
+  {id:'ev_tr_job',name:'보물 사냥꾼',icon:'🗺️',price:0,desc:'보물찾기 대회 이벤트 보상. 코인 감지+대박 확률 강화.',
+   color:'#b45309',skinBg:'linear-gradient(135deg,#451a03,#92400e)',spOnly:true,eventOnly:true,rarity:'legendary',
+   skills:[{key:'E',name:'황금손',icon:'💰',desc:'10초간 코인 획득량 4배',cd:900,fn:'jobSkillE'},{key:'Q',name:'보물 폭발',icon:'💥',desc:'범위 200 폭발+코인 드롭 대량 생성',cd:720,fn:'jobSkillQ'}]},
+  {id:'ev_wm_job',name:'수박격파왕',icon:'🍉',price:0,desc:'여름 수박격파 대회 이벤트 보상. 강렬한 여름 축제의 힘.',
+   color:'#22c55e',skinBg:'linear-gradient(135deg,#14532d,#22c55e)',spOnly:true,eventOnly:true,rarity:'legendary',
+   skills:[{key:'E',name:'수박 폭발',icon:'🍉',desc:'전방 과육 파편 폭발+범위 데미지',cd:540,fn:'jobSkillE'},{key:'Q',name:'여름 축제',icon:'🎉',desc:'15초간 이동속도+2, 처치시 코인 획득',cd:900,fn:'jobSkillQ'}]},
+  {id:'ev_as_job',name:'사과농장 저격수',icon:'🍎',price:0,desc:'가을 사과 슬링샷 대회 이벤트 보상. 정확한 조준의 달인.',
+   color:'#dc2626',skinBg:'linear-gradient(135deg,#7f1d1d,#dc2626)',spOnly:true,eventOnly:true,rarity:'legendary',
+   skills:[{key:'E',name:'사과 폭격',icon:'🍎',desc:'전방 사과탄 5연발+폭발',cd:540,fn:'jobSkillE'},{key:'Q',name:'명중 집중',icon:'🎯',desc:'10초간 치명타율+40%',cd:900,fn:'jobSkillQ'}]},
+  {id:'ev_gr_job',name:'산타클로스',icon:'🎅',price:0,desc:'산타의 선물배달 이벤트 보상. 얼음과 선물의 지배자.',
+   color:'#ef4444',skinBg:'linear-gradient(135deg,#7f1d1d,#ef4444)',spOnly:true,eventOnly:true,rarity:'legendary',
+   skills:[{key:'E',name:'선물 폭탄',icon:'🎁',desc:'반경 250 전체 동결+데미지',cd:600,fn:'jobSkillE'},{key:'Q',name:'루돌프 질주',icon:'🦌',desc:'10초간 이동속도+3, 무적',cd:900,fn:'jobSkillQ'}]},
 ];
 
 let ownedJobs = lJ('hd_jobs', {});
@@ -277,8 +302,8 @@ function renderJob() {
     if(job.spOnly&&!isOwned){
       const sbtn=document.createElement('button');
       sbtn.style.cssText='padding:5px 8px;border:none;border-radius:7px;font-size:9px;font-weight:700;width:100%;background:#1e1b4b;color:#a78bfa;cursor:default;';
-      const mStr2=job.spMonth?job.spMonth+'월 Lv.'+job.spLv+' 보상':'시즌패스 전용';
-      sbtn.textContent='🌟 '+mStr2;
+      const mStr2=job.eventOnly?'이벤트 전용':job.spMonth?job.spMonth+'월 Lv.'+job.spLv+' 보상':'시즌패스 전용';
+      sbtn.textContent=(job.eventOnly?'🎉 ':'🌟 ')+mStr2;
       bw.appendChild(sbtn);
     } else if(isOwned){
       // 장착/해제 버튼

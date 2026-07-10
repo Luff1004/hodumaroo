@@ -50,6 +50,15 @@ const MAPS=[
   {id:'symphony',name:'FANTASTIC SYMPHONY',desc:'OMEGA FINALE. 피할 방법이 없다.',
    tags:[{t:'🎵 SSSSSSS EXTREME DEMON',c:'#fbbf24',bg:'#1a0a00'},{t:'최종 보스',c:'#fff',bg:'#7c2d12'}],
    type:'symphony',diff:10,boss:'symphony',category:'boss'},
+  {id:'volcano',name:'VOLCANO',desc:'용암 웅덩이 + 화염 폭발. 발밑을 조심하라.',
+   tags:[{t:'🌋 HELL',c:'#fdba74',bg:'#7c2d12'},{t:'보스전',c:'#fff',bg:'#c2410c'}],
+   type:'volcano',diff:10.2,boss:'volcano',category:'boss'},
+  {id:'frost',name:'FROST EMPRESS',desc:'절대 빙결의 여제. 얼음창과 블리자드를 버텨라.',
+   tags:[{t:'🧊 SUPER HELL',c:'#bae6fd',bg:'#0c4a6e'},{t:'보스전',c:'#fff',bg:'#0369a1'}],
+   type:'frost',diff:10.5,boss:'frost',category:'boss'},
+  {id:'void',name:'VOID REAPER',desc:'차원 균열과 소멸장. 완전한 공허가 기다린다.',
+   tags:[{t:'🌌 EXTREME',c:'#c4b5fd',bg:'#1e1b4b'},{t:'보스전',c:'#fff',bg:'#4c1d95'}],
+   type:'void',diff:10.8,boss:'void',category:'boss'},
   // ── 챌린지 맵 (전용 몹, 웨이브당 100마리 고정 소환, 10웨이브 완주, 특성 선택 없음) ──
   {id:'robot_factory',name:'로봇 공장',desc:'끝없이 쏟아지는 전투 로봇들. 특성 선택 없이 웨이브당 100마리씩, 10웨이브를 버텨라.',
    tags:[{t:'🤖 CHALLENGE',c:'#93c5fd',bg:'#0f172a'},{t:'10웨이브·100마리',c:'#fff',bg:'#1e3a8a'}],
@@ -62,7 +71,7 @@ const MAPS=[
    type:'hardest_world',diff:12,boss:null,category:'challenge',challenge:true,waveLimit:10},
 ];
 let mapCategory='wave',mapIdx=0,selMap=MAPS[0];
-function catMaps(){return MAPS.filter(m=>m.category===mapCategory);}
+function catMaps(){return MAPS.filter(m=>m.category===mapCategory).sort((a,b)=>(a.diff||0)-(b.diff||0));}
 function openMapSelect(){
   mapCategory='wave';mapIdx=0;
   go('sMap');
@@ -104,7 +113,8 @@ function drawMP(){
    apocalypse:'#2a0a00',dimension_heart:'#150826',eternal_space:'#050008',
    sun:'#1a0800',machine:'#060e1a',bacteria:'#041008',clock:'#0c0818',
    skeleton:'#101010',reanimation:'#1a0000',kraken:'#000d1a',symphony:'#0a0008',
-   robot_factory:'#0f172a',underwater:'#083344',hardest_world:'#1a0000'};
+   robot_factory:'#0f172a',underwater:'#083344',hardest_world:'#1a0000',
+   volcano:'#2a0a00',frost:'#04202e',void:'#0f0620'};
   x.fillStyle=BG[m.type]||'#111';x.fillRect(0,0,400,210);
 
   if(m.type==='city'){
@@ -245,6 +255,27 @@ function drawMP(){
     const hg=x.createRadialGradient(200,105,5,200,105,150);hg.addColorStop(0,'rgba(239,68,68,0.35)');hg.addColorStop(1,'transparent');x.fillStyle=hg;x.fillRect(0,0,400,210);
     for(let i=0;i<7;i++){x.strokeStyle='rgba(124,45,146,0.4)';x.lineWidth=4;const sx=200+Math.cos(i/7*Math.PI*2)*20,sy=105+Math.sin(i/7*Math.PI*2)*20;x.beginPath();x.moveTo(sx,sy);x.bezierCurveTo(sx+(Math.random()-.5)*90,sy+(Math.random()-.5)*90,sx+(Math.random()-.5)*90,sy+(Math.random()-.5)*90,20+Math.random()*360,20+Math.random()*170);x.stroke();}
     x.fillStyle='rgba(255,255,255,0.12)';x.font='bold 12px sans-serif';x.textAlign='center';x.fillText('HARDEST OF THE WORLD',200,195);
+  } else if(m.type==='volcano'){
+    x.fillStyle='#2a0a00';x.fillRect(0,0,400,210);
+    const vg=x.createRadialGradient(200,105,10,200,105,140);vg.addColorStop(0,'rgba(249,115,22,0.5)');vg.addColorStop(0.5,'rgba(220,38,38,0.25)');vg.addColorStop(1,'transparent');x.fillStyle=vg;x.fillRect(0,0,400,210);
+    x.beginPath();x.arc(200,105,42,0,Math.PI*2);const vg2=x.createRadialGradient(200,105,5,200,105,42);vg2.addColorStop(0,'#fed7aa');vg2.addColorStop(.6,'#f97316');vg2.addColorStop(1,'#7c2d12');x.fillStyle=vg2;x.fill();
+    x.strokeStyle='#ea580c';x.lineWidth=3;x.stroke();
+    [[80,60,10],[320,70,8],[60,160,9],[340,150,7]].forEach(([bx,by,br])=>{x.fillStyle='rgba(249,115,22,0.5)';x.beginPath();x.arc(bx,by,br,0,Math.PI*2);x.fill();});
+    x.fillStyle='rgba(255,255,255,0.15)';x.font='bold 14px sans-serif';x.textAlign='center';x.fillText('VOLCANO',200,195);
+  } else if(m.type==='frost'){
+    x.fillStyle='#04202e';x.fillRect(0,0,400,210);
+    const fg=x.createRadialGradient(200,105,10,200,105,140);fg.addColorStop(0,'rgba(224,242,254,0.4)');fg.addColorStop(0.5,'rgba(125,211,252,0.25)');fg.addColorStop(1,'transparent');x.fillStyle=fg;x.fillRect(0,0,400,210);
+    x.beginPath();x.arc(200,105,40,0,Math.PI*2);const fg2=x.createRadialGradient(200,105,5,200,105,40);fg2.addColorStop(0,'#f0f9ff');fg2.addColorStop(.6,'#7dd3fc');fg2.addColorStop(1,'#0369a1');x.fillStyle=fg2;x.fill();
+    x.strokeStyle='#38bdf8';x.lineWidth=3;x.stroke();
+    for(let i=0;i<6;i++){const a=i/6*Math.PI*2;x.strokeStyle='rgba(224,242,254,0.5)';x.lineWidth=2;x.beginPath();x.moveTo(200+Math.cos(a)*48,105+Math.sin(a)*48);x.lineTo(200+Math.cos(a)*75,105+Math.sin(a)*75);x.stroke();}
+    x.fillStyle='rgba(255,255,255,0.15)';x.font='bold 14px sans-serif';x.textAlign='center';x.fillText('FROST EMPRESS',200,195);
+  } else if(m.type==='void'){
+    x.fillStyle='#0f0620';x.fillRect(0,0,400,210);
+    const vg3=x.createRadialGradient(200,105,5,200,105,150);vg3.addColorStop(0,'rgba(196,181,253,0.35)');vg3.addColorStop(0.5,'rgba(124,58,237,0.25)');vg3.addColorStop(1,'transparent');x.fillStyle=vg3;x.fillRect(0,0,400,210);
+    for(let r=15;r<90;r+=18){x.strokeStyle='rgba(124,58,237,0.3)';x.lineWidth=2;x.beginPath();x.arc(200,105,r,0,Math.PI*1.6);x.stroke();}
+    x.beginPath();x.arc(200,105,38,0,Math.PI*2);const vg4=x.createRadialGradient(200,105,3,200,105,38);vg4.addColorStop(0,'#c4b5fd');vg4.addColorStop(.6,'#7c3aed');vg4.addColorStop(1,'#1e1b4b');x.fillStyle=vg4;x.fill();
+    x.fillStyle='#000';x.beginPath();x.arc(200,105,14,0,Math.PI*2);x.fill();
+    x.fillStyle='rgba(255,255,255,0.15)';x.font='bold 14px sans-serif';x.textAlign='center';x.fillText('VOID REAPER',200,195);
   }
   // 플레이어 점
   x.fillStyle='#1D9E75';x.beginPath();x.arc(200,195,7,0,Math.PI*2);x.fill();

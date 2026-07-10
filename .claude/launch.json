@@ -12,6 +12,12 @@
       "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
       "runtimeArgs": ["node_modules/vite/bin/vite.js", "preview"],
       "port": 4173
+    },
+    {
+      "name": "rhythm-game",
+      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
+      "runtimeArgs": ["node_modules/vite/bin/vite.js", "rhythm-game", "--port", "5180"],
+      "port": 5180
     }
   ]
 }
