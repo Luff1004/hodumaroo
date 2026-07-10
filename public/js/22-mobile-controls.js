@@ -25,9 +25,11 @@ function applyControlMode(){
   const simple=typeof getControlMode==='function'&&getControlMode()==='simple';
   const base=document.getElementById('joystickBase');
   const fireBtn=document.getElementById('mobileFireBtn');
+  const reloadBtn=document.getElementById('mobileReloadBtn');
   const fmBtn=document.getElementById('fireModeBtn');
   if(base)base.style.display=simple?'none':'block';
   if(fireBtn)fireBtn.style.display=simple?'none':'block';
+  if(reloadBtn)reloadBtn.style.display=simple?'none':'block';
   if(simple){
     if(typeof fireMode!=='undefined'&&fireMode!=='auto'){
       fireMode='auto';
