@@ -134,6 +134,26 @@
     <button class="marr" onclick="chMap(1)">›</button>
   </div>
   <button class="mok" onclick="confirmMapSelect()">이 맵으로 →</button>
+  <button id="towerShopBtn" onclick="openTowerShop()" style="display:none;margin-top:8px;padding:8px 20px;background:linear-gradient(135deg,#4c1d95,#7c3aed);border:none;border-radius:10px;color:#fff;font-weight:800;font-size:13px;cursor:pointer;">🗼 탑의 상점 (정수: <span id="towerEssenceLbl">0</span>)</button>
+</div>
+
+<!-- ══ 무한의 탑: 정수 상점 ══ -->
+<div id="towerShopOv" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(5,0,20,.96);z-index:42;align-items:center;justify-content:center;">
+  <div style="width:min(500px,92vw);max-height:82vh;overflow-y:auto;background:#14102a;border:2px solid #7c3aed;border-radius:16px;padding:20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <div style="font-size:18px;font-weight:900;color:#c4b5fd;">🗼 탑의 상점</div>
+      <button onclick="closeTowerShop()" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div style="font-size:12px;color:#a78bfa;margin-bottom:12px;">보유 탑의 정수: <span id="towerShopEssence">0</span> ✨ (층 클리어마다 획득, 영구 강화는 다음 등반부터 적용)</div>
+    <div id="towerShopList" style="display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
+</div>
+
+<!-- ══ 무한의 탑: 보물의 문 유물 선택 ══ -->
+<div id="towerRelicOv" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(5,0,20,.96);z-index:43;flex-direction:column;align-items:center;justify-content:center;">
+  <div class="ut">💰 보물의 문</div>
+  <div class="usub">유물을 하나 선택하세요 (이번 등반 동안 유지)</div>
+  <div class="ucards" id="towerRelicCards"></div>
 </div>
 
 <!-- ══ WEAPON SELECT ══ -->
@@ -551,6 +571,7 @@
 <script src="/js/23-defense-mode.js"></script>
 <script src="/js/24-defense-crafting.js"></script>
 <script src="/js/25-tower-mode.js"></script>
+<script src="/js/26-tower-content.js"></script>
 
 <!-- ══ 설정 모달 ══ -->
 <div id="settingsModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;">

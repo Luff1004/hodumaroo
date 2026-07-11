@@ -89,6 +89,10 @@ const ZT={
   space_jelly:   {name:'우주의 해파리', col:'#67e8f9',ol:'#0e7490',bHp:11,  spd:.8,  r:16,sc:55},
   glitch_entity: {name:'X)(#%+#@?',     col:'#ffffff',ol:'#000000',bHp:60,  spd:1.3, r:20,sc:150},
   the_god:       {name:'THE GOD',       col:'#fbbf24',ol:'#78350f',bHp:120, spd:.5,  r:30,sc:300},
+  // ── 무한의 탑 전용 ──
+  tower_tank:    {name:'탑의 파수병', col:'#475569',ol:'#1e293b',bHp:26, spd:.5,  r:22,sc:70,isTowerTank:true},
+  tower_phantom: {name:'탑의 환영',   col:'#c4b5fd',ol:'#5b21b6',bHp:9,  spd:1.5, r:13,sc:55,isTowerPhantom:true},
+  tower_bomber:  {name:'탑의 폭탄병', col:'#f97316',ol:'#7c2d12',bHp:8,  spd:1.3, r:13,sc:50,isTowerBomber:true},
   // ── 아이템 소환 동맹 ──
   wolf_ally:  {name:'늑대',   col:'#78716c',ol:'#44403c',bHp:40,  spd:3.2, r:14,sc:0},
   drone_ally: {name:'드론',   col:'#60a5fa',ol:'#1d4ed8',bHp:60,  spd:2.6, r:14,sc:0},
@@ -100,7 +104,7 @@ function d2(ax,ay,bx,by){return(ax-bx)**2+(ay-by)**2;}
 // 신규 웨이브맵 3종 EXTREME 난이도 배율 (아포칼립스 < 차원의 심장 < ETERNAL SPACE)
 const HARD_WAVE_MUL={apocalypse:1.5,dimension_heart:2.0,eternal_space:2.8};
 
-function calcWZ(){if(selMap.boss)return 1;if(BOSSES[wave]&&!selMap.challenge)return 1;if(selMap.challenge)return 100;const hwm=HARD_WAVE_MUL[selMap.id]||1;return Math.ceil((5+wave*4)*hwm);}
+function calcWZ(){if(selMap.boss)return 1;if(BOSSES[wave]&&!selMap.challenge)return 1;if(selMap.id==='tower'&&wave>100&&wave%10===0)return 1;if(selMap.challenge)return 100;const hwm=HARD_WAVE_MUL[selMap.id]||1;return Math.ceil((5+wave*4)*hwm);}
 
 function getWep(){
   const base=WEPS[selWepId]||WEPS.pistol;
@@ -208,6 +212,7 @@ function initGame(){
   itemCooldowns={};
   if(!selMap.noItems)renderItemBar();
   if(selMap.id==='danger_camp'&&typeof initDefenseMode==='function')initDefenseMode();
+  if(selMap.id==='tower'&&typeof initTowerRun==='function')initTowerRun();
 }
 
 function spawnHpItems(){
@@ -468,11 +473,16 @@ function hitZ(z,dmg){
   if(z.dead)return;
   const cl=perkLv['crit']??-1,critC=(cl>=0?[.05,.10,.15,.20,.30][Math.min(cl,4)]:0)+(P._armorCrit||0)+(P._wepCrit||0);
   let d=dmg;
+  if(ZT[z.type]?.isTowerTank)d*=0.5; // 탑의 파수병: 받는 피해 50% 감소
   if(Math.random()<critC){d*=cl>=2?[2,2,2.5,2.5,3,3][Math.min(cl+1,5)]:2;for(let i=0;i<6;i++)parts.push({x:z.x,y:z.y,vx:(Math.random()-.5)*7,vy:(Math.random()-.5)*7,l:18,ml:18,r:4,col:'#ff0'});}
   z.hp-=d;
   for(let i=0;i<4;i++)parts.push({x:z.x,y:z.y,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5,l:12,ml:12,r:3,col:z.isBoss?z.bd.col:(ZT[z.type]?.col||'#888')});
   if(z.hp<=0){
     if((z.type==='exploder'||z.type==='suicide_zombie')&&!z._ex){z._ex=true;addExp(z.x,z.y,z.type==='suicide_zombie'?95:70,'#FF6600');}
+    if(ZT[z.type]?.isTowerBomber&&!z._ex){
+      z._ex=true;addExp(z.x,z.y,80,'#f97316');
+      if(d2(P.x,P.y,z.x,z.y)<100**2)takeDmg(14);
+    }
     z.dead=true;z.dT=z.isBoss?80:35;z._justDied=true;
     score+=Math.floor((z.isBoss?z.bd.reward.c:(ZT[z.type]?.sc||10))*(1+(pUpgLv['pxp']||0)*.1));kills++;
     achStats.kills=(achStats.kills||0)+1;
@@ -482,6 +492,7 @@ function hitZ(z,dmg){
     if(activeBuffs.vampiric>0)P.hp=Math.min(P.maxHp,P.hp+3);
     if(P._armorLS)P.hp=Math.min(P.maxHp,P.hp+P._armorLS);
     if(window._petLifesteal)P.hp=Math.min(P.maxHp,P.hp+window._petLifesteal);
+    if(selMap&&selMap.id==='tower'&&typeof towerRelics!=='undefined'&&towerRelics.vampiric)P.hp=Math.min(P.maxHp,P.hp+1);
     // 분노 스택
     if(equippedJob==='berserker2')P._rageStack=(P._rageStack||0)+1;
     // 광부 패시브: 추가 코인
@@ -499,6 +510,7 @@ function hitZ(z,dmg){
 
 function takeDmg(d){
   if(P._invincible>0)return;
+  if(selMap&&selMap.id==='tower'&&typeof towerRelics!=='undefined'&&towerRelics.greedDmg)d*=(1+towerRelics.greedDmg);
   if(P._shadow>0){d*=0.3;}
   if(P._shield>0)return;
   waveDmgTaken+=d;
@@ -1284,10 +1296,19 @@ function getZombiePool(){if(selMap.boss)return [];
     if(wave>=7)base.push('glitch_entity','the_god','space_jelly','worm');
     if(wave>=10)base.push('glitch_entity','the_god','num999');
   }
+  // 무한의 탑: 전용 몬스터(파수병/환영/폭탄병)를 층이 오를수록 섞어넣음
+  if(m.id==='tower'){
+    if(wave>=2)base.push('tower_bomber');
+    if(wave>=4)base.push('tower_phantom','tower_bomber');
+    if(wave>=6)base.push('tower_tank');
+    if(wave>=8)base.push('tower_tank','tower_phantom','tower_bomber');
+    if(wave>=12)base.push('tower_tank','tower_tank','tower_phantom','tower_phantom','tower_bomber');
+  }
   return base;
 }
 function spawnWave(){
   if(BOSSES[wave]&&!selMap.challenge){if(spawnedCnt===0){spawnBoss(wave);spawnedCnt++;}return;}
+  if(selMap.id==='tower'&&wave>100&&wave%10===0){if(spawnedCnt===0&&typeof spawnTowerLordBoss==='function'){spawnTowerLordBoss(wave);spawnedCnt++;}return;}
   if(selMap.boss){
     if(wave===1&&spawnedCnt===0&&!activeBossMap){startBossMap(selMap.boss);spawnedCnt++;}
     return;
@@ -1379,6 +1400,7 @@ function update(){
   tickPerks();
   tickJob();
   tickItems();
+  if(selMap&&selMap.id==='tower'&&typeof tickTowerRelics==='function')tickTowerRelics();
   hpItems.forEach(it=>{if(it.collected)return;it.bob+=.05;if(d2(P.x,P.y,it.x,it.y)<(P.r+it.r+4)**2){it.collected=true;const heal=Math.ceil(P.maxHp*.1);P.hp=Math.min(P.maxHp,P.hp+heal);setMsg(`❤️ +${heal}HP!`);setTimeout(()=>{if(running)setMsg('');},1500);for(let i=0;i<10;i++)parts.push({x:it.x,y:it.y,vx:(Math.random()-.5)*4,vy:-2-Math.random()*3,l:22,ml:22,r:4,col:'#ef4444'});}});
   if(!betweenWave){
     if(selMap.boss){if(spawnedCnt===0&&!activeBossMap){spawnWave();spawnT=0;}}
@@ -1396,10 +1418,15 @@ function update(){
         if(wave===35)setMsg('🔓 THE ETERNAL BOB 해금!');
       }
     }
-    // 무한의 탑: 최고 층수 기록
+    // 무한의 탑: 최고 층수 기록 + 탑의 정수 획득 + 탐욕의 유물 보너스
     if(selMap.id==='tower'){
       const prevBest=parseInt(localStorage.getItem('hd_tower_best')||'0');
       if(wave>prevBest)localStorage.setItem('hd_tower_best',wave);
+      if(typeof gainTowerEssence==='function')gainTowerEssence(1+Math.floor(wave/10));
+      if(typeof towerRelics!=='undefined'&&towerRelics.greedCoin){
+        const bonus=Math.floor((50+wave*5)*towerRelics.greedCoin);
+        coins+=bonus;saveAll();
+      }
     }
     if(selMap.challenge&&wave>=selMap.waveLimit){triggerChallengeClear();}
     else if(selMap.challenge){
@@ -1607,6 +1634,12 @@ function update(){
         const ang=Math.atan2(ddy,ddx);
         for(let wi=-2;wi<=2;wi++){const a=ang+wi*.18;buls.push({x:z.x,y:z.y,vx:Math.cos(a)*8,vy:Math.sin(a)*8,r:8,l:160,en:true,dmg:14,col:'#fbbf24'});}
       }
+    }
+    else if(z.type==='tower_phantom'){
+      // 탑의 환영: 주기적으로 플레이어 근처로 순간이동
+      z._webT=(z._webT||0)+1;
+      if(z._webT>=180){z._webT=0;z.x=P.x+(Math.random()-.5)*220;z.y=P.y+(Math.random()-.5)*220;for(let i=0;i<8;i++)parts.push({x:z.x,y:z.y,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6,l:18,ml:18,r:3,col:'#c4b5fd'});}
+      else{z.x+=ddx/dl*spd;z.y+=ddy/dl*spd;}
     }
     else{z.x+=ddx/dl*spd+Math.cos(z.wob)*.2;z.y+=ddy/dl*spd+Math.sin(z.wob)*.2;}
     z.x=Math.max(z.r,Math.min(MW-z.r,z.x));z.y=Math.max(z.r,Math.min(MH-z.r,z.y));
@@ -2284,6 +2317,20 @@ function drawZ(z){
     ctx.beginPath();ctx.arc(z.x,z.y,z.r*0.85,0,Math.PI*2);
     ctx.fillStyle='#f97316';ctx.fill();
     ctx.restore();
+  }
+  // 무한의 탑 전용 몬스터 비주얼 플레어(일반 렌더링 위에 추가 효과만 덧그림)
+  if(z.type==='tower_phantom'&&!z.dead){
+    ctx.save();ctx.globalAlpha=0.5+0.3*Math.sin(Date.now()/150);
+    ctx.beginPath();ctx.arc(z.x,z.y,z.r+5,0,Math.PI*2);ctx.strokeStyle='#c4b5fd';ctx.lineWidth=2;ctx.stroke();
+    ctx.restore();
+  }
+  if(z.type==='tower_bomber'&&!z.dead){
+    ctx.save();ctx.globalAlpha=0.4+0.4*Math.sin(Date.now()/120);
+    ctx.beginPath();ctx.arc(z.x,z.y,z.r+7,0,Math.PI*2);ctx.strokeStyle='#ef4444';ctx.lineWidth=2;ctx.stroke();
+    ctx.restore();
+  }
+  if(z.type==='tower_tank'&&!z.dead){
+    ctx.fillStyle='#1e293b';ctx.font=`bold ${Math.floor(z.r*0.9)}px sans-serif`;ctx.textAlign='center';ctx.fillText('🛡',z.x,z.y+z.r*0.35);
   }
   // 수퍼탱커
   if(z.type==='supertank'){

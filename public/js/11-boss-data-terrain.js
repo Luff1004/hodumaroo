@@ -169,27 +169,34 @@ function drawTerrain(ctx,m){
     }
 
   } else if(t==='tower'){
-    // 무한의 탑: 돌바닥 던전 + 벽면 횃불 + 중앙 층수 룬
-    ctx.fillStyle='#1c1730';ctx.fillRect(0,0,MW,MH);
-    ctx.strokeStyle='rgba(196,181,253,0.12)';ctx.lineWidth=1;
+    // 무한의 탑: 돌바닥 던전 + 벽면 횃불 + 중앙 층수 룬 (10층 단위로 테마가 바뀜)
+    const TOWER_THEMES=[
+      {bg:'#1c1730',grid:'rgba(196,181,253,0.12)',wall:'rgba(76,29,149,0.5)',flame:'#f97316',flame2:'#fde68a',rune:'rgba(167,139,250,0.35)',runeRing:'rgba(196,181,253,0.5)'},
+      {bg:'#0c2230',grid:'rgba(103,232,249,0.12)',wall:'rgba(8,145,178,0.5)',flame:'#38bdf8',flame2:'#e0f2fe',rune:'rgba(56,189,248,0.35)',runeRing:'rgba(103,232,249,0.5)'},
+      {bg:'#2a0e0c',grid:'rgba(248,113,113,0.12)',wall:'rgba(153,27,27,0.5)',flame:'#ef4444',flame2:'#fecaca',rune:'rgba(239,68,68,0.35)',runeRing:'rgba(248,113,113,0.5)'},
+      {bg:'#100c1c',grid:'rgba(251,191,36,0.12)',wall:'rgba(120,53,15,0.5)',flame:'#fbbf24',flame2:'#fff7ed',rune:'rgba(251,191,36,0.35)',runeRing:'rgba(251,191,36,0.5)'},
+    ];
+    const th=TOWER_THEMES[(typeof wave!=='undefined'?Math.floor((wave-1)/10):0)%TOWER_THEMES.length];
+    ctx.fillStyle=th.bg;ctx.fillRect(0,0,MW,MH);
+    ctx.strokeStyle=th.grid;ctx.lineWidth=1;
     for(let gy=0;gy<MH;gy+=50){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(MW,gy);ctx.stroke();}
     for(let gx=0;gx<MW;gx+=60){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,MH);ctx.stroke();}
-    ctx.strokeStyle='rgba(76,29,149,0.5)';ctx.lineWidth=6;
+    ctx.strokeStyle=th.wall;ctx.lineWidth=6;
     ctx.strokeRect(6,6,MW-12,MH-12);
     for(let ty=60;ty<MH;ty+=260){
       [16,MW-16].forEach(tx=>{
         ctx.fillStyle='#5c3a1e';ctx.fillRect(tx-3,ty-6,6,20);
-        ctx.fillStyle='#f97316';ctx.beginPath();ctx.ellipse(tx,ty-14,6,9,0,0,Math.PI*2);ctx.fill();
-        ctx.fillStyle='#fde68a';ctx.beginPath();ctx.ellipse(tx,ty-15,3,5,0,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle=th.flame;ctx.beginPath();ctx.ellipse(tx,ty-14,6,9,0,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle=th.flame2;ctx.beginPath();ctx.ellipse(tx,ty-15,3,5,0,0,Math.PI*2);ctx.fill();
       });
     }
     if(typeof wave!=='undefined'){
       const rx=MW/2, ry=MH/2;
       ctx.save();
       const rg=ctx.createRadialGradient(rx,ry,5,rx,ry,90);
-      rg.addColorStop(0,'rgba(167,139,250,0.35)');rg.addColorStop(1,'rgba(167,139,250,0)');
+      rg.addColorStop(0,th.rune);rg.addColorStop(1,'rgba(0,0,0,0)');
       ctx.fillStyle=rg;ctx.beginPath();ctx.arc(rx,ry,90,0,Math.PI*2);ctx.fill();
-      ctx.strokeStyle='rgba(196,181,253,0.5)';ctx.lineWidth=2;
+      ctx.strokeStyle=th.runeRing;ctx.lineWidth=2;
       ctx.beginPath();ctx.arc(rx,ry,70,0,Math.PI*2);ctx.stroke();
       ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='bold 22px sans-serif';ctx.textAlign='center';
       ctx.fillText(`${wave}층`,rx,ry+8);

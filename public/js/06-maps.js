@@ -119,6 +119,11 @@ function drawMP(){
   document.getElementById('mn').textContent=m.name;
   document.getElementById('md').textContent=m.desc;
   document.getElementById('mt').innerHTML=m.tags.map(t=>`<span class="mtag" style="color:${t.c};background:${t.bg}">${t.t}</span>`).join('');
+  const towerShopBtn=document.getElementById('towerShopBtn');
+  if(towerShopBtn){
+    towerShopBtn.style.display=(m.category==='tower')?'block':'none';
+    if(typeof lN==='function')document.getElementById('towerEssenceLbl').textContent=lN('hd_tower_essence',0);
+  }
   const c=document.getElementById('mpC'),x=c.getContext('2d');
   // 배경
   const BG={city:'#23201c',forest:'#0d1a0d',lab:'#0a0e1a',desert:'#1c1000',space:'#000010',

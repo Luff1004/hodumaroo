@@ -20,11 +20,10 @@ function chooseTowerDoor(kind){
     coins+=bonus;saveAll();updHUD();
     showUpgOv();
   } else if(kind==='treasure'){
-    const c=200+wave*10, e=80+wave*5;
-    coins+=c;energy+=e;saveAll();updHUD();
-    setMsg(`💰 보물의 문: 코인 +${c}, 에너지 +${e}`);
-    setTimeout(()=>{if(running||betweenWave)setMsg('');},2000);
-    nextWave();
+    const e=80+wave*5;
+    energy+=e;saveAll();updHUD();
+    if(typeof showTowerRelicChoice==='function')showTowerRelicChoice();
+    else nextWave(); // 유물 시스템 로드 실패 시 안전장치
   } else if(kind==='rest'){
     if(P)P.hp=P.maxHp;
     updHUD();
