@@ -8,7 +8,13 @@ function VW(){return gC.width;}function VH(){return gC.height;}
 function clampC(y){return Math.max(0,Math.min(MH-VH(),y));}
 function clampCX(x){return Math.max(0,Math.min(Math.max(0,MW-VW()),x));}
 function resize(){gC.width=window.innerWidth;gC.height=window.innerHeight;}
-resize();window.addEventListener('resize',()=>{resize();if(P){camY=clampC(P.y-VH()/2);camX=clampCX(P.x-VW()/2);}});
+resize();window.addEventListener('resize',()=>{
+  resize();
+  if(P){
+    if(selMap&&selMap.id==='danger_camp'&&typeof dClampX==='function'){dCamX=dClampX(P.x-VW()/2);dCamY=dClampY(P.y-VH()/2);}
+    else{camY=clampC(P.y-VH()/2);camX=clampCX(P.x-VW()/2);}
+  }
+});
 
 let P,zoms,buls,parts,effs,hpItems;
 let wave,score,kills,poison;
@@ -164,7 +170,7 @@ function initGame(){
   }
   // 갑옷 보너스 패시브 적용
   const eqArObj=ARMORS.find(a=>a.id===eqArmor);
-  if(eqArObj&&eqArObj.bonus){
+  if(eqArObj&&eqArObj.bonus&&!selMap.noWeapons){
     const b=eqArObj.bonus;
     if(b.spd)P.spd+=b.spd;
     if(b.hp){P.maxHp+=b.hp;P.hp+=b.hp;}
@@ -180,7 +186,7 @@ function initGame(){
   }
   // 직업 패시브 적용
   const activeJob=JOBS.find(x=>x.id===equippedJob);
-  if(activeJob){
+  if(activeJob&&!selMap.noJobs){
     const jobEncTier=(typeof enchants!=='undefined')?enchants['job_'+equippedJob]:null;
     const jlv=(jobLv[equippedJob]||0)+(jobEncTier!=null&&ENCHANT_TIERS[jobEncTier]?(jobEncTier+1)*2:0);
     const jmult=jlv>21?1+(jlv-21)*.1:1+jlv*.03; // HYPER: +10%/lv, 일반: +3%/lv
@@ -196,11 +202,12 @@ function initGame(){
     if(equippedJob==='elementalist'){P._fireAura=true;P._coldAura=true;P._thunderAura=true;}
     if(jlv>21)setMsg('✨ HYPER LEVEL '+equippedJob+'! 모든 스탯 대폭 강화!');
   }
-  if(typeof applyPetBonus==='function')applyPetBonus();
+  if(typeof applyPetBonus==='function'&&!selMap.noJobs)applyPetBonus();
   document.getElementById('bossBar').style.display='none';
-  spawnHpItems();
+  if(!selMap.noItems)spawnHpItems();
   itemCooldowns={};
-  renderItemBar();
+  if(!selMap.noItems)renderItemBar();
+  if(selMap.id==='danger_camp'&&typeof initDefenseMode==='function')initDefenseMode();
 }
 
 function spawnHpItems(){
@@ -1312,6 +1319,7 @@ function triggerChallengeClear(){
 
 // ── UPDATE ──
 function update(){
+  if(selMap&&selMap.id==='danger_camp'){updateDefenseMode();return;}
   // 적 탄환 폭증 방지 상한선 (렉 방지)
   if(buls.length>200){
     let enemyBuls=buls.filter(b=>b.en);
@@ -1984,6 +1992,7 @@ const THEMES={city:{bg:'#7a7a7a',bd:'rgba(60,60,60,.6)'},forest:{bg:'#1a2e1a',bd
 
 function draw(){
   ctx.clearRect(0,0,VW(),VH());
+  if(selMap&&selMap.id==='danger_camp'){drawDefenseMode();return;}
   ctx.shadowBlur=0;ctx.shadowColor='transparent';
   const _ox=VW()>=MW?(VW()-MW)/2:-camX;
   ctx.save();ctx.translate(_ox,-camY);
@@ -2569,6 +2578,7 @@ function drawBossMapBoss(z,t,pct){
 function setMsg(t){const el=document.getElementById('hmsg');if(el)el.textContent=t;}
 function updHUD(){
   if(!P)return;
+  if(selMap&&selMap.category==='defense'){if(typeof updDefenseHUD==='function')updDefenseHUD();return;}
   document.getElementById('hw').textContent=`🌊 웨이브 ${wave}`;
   const hp=Math.ceil(P.hp),hel=document.getElementById('hhp');
   hel.textContent=`❤️ ${hp}/${P.maxHp}`;hel.style.color=hp/P.maxHp>.5?'#4ade80':hp/P.maxHp>.25?'#fb923c':'#ef4444';
@@ -2597,7 +2607,18 @@ function stopGame(){
   document.getElementById('skillBar').style.display='none';
   document.getElementById('pauseMenu').style.display='none';
   document.getElementById('clearScreen').style.display='none';
+  const dsb=document.getElementById('defenseSackBar');if(dsb)dsb.style.display='none';
+  const dvb=document.getElementById('defenseVitalsBar');if(dvb)dvb.style.display='none';
+  const dhb=document.getElementById('defenseHotbar');if(dhb)dhb.style.display='none';
+  const dib=document.getElementById('defenseInvBtn');if(dib)dib.style.display='none';
+  const dbb=document.getElementById('defenseBuildBtn');if(dbb)dbb.style.display='none';
+  const dpi=document.getElementById('defensePhaseIndicator');if(dpi)dpi.style.display='none';
+  const dih=document.getElementById('defenseInteractHint');if(dih)dih.style.display='none';
+  const dcm=document.getElementById('defenseCraftModal');if(dcm)dcm.style.display='none';
+  const dchm=document.getElementById('defenseChestModal');if(dchm)dchm.style.display='none';
+  const divm=document.getElementById('defenseInvModal');if(divm)divm.style.display='none';
   if(typeof hideMobileControls==='function')hideMobileControls();
+  if(typeof resetDefenseMode==='function')resetDefenseMode();
 }
 function clearToLobby(){
   window._bossMapClearing=false;
@@ -2649,14 +2670,34 @@ function startGame(){
   document.getElementById('gameCanvas').style.display='block';
   document.getElementById('gameUI').style.display='block';
   document.getElementById('pauseBtn').style.display='block';
-  document.getElementById('waveSpeedBtn').style.display='block';
-  document.getElementById('fireModeBtn').style.display='block';
+  const isDefense=selMap&&selMap.category==='defense';
+  document.getElementById('waveSpeedBtn').style.display=(isDefense&&selMap.noWaveSpeed)?'none':'block';
+  document.getElementById('fireModeBtn').style.display=(isDefense&&selMap.noWeapons)?'none':'block';
+  ['hw','hsc','ham','hkl','hco','hen'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=isDefense?'none':'';});
+  ['hDay','hBaseHp'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=isDefense?'':'none';});
+  document.getElementById('defenseSackBar').style.display=isDefense?'flex':'none';
+  document.getElementById('defenseVitalsBar').style.display=isDefense?'block':'none';
+  document.getElementById('defenseHotbar').style.display=isDefense?'flex':'none';
+  document.getElementById('defenseInvBtn').style.display=isDefense?'block':'none';
+  document.getElementById('defenseBuildBtn').style.display=isDefense?'block':'none';
+  document.getElementById('defensePhaseIndicator').style.display=isDefense?'block':'none';
+  const mmbox=document.querySelector('.mmbox');if(mmbox)mmbox.style.display=isDefense?'none':'';
   document.getElementById('skillBar').style.display='flex';
+  if(isDefense){
+    const sBar=document.getElementById('skillBar');
+    sBar.style.bottom='76px';sBar.style.right='14px';
+    const eBtn=document.getElementById('skillBtnE'),qBtn=document.getElementById('skillBtnQ');
+    if(eBtn){eBtn.style.display='flex';eBtn.textContent='✋';eBtn.onclick=()=>{if(typeof interactDefense==='function')interactDefense();};}
+    if(qBtn)qBtn.style.display='none';
+  } else {
+    const sBar=document.getElementById('skillBar');
+    sBar.style.bottom='14px';sBar.style.right='14px';
+  }
   if(typeof showMobileControls==='function')showMobileControls();
   skillCooldowns={E:0,Q:0};
   turrets=[];timeFreezeTimer=0;overclockTimer=0;focusNextShot=false;hpSnapshot=0;
   initGame();startLoop();
-  updateSkillUI();
+  if(!isDefense)updateSkillUI();
 }
 
 // ── 입력 ──
@@ -2669,20 +2710,21 @@ gC.addEventListener('mousedown',e=>{
   if(e.button!==0)return;
   if(!running&&gC.style.display==='block'){go('sLobby');return;}
   if(!P)return;
+  if(selMap&&selMap.noWeapons){if(typeof swingTool==='function')swingTool();return;}
   if(fireMode==='semi'){P._semiOn=!P._semiOn;updSemiIndicator();return;}
   if(fireMode==='auto')return;
   P._mdown=true;
   if(!P.ws.auto)fireWep();
 });
 gC.addEventListener('mouseup',()=>{if(P)P._mdown=false;});
-gC.addEventListener('contextmenu',e=>{e.preventDefault();if(running&&P&&!P.reloading&&!P.ws.knife)startRel();});
+gC.addEventListener('contextmenu',e=>{e.preventDefault();if(running&&P&&!P.reloading&&!(selMap&&selMap.noWeapons)&&!P.ws.knife)startRel();});
 document.addEventListener('keydown',e=>{
   const k=e.key.toLowerCase();keys[k]=true;
   if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
-  if(k==='r'&&running&&P&&!P.reloading&&!P.ws.knife)startRel();
-  if(k==='e'&&running&&!paused)useSkill('E');
-  if(k==='q'&&running&&!paused)useSkill('Q');
-  if(['1','2','3'].includes(k)&&running&&!paused){
+  if(k==='r'&&running&&P&&!P.reloading&&!(selMap&&selMap.noWeapons)&&!P.ws.knife)startRel();
+  if(k==='e'&&running&&!paused){if(selMap&&selMap.noJobs){if(typeof interactDefense==='function')interactDefense();}else useSkill('E');}
+  if(k==='q'&&running&&!paused&&!(selMap&&selMap.noJobs))useSkill('Q');
+  if(['1','2','3'].includes(k)&&running&&!paused&&!(selMap&&selMap.noItems)){
     const idx=parseInt(k,10)-1;
     const itemId=equippedItems[idx];
     if(itemId)useItem(itemId);

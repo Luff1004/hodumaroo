@@ -7,6 +7,9 @@ function showMobileControls(){
   const el=document.getElementById('mobileControls');
   if(el) el.style.display = isMobileTouch ? 'block' : 'none';
   if(typeof applyControlMode==='function')applyControlMode();
+  const noWeapons=typeof selMap!=='undefined'&&selMap&&selMap.noWeapons;
+  const fireBtn=document.getElementById('mobileFireBtn'),reloadBtn=document.getElementById('mobileReloadBtn');
+  if(noWeapons){ if(fireBtn)fireBtn.style.display='none'; if(reloadBtn)reloadBtn.style.display='none'; }
 }
 function hideMobileControls(){
   const el=document.getElementById('mobileControls');
@@ -88,6 +91,7 @@ function applyControlMode(){
 
   fireBtn.addEventListener('touchstart',e=>{
     if(getControlMode()==='simple')return;
+    if(typeof selMap!=='undefined'&&selMap&&selMap.noWeapons)return;
     e.preventDefault();
     if(!P) return;
     if(fireMode==='semi'){P._semiOn=!P._semiOn;updSemiIndicator();return;}

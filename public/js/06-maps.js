@@ -69,6 +69,10 @@ const MAPS=[
   {id:'hardest_world',name:'HARDEST OF THE WORLD',desc:'세상에서 가장 어려운 지옥. 촉수 괴물·에일리언·기생수·THE THING이 특성 선택 없이 웨이브당 100마리씩 덤빈다.',
    tags:[{t:'👽 CHALLENGE',c:'#f87171',bg:'#450a0a'},{t:'10웨이브·100마리',c:'#fff',bg:'#7f1d1d'}],
    type:'hardest_world',diff:12,boss:null,category:'challenge',challenge:true,waveLimit:10},
+  // ── 디펜스 맵 (낮/밤 생존·채집·제작, 직업/무기/아이템/2배속 없음, 250일 클리어) ──
+  {id:'danger_camp',name:'위험한 캠핑',desc:'정사각형의 광활한 야생. 낮엔 채집·제작, 밤엔 좀비로부터 캠프파이어를 지켜라. 250일차 생존이 목표다.',
+   tags:[{t:'🏕 DEFENSE',c:'#a3e635',bg:'#1a2e05'},{t:'무기 없음·채집/제작',c:'#fde68a',bg:'#422006'}],
+   type:'danger_camp',diff:1,boss:null,category:'defense',noJobs:true,noWeapons:true,noItems:true,noWaveSpeed:true},
 ];
 let mapCategory='wave',mapIdx=0,selMap=MAPS[0];
 function catMaps(){return MAPS.filter(m=>m.category===mapCategory).sort((a,b)=>(a.diff||0)-(b.diff||0));}
@@ -100,6 +104,10 @@ function chMap(d){
   mapIdx=ni;selMap=list[mapIdx];drawMP();
 }
 function setMapMsg(t){const el=document.getElementById('mapMsg');if(el){el.textContent=t;setTimeout(()=>{if(el.textContent===t)el.textContent='';},2500);}}
+function confirmMapSelect(){
+  if(selMap&&selMap.noWeapons){startGame();return;}
+  go('sWeapon');
+}
 function drawMP(){
   const list=catMaps();
   const m=list[mapIdx]||list[0];
@@ -114,7 +122,7 @@ function drawMP(){
    sun:'#1a0800',machine:'#060e1a',bacteria:'#041008',clock:'#0c0818',
    skeleton:'#101010',reanimation:'#1a0000',kraken:'#000d1a',symphony:'#0a0008',
    robot_factory:'#0f172a',underwater:'#083344',hardest_world:'#1a0000',
-   volcano:'#2a0a00',frost:'#04202e',void:'#0f0620'};
+   volcano:'#2a0a00',frost:'#04202e',void:'#0f0620',danger_camp:'#0c1a08'};
   x.fillStyle=BG[m.type]||'#111';x.fillRect(0,0,400,210);
 
   if(m.type==='city'){
@@ -255,6 +263,27 @@ function drawMP(){
     const hg=x.createRadialGradient(200,105,5,200,105,150);hg.addColorStop(0,'rgba(239,68,68,0.35)');hg.addColorStop(1,'transparent');x.fillStyle=hg;x.fillRect(0,0,400,210);
     for(let i=0;i<7;i++){x.strokeStyle='rgba(124,45,146,0.4)';x.lineWidth=4;const sx=200+Math.cos(i/7*Math.PI*2)*20,sy=105+Math.sin(i/7*Math.PI*2)*20;x.beginPath();x.moveTo(sx,sy);x.bezierCurveTo(sx+(Math.random()-.5)*90,sy+(Math.random()-.5)*90,sx+(Math.random()-.5)*90,sy+(Math.random()-.5)*90,20+Math.random()*360,20+Math.random()*170);x.stroke();}
     x.fillStyle='rgba(255,255,255,0.12)';x.font='bold 12px sans-serif';x.textAlign='center';x.fillText('HARDEST OF THE WORLD',200,195);
+  } else if(m.type==='danger_camp'){
+    // 정사각형 야생 지형 미리보기: 중앙 캠프파이어 + 나무/바위 + 가장자리 눈/사막 힌트
+    x.fillStyle='#0c1a08';x.fillRect(0,0,400,210);
+    x.fillStyle='rgba(74,222,128,0.08)';x.fillRect(40,5,320,200);
+    x.strokeStyle='rgba(163,230,53,0.35)';x.lineWidth=2;x.strokeRect(40,5,320,200);
+    // 좌상단 눈 지형 힌트
+    x.fillStyle='rgba(224,242,254,0.15)';x.fillRect(0,0,70,60);
+    // 우하단 사막 지형 힌트
+    x.fillStyle='rgba(217,119,6,0.18)';x.fillRect(330,150,70,60);
+    // 나무 군집
+    [[90,60],[140,100],[300,50],[260,140],[110,160]].forEach(([tx,ty])=>{
+      x.fillStyle='#3d2a12';x.fillRect(tx-4,ty+16,8,20);
+      x.fillStyle='#1a5c1a';x.beginPath();x.arc(tx,ty,20,0,Math.PI*2);x.fill();
+    });
+    // 바위
+    [[200,80,16],[230,150,14]].forEach(([rx,ry,rr])=>{x.fillStyle='#555';x.beginPath();x.arc(rx,ry,rr,0,Math.PI*2);x.fill();});
+    // 캠프파이어(중앙, 반경 표시)
+    x.strokeStyle='rgba(251,191,36,0.5)';x.lineWidth=2;x.beginPath();x.arc(200,105,38,0,Math.PI*2);x.stroke();
+    x.fillStyle='#f97316';x.beginPath();x.arc(200,105,10,0,Math.PI*2);x.fill();
+    x.fillStyle='#fde68a';x.beginPath();x.arc(200,105,5,0,Math.PI*2);x.fill();
+    x.fillStyle='rgba(255,255,255,0.15)';x.font='bold 13px sans-serif';x.textAlign='center';x.fillText('위험한 캠핑',200,195);
   } else if(m.type==='volcano'){
     x.fillStyle='#2a0a00';x.fillRect(0,0,400,210);
     const vg=x.createRadialGradient(200,105,10,200,105,140);vg.addColorStop(0,'rgba(249,115,22,0.5)');vg.addColorStop(0.5,'rgba(220,38,38,0.25)');vg.addColorStop(1,'transparent');x.fillStyle=vg;x.fillRect(0,0,400,210);
