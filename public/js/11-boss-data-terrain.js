@@ -168,6 +168,33 @@ function drawTerrain(ctx,m){
       ctx.beginPath();ctx.moveTo(0,sy);ctx.lineTo(MW,sy);ctx.stroke();
     }
 
+  } else if(t==='tower'){
+    // 무한의 탑: 돌바닥 던전 + 벽면 횃불 + 중앙 층수 룬
+    ctx.fillStyle='#1c1730';ctx.fillRect(0,0,MW,MH);
+    ctx.strokeStyle='rgba(196,181,253,0.12)';ctx.lineWidth=1;
+    for(let gy=0;gy<MH;gy+=50){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(MW,gy);ctx.stroke();}
+    for(let gx=0;gx<MW;gx+=60){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,MH);ctx.stroke();}
+    ctx.strokeStyle='rgba(76,29,149,0.5)';ctx.lineWidth=6;
+    ctx.strokeRect(6,6,MW-12,MH-12);
+    for(let ty=60;ty<MH;ty+=260){
+      [16,MW-16].forEach(tx=>{
+        ctx.fillStyle='#5c3a1e';ctx.fillRect(tx-3,ty-6,6,20);
+        ctx.fillStyle='#f97316';ctx.beginPath();ctx.ellipse(tx,ty-14,6,9,0,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#fde68a';ctx.beginPath();ctx.ellipse(tx,ty-15,3,5,0,0,Math.PI*2);ctx.fill();
+      });
+    }
+    if(typeof wave!=='undefined'){
+      const rx=MW/2, ry=MH/2;
+      ctx.save();
+      const rg=ctx.createRadialGradient(rx,ry,5,rx,ry,90);
+      rg.addColorStop(0,'rgba(167,139,250,0.35)');rg.addColorStop(1,'rgba(167,139,250,0)');
+      ctx.fillStyle=rg;ctx.beginPath();ctx.arc(rx,ry,90,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='rgba(196,181,253,0.5)';ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(rx,ry,70,0,Math.PI*2);ctx.stroke();
+      ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='bold 22px sans-serif';ctx.textAlign='center';
+      ctx.fillText(`${wave}층`,rx,ry+8);
+      ctx.restore();
+    }
   } else if(t==='space'){
     // 우주: 별 + 소행성 + 어두운 배경
     ctx.fillStyle='rgba(255,255,255,0.8)';

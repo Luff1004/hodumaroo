@@ -112,7 +112,7 @@ function showUpgOv(){
   const ec=Math.floor((100+(shopLv['sh_coin']||0)*20)*coinMult*(partyBonus||1)*(window._petCoinMult||1));
   const ee=Math.floor((100+(shopLv['sh_energy']||0)*30)*enMult*(partyBonus||1)*(window._petEnergyMult||1));
   coins+=ec;energy+=ee;saveAll();
-  document.getElementById('uvw').textContent=`웨이브 ${wave} 완료 → 웨이브 ${wave+1}`;
+  document.getElementById('uvw').textContent=(selMap&&selMap.id==='tower')?`${wave}층 완료 → ${wave+1}층`:`웨이브 ${wave} 완료 → 웨이브 ${wave+1}`;
   document.getElementById('ucn').textContent=`${ec} (총 ${coins})`;
   document.getElementById('uen').textContent=`${ee} (총 ${energy})`;
   updHUD();
@@ -149,7 +149,7 @@ function nextWave(){
   wave++;totalSpawn=calcWZ();
   spawnInt=selMap.challenge?60:Math.round(Math.max(15,80-wave*5)/(HARD_WAVE_MUL[selMap.id]||1));
   spawnedCnt=0;spawnT=0;betweenWave=false;
-  setMsg(`🌊 웨이브 ${wave} 시작!`);setTimeout(()=>{if(running)setMsg('');},2000);
+  setMsg(selMap&&selMap.id==='tower'?`🗼 ${wave}층 시작!`:`🌊 웨이브 ${wave} 시작!`);setTimeout(()=>{if(running)setMsg('');},2000);
   startLoop();
 }
 function updBadges(){

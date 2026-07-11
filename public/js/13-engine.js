@@ -1383,7 +1383,7 @@ function update(){
   if(!betweenWave){
     if(selMap.boss){if(spawnedCnt===0&&!activeBossMap){spawnWave();spawnT=0;}}
     else{spawnT+=waveSpeedMul;if(spawnT>=spawnInt&&spawnedCnt<totalSpawn){spawnWave();spawnedCnt++;spawnT=0;}}
-    if(!selMap.boss&&spawnedCnt>=totalSpawn&&zoms.filter(z=>!z.dead&&!z.isMinion).length===0){betweenWave=true;setMsg(`✨ 웨이브 ${wave} 클리어!`);if(wave>(achStats.maxWave||0))achStats.maxWave=wave;achStats.mapWave=achStats.mapWave||{};const prevBest=achStats.mapWave[selMap?.id]||0;if(wave>prevBest)achStats.mapWave[selMap.id]=wave;if(waveDmgTaken===0){achStats.noDmgWave=(achStats.noDmgWave||0)+1;}waveDmgTaken=0;if(!achStats.clearedMaps)achStats.clearedMaps=[];if(wave>=10&&!achStats.clearedMaps.includes(selMap.id))achStats.clearedMaps.push(selMap.id);achStats.waveClearsTotal=(achStats.waveClearsTotal||0)+1;checkAchievements();saveAch();if(typeof eventData!=='undefined'){eventData.points=(eventData.points||0)+10;saveEventData();}
+    if(!selMap.boss&&spawnedCnt>=totalSpawn&&zoms.filter(z=>!z.dead&&!z.isMinion).length===0){betweenWave=true;setMsg(selMap.id==='tower'?`✨ ${wave}층 클리어!`:`✨ 웨이브 ${wave} 클리어!`);if(wave>(achStats.maxWave||0))achStats.maxWave=wave;achStats.mapWave=achStats.mapWave||{};const prevBest=achStats.mapWave[selMap?.id]||0;if(wave>prevBest)achStats.mapWave[selMap.id]=wave;if(waveDmgTaken===0){achStats.noDmgWave=(achStats.noDmgWave||0)+1;}waveDmgTaken=0;if(!achStats.clearedMaps)achStats.clearedMaps=[];if(wave>=10&&!achStats.clearedMaps.includes(selMap.id))achStats.clearedMaps.push(selMap.id);achStats.waveClearsTotal=(achStats.waveClearsTotal||0)+1;checkAchievements();saveAch();if(typeof eventData!=='undefined'){eventData.points=(eventData.points||0)+10;saveEventData();}
     const xpGain=100*(wave+(selMap.diff||1))*((pUpgLv['pxp']||0)*.1+1)*(window._petXpMult||1);
     addSeasonXP(Math.floor(xpGain));
     // 폐허도시 클리어 기록
@@ -1396,6 +1396,11 @@ function update(){
         if(wave===35)setMsg('🔓 THE ETERNAL BOB 해금!');
       }
     }
+    // 무한의 탑: 최고 층수 기록
+    if(selMap.id==='tower'){
+      const prevBest=parseInt(localStorage.getItem('hd_tower_best')||'0');
+      if(wave>prevBest)localStorage.setItem('hd_tower_best',wave);
+    }
     if(selMap.challenge&&wave>=selMap.waveLimit){triggerChallengeClear();}
     else if(selMap.challenge){
       // 챌린지 맵: 특성 선택 없이 자동으로 바로 다음 웨이브 진행 (EXTREME 속도)
@@ -1405,7 +1410,11 @@ function update(){
       saveAll();updHUD();
       setTimeout(()=>{if(running||betweenWave)nextWave();},400);
     }
-    else{setTimeout(()=>{if(running||betweenWave)showUpgOv();},1500);}}
+    else{setTimeout(()=>{
+      if(!(running||betweenWave))return;
+      if(selMap.id==='tower'&&wave%3===0&&typeof showTowerDoorChoice==='function')showTowerDoorChoice();
+      else showUpgOv();
+    },1500);}}
   }
   const slowM=P._timewarp>0?.35:1;
   zoms=zoms.filter(z=>{
@@ -2167,7 +2176,7 @@ function draw(){
   const v1=camY/MH*108,v2=(camY+VH())/MH*108;
   const vx1=VW()>=MW?0:camX/MW*72,vx2=VW()>=MW?72:Math.min(72,(camX+VW())/MW*72);
   mmc.strokeStyle='rgba(168,85,247,.5)';mmc.lineWidth=1.5;mmc.strokeRect(vx1,v1,vx2-vx1,v2-v1);
-  if(!running&&!window._bossMapClearing&&gC.style.display==='block'&&document.getElementById('clearScreen').style.display==='none'){ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(0,0,VW(),VH());ctx.fillStyle='#fbbf24';ctx.font='bold 40px sans-serif';ctx.textAlign='center';ctx.fillText('☠ GAME OVER ☠',VW()/2,VH()/2-30);ctx.fillStyle='#fff';ctx.font='20px sans-serif';ctx.fillText(`점수: ${score}  킬: ${kills}  웨이브: ${wave}`,VW()/2,VH()/2+8);ctx.fillStyle='rgba(255,255,255,.6)';ctx.font='14px sans-serif';ctx.fillText('클릭하면 로비로',VW()/2,VH()/2+40);}
+  if(!running&&!window._bossMapClearing&&gC.style.display==='block'&&document.getElementById('clearScreen').style.display==='none'){ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(0,0,VW(),VH());ctx.fillStyle='#fbbf24';ctx.font='bold 40px sans-serif';ctx.textAlign='center';ctx.fillText('☠ GAME OVER ☠',VW()/2,VH()/2-30);ctx.fillStyle='#fff';ctx.font='20px sans-serif';ctx.fillText(selMap&&selMap.id==='tower'?`점수: ${score}  킬: ${kills}  도달 층수: ${wave}`:`점수: ${score}  킬: ${kills}  웨이브: ${wave}`,VW()/2,VH()/2+8);ctx.fillStyle='rgba(255,255,255,.6)';ctx.font='14px sans-serif';ctx.fillText('클릭하면 로비로',VW()/2,VH()/2+40);}
 }
 
 function drawWepIcon(ctx,ws,r){
@@ -2579,7 +2588,7 @@ function setMsg(t){const el=document.getElementById('hmsg');if(el)el.textContent
 function updHUD(){
   if(!P)return;
   if(selMap&&selMap.category==='defense'){if(typeof updDefenseHUD==='function')updDefenseHUD();return;}
-  document.getElementById('hw').textContent=`🌊 웨이브 ${wave}`;
+  document.getElementById('hw').textContent=(selMap&&selMap.id==='tower')?`🗼 ${wave}층`:`🌊 웨이브 ${wave}`;
   const hp=Math.ceil(P.hp),hel=document.getElementById('hhp');
   hel.textContent=`❤️ ${hp}/${P.maxHp}`;hel.style.color=hp/P.maxHp>.5?'#4ade80':hp/P.maxHp>.25?'#fb923c':'#ef4444';
   document.getElementById('hsc').textContent=`⭐ ${score}`;

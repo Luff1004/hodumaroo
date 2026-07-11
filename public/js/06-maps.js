@@ -73,6 +73,10 @@ const MAPS=[
   {id:'danger_camp',name:'위험한 캠핑',desc:'정사각형의 광활한 야생. 낮엔 채집·제작, 밤엔 좀비로부터 캠프파이어를 지켜라. 250일차 생존이 목표다.',
    tags:[{t:'🏕 DEFENSE',c:'#a3e635',bg:'#1a2e05'},{t:'무기 없음·채집/제작',c:'#fde68a',bg:'#422006'}],
    type:'danger_camp',diff:1,boss:null,category:'defense',noJobs:true,noWeapons:true,noItems:true,noWaveSpeed:true},
+  // ── 무한의 탑 (로그라이크. 3층마다 갈림길에서 문 선택, 끝없이 상승) ──
+  {id:'tower',name:'무한의 탑',desc:'끝없이 오르는 시련의 탑. 3층마다 갈림길에서 전투·보물·휴식 중 하나를 골라 다음 층으로 향하라. 오를수록 강한 존재가 기다린다.',
+   tags:[{t:'🗼 TOWER',c:'#c4b5fd',bg:'#1e1b4b'},{t:'무한 로그라이크',c:'#fde68a',bg:'#422006'}],
+   type:'tower',diff:1,boss:null,category:'tower'},
 ];
 let mapCategory='wave',mapIdx=0,selMap=MAPS[0];
 function catMaps(){return MAPS.filter(m=>m.category===mapCategory).sort((a,b)=>(a.diff||0)-(b.diff||0));}
@@ -122,7 +126,7 @@ function drawMP(){
    sun:'#1a0800',machine:'#060e1a',bacteria:'#041008',clock:'#0c0818',
    skeleton:'#101010',reanimation:'#1a0000',kraken:'#000d1a',symphony:'#0a0008',
    robot_factory:'#0f172a',underwater:'#083344',hardest_world:'#1a0000',
-   volcano:'#2a0a00',frost:'#04202e',void:'#0f0620',danger_camp:'#0c1a08'};
+   volcano:'#2a0a00',frost:'#04202e',void:'#0f0620',danger_camp:'#0c1a08',tower:'#12102a'};
   x.fillStyle=BG[m.type]||'#111';x.fillRect(0,0,400,210);
 
   if(m.type==='city'){
@@ -284,6 +288,20 @@ function drawMP(){
     x.fillStyle='#f97316';x.beginPath();x.arc(200,105,10,0,Math.PI*2);x.fill();
     x.fillStyle='#fde68a';x.beginPath();x.arc(200,105,5,0,Math.PI*2);x.fill();
     x.fillStyle='rgba(255,255,255,0.15)';x.font='bold 13px sans-serif';x.textAlign='center';x.fillText('위험한 캠핑',200,195);
+  } else if(m.type==='tower'){
+    // 무한의 탑: 위로 갈수록 좁아지는 탑 실루엣 + 창문 불빛 + 계단
+    x.fillStyle='#12102a';x.fillRect(0,0,400,210);
+    const tg=x.createRadialGradient(200,60,10,200,60,160);tg.addColorStop(0,'rgba(196,181,253,0.25)');tg.addColorStop(1,'transparent');x.fillStyle=tg;x.fillRect(0,0,400,210);
+    x.fillStyle='#2e2a55';
+    x.beginPath();
+    x.moveTo(160,210);x.lineTo(175,10);x.lineTo(225,10);x.lineTo(240,210);
+    x.closePath();x.fill();
+    x.strokeStyle='#4c1d95';x.lineWidth=2;x.stroke();
+    x.fillStyle='rgba(251,191,36,0.55)';
+    for(let i=0;i<8;i++){const wy=190-i*22,ww=26-i*1.6;x.fillRect(200-ww/2,wy,ww,10);}
+    x.strokeStyle='rgba(196,181,253,0.4)';x.lineWidth=1.5;
+    for(let sy=205;sy>15;sy-=16){x.beginPath();x.moveTo(160+(210-sy)/195*15,sy);x.lineTo(240-(210-sy)/195*15,sy);x.stroke();}
+    x.fillStyle='rgba(255,255,255,0.15)';x.font='bold 13px sans-serif';x.textAlign='center';x.fillText('무한의 탑',200,195);
   } else if(m.type==='volcano'){
     x.fillStyle='#2a0a00';x.fillRect(0,0,400,210);
     const vg=x.createRadialGradient(200,105,10,200,105,140);vg.addColorStop(0,'rgba(249,115,22,0.5)');vg.addColorStop(0.5,'rgba(220,38,38,0.25)');vg.addColorStop(1,'transparent');x.fillStyle=vg;x.fillRect(0,0,400,210);
