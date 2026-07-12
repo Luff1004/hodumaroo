@@ -157,6 +157,9 @@ function initGame(){
   zoms=[];buls=[];parts=[];effs=[];hpItems=[];
   wave=1;score=0;kills=0;poison=0;
   achStats.gamesPlayed=(achStats.gamesPlayed||0)+1;saveAch();
+  if(typeof _eggWaveKills!=='undefined')_eggWaveKills=0;
+  if(typeof trackSilentGame==='function')trackSilentGame();
+  if(typeof trackPistolLoyalty==='function')trackPistolLoyalty();
   spawnT=0;spawnedCnt=0;totalSpawn=calcWZ();spawnInt=selMap.challenge?60:Math.round(75/(HARD_WAVE_MUL[selMap.id]||1));betweenWave=false;relTimer=0;
   if(typeof extremeMode!=='undefined'&&extremeMode&&!selMap.boss){
     totalSpawn=Math.round(totalSpawn*2);
@@ -492,6 +495,11 @@ function hitZ(z,dmg){
     achStats.kills=(achStats.kills||0)+1;
     if(coins===0&&typeof unlockEgg==='function')unlockEgg('egg_broke','secret_18');
     if(z._cursedVisitor&&typeof unlockEgg==='function')unlockEgg('egg_friday13','secret_22');
+    if(z.type==='prophet'){
+      achStats.prophetKills=(achStats.prophetKills||0)+1;
+      if(achStats.prophetKills>=100&&typeof unlockEgg==='function')unlockEgg('egg_prophet','secret_30');
+    }
+    if(selMap&&!selMap.campEngine&&typeof _eggWaveKills!=='undefined')_eggWaveKills++;
     if(typeof eventData!=='undefined'){eventData.points=(eventData.points||0)+1;}
     const vl=perkLv['vampiric']??-1;
     if(vl>=0)P.hp=Math.min(P.maxHp,P.hp+[.5,1,2,3,5][Math.min(vl,4)]);
@@ -530,6 +538,10 @@ function takeDmg(d){
     const tgt=zoms.filter(z=>!z.dead&&!z.isMinion).sort((a,b)=>d2(a.x,a.y,P.x,P.y)-d2(b.x,b.y,P.x,P.y))[0];
     if(tgt)hitZ(tgt,d*0.5);
   }
+  if(P._mirrorReflect>0){
+    const tgt2=zoms.filter(z=>!z.dead&&!z.isMinion).sort((a,b)=>d2(a.x,a.y,P.x,P.y)-d2(b.x,b.y,P.x,P.y))[0];
+    if(tgt2)hitZ(tgt2,d*0.5);
+  }
   P.hp-=d*arR;
   if(P.hp<=0&&running){
     if(reviveReady){
@@ -538,6 +550,10 @@ function takeDmg(d){
       setMsg('🪶 부활!');
       setTimeout(()=>{if(running)setMsg('');},2000);
       return;
+    }
+    if(!lJ('hd_egg_everdied',{v:false}).v&&typeof unlockEgg==='function'){
+      sv('hd_egg_everdied',{v:true});
+      unlockEgg('egg_firstdeath','secret_31');
     }
     running=false;
     window._needLastDraw=true;
@@ -1419,6 +1435,8 @@ function update(){
     if(selMap.boss){if(spawnedCnt===0&&!activeBossMap){spawnWave();spawnT=0;}}
     else{spawnT+=waveSpeedMul;if(spawnT>=spawnInt&&spawnedCnt<totalSpawn){spawnWave();spawnedCnt++;spawnT=0;}}
     if(!selMap.boss&&spawnedCnt>=totalSpawn&&zoms.filter(z=>!z.dead&&!z.isMinion).length===0){betweenWave=true;setMsg(selMap.id==='tower'?`✨ ${wave}층 클리어!`:`✨ 웨이브 ${wave} 클리어!`);if(wave>(achStats.maxWave||0))achStats.maxWave=wave;achStats.mapWave=achStats.mapWave||{};const prevBest=achStats.mapWave[selMap?.id]||0;if(wave>prevBest)achStats.mapWave[selMap.id]=wave;if(waveDmgTaken===0){achStats.noDmgWave=(achStats.noDmgWave||0)+1;}waveDmgTaken=0;if(!achStats.clearedMaps)achStats.clearedMaps=[];if(wave>=10&&!achStats.clearedMaps.includes(selMap.id))achStats.clearedMaps.push(selMap.id);achStats.waveClearsTotal=(achStats.waveClearsTotal||0)+1;checkAchievements();saveAch();if(typeof eventData!=='undefined'){eventData.points=(eventData.points||0)+10;saveEventData();}
+    if(typeof _eggWaveKills!=='undefined'&&_eggWaveKills===0&&wave>=1&&typeof unlockEgg==='function')unlockEgg('egg_pacifist','secret_32');
+    if(selMap.id==='tower'&&wave===99&&typeof unlockEgg==='function')unlockEgg('egg_mirror99','secret_37');
     const xpGain=100*(wave+(selMap.diff||1))*((pUpgLv['pxp']||0)*.1+1)*(window._petXpMult||1);
     addSeasonXP(Math.floor(xpGain));
     // 폐허도시 클리어 기록

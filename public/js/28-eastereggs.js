@@ -1,5 +1,7 @@
-// ══════════════ 히든 이스터에그 16종 ══════════════
+// ══════════════ 히든 이스터에그 39종 ══════════════
 // 찾기 어렵지만, 찾으면 게임의 세계관(드림코어/시크릿코드)과 이어지는 보상.
+
+let _eggWaveKills=0;
 
 // ── 개발자 전용: 이스터에그 전체 공개 (연출 없이 한번에) ──
 function devRevealAllEggs(){
@@ -174,6 +176,54 @@ const DEV_EGG_PREVIEWS={
     devEnsureGame('city');
   },
   secret_29:()=>{ go('sLobby'); unlockEgg('egg_newyear','secret_29'); showEggToast('🌅 새해 복 많이 받으세요, 생존자님.'); },
+  secret_30:()=>{
+    devEnsureGame('city');
+    setTimeout(()=>{
+      achStats.prophetKills=99;saveAch();
+      zoms.push({x:P.x+40,y:P.y,type:'prophet',r:16,hp:1,maxHp:10,spd:1,angle:0,dead:false,dT:0,isMinion:false,_frz:0});
+      hitZ(zoms[zoms.length-1],999);
+    },300);
+  },
+  secret_31:()=>{
+    sv('hd_egg_everdied',{v:false});
+    devEnsureGame('city');
+    setTimeout(()=>{ P.hp=1;P._invincible=0;P._shield=0; takeDmg(999); },300);
+  },
+  secret_32:()=>{
+    devEnsureGame('city');
+    setTimeout(()=>{
+      _eggWaveKills=0;
+      spawnedCnt=totalSpawn;betweenWave=false;
+      zoms=zoms.filter(z=>z.isMinion);
+      update();
+    },300);
+  },
+  secret_33:()=>{
+    achStats.bossKills=achStats.bossKills||{};achStats.bossKills.dream_eye=1;saveAch();
+    unlockEgg('egg_closedeyes','secret_33');
+  },
+  secret_34:()=>{
+    achStats.gamesPlayed=Math.max(achStats.gamesPlayed||0,50);saveAch();
+    eqWepId='pistol';
+    trackPistolLoyalty();
+  },
+  secret_35:()=>{ go('sLobby'); unlockEgg('egg_3am','secret_35'); },
+  secret_36:()=>{
+    achStats.silentGames=9;saveAch();
+    const wasPlaying=bgmPlaying;bgmPlaying=false;
+    trackSilentGame();
+    bgmPlaying=wasPlaying;
+  },
+  secret_37:()=>{
+    devEnsureGame('tower');
+    setTimeout(()=>{
+      wave=99; spawnedCnt=totalSpawn; betweenWave=false;
+      zoms=zoms.filter(z=>z.isMinion);
+      update();
+    },300);
+  },
+  secret_38:()=>{ unlockEgg('egg_void','secret_38'); },
+  secret_39:()=>{ go('sLobby'); unlockEgg('egg_shadowmove','secret_39'); },
 };
 function openDevEggPreview(){
   const modal=document.getElementById('devEggPreviewModal');
@@ -287,6 +337,71 @@ const EGG_STORY_TEXT={
     '좀비들의 세계는 여전히 끝나지 않았지만—',
     '그래도 오늘은, 새로운 태양이 뜹니다.',
     '새해 복 많이 받으세요, 생존자님.'
+  ]},
+  secret_30:{icon:'🔮',lines:[
+    '선지자 백 명째가 당신 앞에서 물약을 떨어뜨립니다.',
+    '이제야 알아챕니다 — 그들은 한 번도 다가온 적이 없었습니다.',
+    '늘 거리를 벌리고, 늘 도망치듯 움직였을 뿐.',
+    '어쩌면 그들이 두려워한 건 당신이 아니라,',
+    '자신이 보게 될 미래였는지도 모릅니다.'
+  ]},
+  secret_31:{icon:'🕯️',lines:[
+    '화면이 어두워집니다. 처음 겪는 어둠입니다.',
+    '하지만 완전한 정적은 아니었습니다.',
+    '저 멀리, 아주 희미하게 다시 빛이 보입니다.',
+    '이건 끝이 아니라, 그저 하나의 밤이었을 뿐입니다.',
+    '다시, 눈을 뜹니다.'
+  ]},
+  secret_32:{icon:'🕊️',lines:[
+    '웨이브가 끝났습니다. 처치 수: 0.',
+    '총성 한 번 없이, 그 누구도 쓰러지지 않았습니다.',
+    '싸우지 않고도 살아남을 수 있다는 걸,',
+    '이 좀비들의 세상은 오랫동안 잊고 있었을지도 모릅니다.'
+  ]},
+  secret_33:{icon:'😌',lines:[
+    '그 눈은 더 이상 당신을 보지 않습니다.',
+    '드림코어의 정적 속에서, 당신은 처음으로 가만히 서 있습니다.',
+    '아무 일도 일어나지 않는 1분.',
+    '그것만으로도 충분했습니다.',
+    '이제는, 당신도 눈을 감아도 됩니다.'
+  ]},
+  secret_34:{icon:'🔫',lines:[
+    '쉰 판이 넘도록, 당신의 손에는 늘 같은 총이 있었습니다.',
+    '더 강한 무기도, 더 화려한 것도 있었을 텐데.',
+    '어쩌면 처음 쥐었던 것을 놓지 않는 데도 용기가 필요합니다.',
+    '가장 단순한 것이, 가장 오래 남습니다.'
+  ]},
+  secret_35:{icon:'🕒',lines:[
+    '새벽 세 시, 로비는 평소와 똑같아 보입니다.',
+    '하지만 이 시간에 여기 있는 사람은, 원래 없어야 합니다.',
+    '무언가 화면 밖에서 조용히 숨을 고르고 있는 느낌.',
+    '괜찮습니다. 아직은, 아무 일도 없으니까요.'
+  ]},
+  secret_36:{icon:'🔈',lines:[
+    '음악 없이 버틴 열 번째 전장.',
+    '총성과 발소리 사이, 정적이 유난히 깊었습니다.',
+    '그 정적 속에서 딱 한 번, 무언가 당신의 이름을 부른 것 같았습니다.',
+    '뒤를 돌아봤지만, 물론 아무도 없었습니다.'
+  ]},
+  secret_37:{icon:'🪞',lines:[
+    '99층. 안개 속에서 무언가 걸어옵니다.',
+    '가까워질수록 또렷해지는 실루엣 — 그건, 당신이었습니다.',
+    '똑같은 걸음, 똑같은 상처, 똑같은 눈빛.',
+    '그것도 이곳에서, 당신만큼 오래 버텨온 걸까요.',
+    '서로를 지나칩니다. 말 없이.'
+  ]},
+  secret_38:{icon:'⚫',lines:[
+    '인챈트 결과창에 뜬 이름은, 읽을 수조차 없었습니다.',
+    '존재한다고도, 존재하지 않는다고도 할 수 없는 등급.',
+    '손에 쥔 것이 무기인지, 아니면 무언가의 부재인지조차 알 수 없습니다.',
+    '그래도 — 이건 분명히, 당신의 것입니다.'
+  ]},
+  secret_39:{icon:'🌚',lines:[
+    '로비에 오래 머물렀습니다. 딱히 할 일은 없었지만.',
+    '구석의 그림자가, 아주 잠깐 다른 방향으로 움직였습니다.',
+    '착각이라고 하기엔, 너무 또렷했습니다.',
+    '다시 보니 그림자는 원래 자리에 있습니다.',
+    '…원래, 저기가 맞았던가요?'
   ]}
 };
 let _storyOverlayQueue=[];
@@ -595,6 +710,67 @@ function checkDateBasedEggs(){
       showEggToast('🌅 새해 복 많이 받으세요, 생존자님.');
     }
   }
+  // 새벽 세시(03:00~03:04) 방문 — 흉시
+  if(now.getHours()===3&&now.getMinutes()<5){
+    const key3=`hd_egg_3am_${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
+    if(!localStorage.getItem(key3)){
+      localStorage.setItem(key3,'1');
+      unlockEgg('egg_3am','secret_35');
+    }
+  }
+}
+
+// ── 감은 눈: E Y E(dream_eye) 처치 후 드림코어에서 60초간 가만히 머무르기 ──
+let _eggDreamStillSec=0,_eggDreamTriggered=false;
+setInterval(()=>{
+  if(typeof isDreamMode==='undefined'||!isDreamMode||!achStats.bossKills||!achStats.bossKills.dream_eye){
+    _eggDreamStillSec=0;_eggDreamTriggered=false;return;
+  }
+  _eggDreamStillSec++;
+  if(_eggDreamStillSec>=60&&!_eggDreamTriggered){
+    _eggDreamTriggered=true;
+    unlockEgg('egg_closedeyes','secret_33');
+  }
+},1000);
+
+// ── 움직인 그림자: 로비에 5분 이상 머물면 구석에서 그림자가 스침 ──
+let _eggShadowShown=false;
+setInterval(()=>{
+  const scr=document.querySelector('.screen.on')?.id;
+  if(scr!=='sLobby'||_eggShadowShown)return;
+  if(Date.now()-_eggLastInteract>=300000){
+    _eggShadowShown=true;
+    const corner=['top:20px;left:20px;','top:20px;right:20px;','bottom:80px;left:20px;','bottom:80px;right:20px;'][Math.floor(Math.random()*4)];
+    const el=document.createElement('div');
+    el.textContent='🌚';
+    el.style.cssText=`position:fixed;${corner}font-size:28px;z-index:9996;opacity:0;transition:opacity .4s;pointer-events:none;filter:blur(0.5px);`;
+    document.body.appendChild(el);
+    setTimeout(()=>{el.style.opacity='0.5';},20);
+    setTimeout(()=>{
+      el.style.opacity='0';
+      setTimeout(()=>{
+        el.remove();
+        unlockEgg('egg_shadowmove','secret_39');
+        _eggShadowShown=false;
+      },400);
+    },900);
+  }
+},10000);
+
+// ── 정적 속의 목소리: BGM을 끈 채로(무음) 10판 플레이 ──
+function trackSilentGame(){
+  if(!bgmPlaying){
+    achStats.silentGames=(achStats.silentGames||0)+1;saveAch();
+    if(achStats.silentGames>=10)unlockEgg('egg_silentvoice','secret_36');
+  }
+}
+
+// ── 가장 단순한 것: 50판 이상, 시작 무기(권총) 외에는 산 적도 바꾼 적도 없음 ──
+function trackPistolLoyalty(){
+  if((achStats.gamesPlayed||0)<50)return;
+  if(eqWepId!=='pistol')return;
+  const nonDefault=Object.keys(owned).filter(k=>!k.startsWith('ar_')&&owned[k]&&!['pistol','shotgun','knife','minigun'].includes(k));
+  if(nonDefault.length===0)unlockEgg('egg_simpleweapon','secret_34');
 }
 let _eggSantaShown=false;
 function spawnSantaCameo(dayKey){

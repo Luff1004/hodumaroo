@@ -573,6 +573,86 @@ function execJobSkill(jobId, key) {
         setMsg('🌅 새 아침.');
       }
       break;
+    case 'egg_job_prophet':
+      if(key==='E'){
+        P._armorDodge=Math.max(P._armorDodge||0,0.2);P.spd+=1;
+        setTimeout(()=>{P._armorDodge=Math.max(0,(P._armorDodge||0)-0.2);P.spd-=1;},8000);
+        setMsg('🔮 예지! 8초간 회피율+20%');
+      }
+      break;
+    case 'egg_job_firstlight':
+      if(key==='E'){
+        P.hp=Math.min(P.maxHp,P.hp+P.maxHp*.5);P._invincible=(P._invincible||0)+180;
+        for(let i=0;i<14;i++)parts.push({x:P.x,y:P.y,vx:(Math.random()-.5)*5,vy:-2-Math.random()*3,l:24,ml:24,r:4,col:'#fde68a'});
+        setMsg('🕯️ 다시 뜬 눈.');
+      }
+      break;
+    case 'egg_job_pacifist':
+      if(key==='E'){
+        P._invincible=(P._invincible||0)+300;P.spd+=1.5;
+        setTimeout(()=>{P.spd-=1.5;},5000);
+        setMsg('🕊️ 회피의 길! 5초간 완전 회피');
+      }
+      break;
+    case 'egg_job_closedeyes':
+      if(key==='E'){
+        P.hp=P.maxHp;P._invincible=(P._invincible||0)+240;
+        for(let i=0;i<16;i++)parts.push({x:P.x,y:P.y,vx:(Math.random()-.5)*4,vy:(Math.random()-.5)*4,l:26,ml:26,r:4,col:'#c4b5fd'});
+        setMsg('😌 평온.');
+      }
+      break;
+    case 'egg_job_simpleweapon':
+      if(key==='E'){
+        const dmg=30+(P.dmgB||0);
+        zoms.forEach(z=>{
+          if(z.dead)return;
+          const dx=z.x-P.x,dy=z.y-P.y,dist=Math.hypot(dx,dy);
+          if(dist>200)return;
+          const diff=Math.abs(Math.atan2(dy,dx)-P.angle);
+          const norm=Math.min(diff,Math.PI*2-diff);
+          if(norm<Math.PI/2.2)hitZ(z,dmg);
+        });
+        P._wepCrit=(P._wepCrit||0)+0.25;
+        setTimeout(()=>{P._wepCrit=Math.max(0,(P._wepCrit||0)-0.25);},6000);
+        setMsg('🔫 첫 총성!');
+      }
+      break;
+    case 'egg_job_3am':
+      if(key==='E'){
+        zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,P.x,P.y)<200**2)z._frz=Math.max(z._frz||0,150);});
+        addExp(P.x,P.y,200,'#312e81');
+        setMsg('🕒 흉시.');
+      }
+      break;
+    case 'egg_job_silentvoice':
+      if(key==='E'){
+        zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,P.x,P.y)<240**2)hitZ(z,35);});
+        addExp(P.x,P.y,240,'#334155');
+        setMsg('🔈 속삭임.');
+      }
+      break;
+    case 'egg_job_mirror99':
+      if(key==='E'){
+        P._mirrorReflect=(P._mirrorReflect||0)+180;
+        for(let i=0;i<12;i++)parts.push({x:P.x,y:P.y,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5,l:20,ml:20,r:4,col:'#e0e7ff'});
+        setMsg('🪞 거울상.');
+      }
+      break;
+    case 'egg_job_void':
+      if(key==='E'){
+        zoms.forEach(z=>{if(!z.dead&&!z.isMinion&&d2(z.x,z.y,P.x,P.y)<180**2)z.hp=Math.ceil(z.hp*.5);});
+        addExp(P.x,P.y,180,'#18181b');
+        setMsg('⚫ 소멸.');
+      }
+      break;
+    case 'egg_job_shadowmove':
+      if(key==='E'){
+        P._shadow=(P._shadow||0)+120;P.spd+=2;
+        setTimeout(()=>{P.spd-=2;},2000);
+        for(let i=0;i<10;i++)parts.push({x:P.x,y:P.y,vx:(Math.random()-.5)*4,vy:(Math.random()-.5)*4,l:18,ml:18,r:3,col:'#3f3f46'});
+        setMsg('🌚 그림자 걸음.');
+      }
+      break;
   }
   setTimeout(()=>{if(running)setMsg('');},2500);
 }
@@ -605,6 +685,7 @@ function tickJob() {
   if(P._invincible>0)P._invincible--;
   if(P._shadow>0)P._shadow--;
   if(P._petrified>0)P._petrified--;
+  if(P._mirrorReflect>0)P._mirrorReflect--;
 
   // 아군 좀비(소환수) 틱
   zoms.forEach(z=>{

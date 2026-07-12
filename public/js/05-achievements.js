@@ -119,6 +119,16 @@ const ACHIEVEMENTS = [
   {id:'secret_27',  name:'빈 방',             desc:'눈 속에서 250일을 살아내고, 다 쓰지 못한 하루를 대신 살았다', reward:{job:'egg_job_wintersurvivor'}, cond:'(achStats.egg_wintersurvivor||0)>=1', hidden:true},
   {id:'secret_28',  name:'다른 발소리',       desc:'혼자라고 생각했던 백 번의 전장, 사실은 둘이었다', reward:{job:'egg_job_shadowcompanion'}, cond:'(achStats.egg_sologhost||0)>=1', hidden:true},
   {id:'secret_29',  name:'새로운 새벽',       desc:'새해 첫날, 여전히 이 자리를 지키고 있었다', reward:{job:'egg_job_newdawn'}, cond:'(achStats.egg_newyear||0)>=1', hidden:true},
+  {id:'secret_30',  name:'선지자의 진심',     desc:'선지자 백 명을 떠나보내고서야, 그들이 도망치려 했을 뿐임을 알았다', reward:{job:'egg_job_prophet'}, cond:'(achStats.egg_prophet||0)>=1', hidden:true},
+  {id:'secret_31',  name:'첫 번째 어둠 너머', desc:'생애 첫 죽음. 그리고 다시 눈을 떴다', reward:{job:'egg_job_firstlight'}, cond:'(achStats.egg_firstdeath||0)>=1', hidden:true},
+  {id:'secret_32',  name:'아무도 다치지 않았다', desc:'단 한 마리도 해치지 않고 웨이브를 끝냈다', reward:{job:'egg_job_pacifist'}, cond:'(achStats.egg_pacifist||0)>=1', hidden:true},
+  {id:'secret_33',  name:'이제는 눈을 감아도 돼', desc:'E Y E를 떠나보낸 뒤, 꿈 속에서 조용히 1분을 머물렀다', reward:{job:'egg_job_closedeyes'}, cond:'(achStats.egg_closedeyes||0)>=1', hidden:true},
+  {id:'secret_34',  name:'가장 단순한 것',    desc:'오십 판이 넘도록, 처음 쥔 권총 하나만으로 버텼다', reward:{job:'egg_job_simpleweapon'}, cond:'(achStats.egg_simpleweapon||0)>=1', hidden:true},
+  {id:'secret_35',  name:'새벽 세시',         desc:'가장 깊은 새벽, 아무도 없어야 할 로비를 찾았다', reward:{job:'egg_job_3am'}, cond:'(achStats.egg_3am||0)>=1', hidden:true},
+  {id:'secret_36',  name:'정적 속의 목소리',  desc:'음악 없이 열 판을 버텼다. 그 정적 속에서 무언가 속삭였다', reward:{job:'egg_job_silentvoice'}, cond:'(achStats.egg_silentvoice||0)>=1', hidden:true},
+  {id:'secret_37',  name:'나를 닮은 것',      desc:'무한의 탑 99층에서, 당신과 똑같이 생긴 것과 마주쳤다', reward:{job:'egg_job_mirror99'}, cond:'(achStats.egg_mirror99||0)>=1', hidden:true},
+  {id:'secret_38',  name:'무(無)의 파편',     desc:'인챈트가 존재조차 희미한 등급을 토해냈다', reward:{job:'egg_job_void'}, cond:'(achStats.egg_void||0)>=1', hidden:true},
+  {id:'secret_39',  name:'움직인 그림자',     desc:'로비에 오래 머문 어느 순간, 구석의 그림자가 분명히 움직였다', reward:{job:'egg_job_shadowmove'}, cond:'(achStats.egg_shadowmove||0)>=1', hidden:true},
 ];
 
 // 업적 진행도 저장

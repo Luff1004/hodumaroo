@@ -147,6 +147,7 @@ function showUpgOv(){
 function hideUpgOv(){document.getElementById('upgOv').classList.remove('on');}
 function nextWave(){
   wave++;totalSpawn=calcWZ();
+  if(typeof _eggWaveKills!=='undefined')_eggWaveKills=0;
   spawnInt=selMap.challenge?60:Math.round(Math.max(15,80-wave*5)/(HARD_WAVE_MUL[selMap.id]||1));
   spawnedCnt=0;spawnT=0;betweenWave=false;
   setMsg(selMap&&selMap.id==='tower'?`🗼 ${wave}층 시작!`:`🌊 웨이브 ${wave} 시작!`);setTimeout(()=>{if(running)setMsg('');},2000);
