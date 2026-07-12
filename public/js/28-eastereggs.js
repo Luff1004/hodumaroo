@@ -216,7 +216,7 @@ function showEggToast(html){
     document.body.appendChild(t);
   }
   t.innerHTML=html;
-  requestAnimationFrame(()=>{t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';});
+  setTimeout(()=>{t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';},20);
   clearTimeout(t._hideT);
   t._hideT=setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(-50%) translateY(-20px)';},4200);
 }
@@ -304,7 +304,7 @@ function showStoryOverlay(icon,lines){
   box.innerHTML='<div style="font-size:28px;margin-bottom:16px;">'+icon+'</div>'+lines.map(l=>'<div>'+l+'</div>').join('');
   overlay.appendChild(box);
   document.body.appendChild(overlay);
-  requestAnimationFrame(()=>{overlay.style.opacity='1';});
+  setTimeout(()=>{overlay.style.opacity='1';},20);
   setTimeout(()=>{box.style.opacity='1';},800);
   const dur=Math.max(7000,lines.length*1500);
   setTimeout(()=>{
@@ -420,7 +420,7 @@ function showIdleEye(){
   ][Math.floor(Math.random()*4)];
   el.style.cssText=`position:fixed;${pos}width:64px;height:64px;object-fit:cover;border-radius:50%;z-index:9997;opacity:0;filter:grayscale(100%) brightness(.5);cursor:pointer;transition:opacity 1.1s;box-shadow:0 0 24px rgba(0,0,0,.65);`;
   document.body.appendChild(el);
-  requestAnimationFrame(()=>{el.style.opacity='0.85';});
+  setTimeout(()=>{el.style.opacity='0.85';},20);
   let caught=false;
   el.addEventListener('click',ev=>{
     ev.stopPropagation();
@@ -491,7 +491,7 @@ function triggerTrueWake(){
     line.textContent='당신은 이미 알고 있었다.';
     overlay.appendChild(line);
     document.body.appendChild(overlay);
-    requestAnimationFrame(()=>{overlay.style.opacity='1';});
+    setTimeout(()=>{overlay.style.opacity='1';},20);
     setTimeout(()=>{line.style.opacity='1';},900);
     setTimeout(()=>{line.style.opacity='0';setTimeout(()=>{line.textContent='이 모든 것이 반복되어 왔다는 것을.';line.style.opacity='1';},250);},3200);
     setTimeout(()=>{line.style.opacity='0';setTimeout(()=>{line.textContent='그래도, 오늘은 조금 더 깨어있다.';line.style.opacity='1';},250);},5800);
@@ -528,7 +528,7 @@ function triggerLogoEgg(){
   el.textContent='― 이 세계를 만든 이가, 조용히 지켜보고 있다 ―';
   el.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);color:#c4b5fd;font-size:12px;letter-spacing:1px;opacity:0;transition:opacity 1.4s;z-index:9998;text-align:center;pointer-events:none;text-shadow:0 0 12px rgba(124,58,237,.8);';
   document.body.appendChild(el);
-  requestAnimationFrame(()=>{el.style.opacity='0.9';});
+  setTimeout(()=>{el.style.opacity='0.9';},20);
   setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.remove(),1500);},3200);
   unlockEgg('egg_logo','secret_9');
   window._logoEggRunning=false;
@@ -603,7 +603,7 @@ function spawnSantaCameo(dayKey){
   el.textContent='🎅';
   el.style.cssText='position:fixed;bottom:60px;left:-60px;font-size:32px;z-index:9997;cursor:pointer;transition:left 9s linear;filter:drop-shadow(0 0 6px rgba(0,0,0,.4));';
   document.body.appendChild(el);
-  requestAnimationFrame(()=>{el.style.left='calc(100vw + 60px)';});
+  setTimeout(()=>{el.style.left='calc(100vw + 60px)';},20);
   let caught=false;
   el.addEventListener('click',()=>{
     if(caught)return;
@@ -694,7 +694,7 @@ function triggerBehindYou(){
     silhouette.appendChild(img);
   }
   document.body.appendChild(silhouette);
-  requestAnimationFrame(()=>{flash.style.opacity='0.9';silhouette.style.opacity='1';});
+  setTimeout(()=>{flash.style.opacity='0.9';silhouette.style.opacity='1';},20);
   setTimeout(()=>{
     flash.style.transition='opacity .5s';silhouette.style.transition='opacity .5s,transform .5s';
     flash.style.opacity='0';silhouette.style.opacity='0';silhouette.style.transform='translate(-50%,-50%) scale(1.3)';
@@ -783,7 +783,7 @@ function triggerFinalLetter(){
     '<div style="margin-top:18px;font-size:11px;color:#6b7280;">— 호두마루 —</div>';
   overlay.appendChild(box);
   document.body.appendChild(overlay);
-  requestAnimationFrame(()=>{overlay.style.opacity='1';});
+  setTimeout(()=>{overlay.style.opacity='1';},20);
   setTimeout(()=>{box.style.opacity='1';},900);
   setTimeout(()=>{
     overlay.style.opacity='0';
