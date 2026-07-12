@@ -1,7 +1,7 @@
 // ══════════════ 히든 이스터에그 16종 ══════════════
 // 찾기 어렵지만, 찾으면 게임의 세계관(드림코어/시크릿코드)과 이어지는 보상.
 
-// ── 개발자 전용: 이스터에그 전체 공개 (업적 화면 DEV 버튼) ──
+// ── 개발자 전용: 이스터에그 전체 공개 (연출 없이 한번에) ──
 function devRevealAllEggs(){
   if(typeof devModeUnlocked==='undefined'||!devModeUnlocked)return;
   ACHIEVEMENTS.filter(a=>a.id.startsWith('secret_')).forEach(a=>{
@@ -12,8 +12,198 @@ function devRevealAllEggs(){
   });
   saveAch();
   checkTitles();
-  if(typeof renderAchievements==='function')renderAchievements();
   showEggToast('🛠️ 모든 이스터에그가 공개되었습니다 (DEV)');
+}
+
+// ── 개발자 전용: 이스터에그 프리뷰 패널 — 조건을 실제로 재현해서 연출까지 재생 ──
+function devEnsureGame(mapId){
+  go('sLobby');
+  selMap=MAPS.find(m=>m.id===mapId)||MAPS.find(m=>m.id==='city');
+  confirmMapSelect();
+  startGame();
+}
+const DEV_EGG_PREVIEWS={
+  secret_1:()=>{
+    if(!achData['secret_1']){achData['secret_1']=true;grantAchReward(ACHIEVEMENTS.find(a=>a.id==='secret_1'));saveAch();checkTitles();}
+    showEggToast('🏆 ???');
+  },
+  secret_2:()=>{ achStats.dreamCloseKill=1; saveAch(); checkAchievements(); },
+  secret_3:()=>{ go('sLobby'); setTimeout(()=>triggerVersionEgg(),200); },
+  secret_4:()=>{
+    go('sLobby');
+    setTimeout(()=>{
+      const used=lJ('hd_used_codes',{});
+      delete used['ITSEESYOU'];
+      sv('hd_used_codes',used);
+      openCode();
+      document.getElementById('codeInput').value='ITSEESYOU';
+      submitCode();
+    },200);
+  },
+  secret_5:()=>{
+    go('sLobby');
+    setTimeout(()=>{
+      ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a']
+        .forEach(k=>document.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true})));
+    },200);
+  },
+  secret_6:()=>{
+    go('sLobby');
+    setTimeout(()=>{
+      showIdleEye();
+      setTimeout(()=>{
+        const el=[...document.querySelectorAll('img')].find(i=>i.style.zIndex==='9997');
+        if(el)el.dispatchEvent(new MouseEvent('click',{bubbles:true}));
+      },200);
+    },200);
+  },
+  secret_7:()=>{
+    devEnsureGame('city');
+    setTimeout(()=>{ spawnGlitchCameo(); unlockEgg('egg_stillness','secret_7'); },300);
+  },
+  secret_8:()=>{ triggerTrueWake(); },
+  secret_9:()=>{ go('sLobby'); setTimeout(()=>triggerLogoEgg(),200); },
+  secret_10:()=>{ for(let i=0;i<8;i++)trackEnchantStreak(0); },
+  secret_11:()=>{ for(let i=0;i<50;i++)trackPetStreak('common'); },
+  secret_12:()=>{ go('sLobby'); unlockEgg('egg_midnight','secret_12'); showEggToast('🌙 자정의 로비. 아무도 없는 줄 알았는데...'); },
+  secret_13:()=>{
+    go('sLobby');
+    setTimeout(()=>{
+      spawnSantaCameo('dev_preview_'+Date.now());
+      setTimeout(()=>{
+        const el=[...document.querySelectorAll('div')].find(d=>d.textContent==='🎅');
+        if(el)el.dispatchEvent(new MouseEvent('click',{bubbles:true}));
+      },300);
+    },200);
+  },
+  secret_14:()=>{
+    devEnsureGame('city');
+    setTimeout(()=>{
+      eqArmor='';
+      onBossDie({bd:{name:'호두마루',hp:100,reward:{c:0,e:0}},bossMapId:null});
+    },300);
+  },
+  secret_15:()=>{
+    go('sLobby');
+    setTimeout(()=>{
+      const btn=document.getElementById('bgmToggleBtn');
+      for(let i=0;i<7;i++)btn.dispatchEvent(new MouseEvent('click',{bubbles:true}));
+    },200);
+  },
+  secret_16:()=>{
+    let rec={lastDate:'',streak:0};
+    const base=new Date(2020,0,1);
+    const origToday=todayKey;
+    for(let i=0;i<7;i++){
+      const d=new Date(base.getTime()+i*86400000);
+      const key=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+      dailyQuestData={quests:['kill10'],claimed:{kill10:true},date:key};
+      sv('hd_egg_dailystreak',rec);
+      todayKey=()=>key;
+      trackDailyStreak();
+      rec=lJ('hd_egg_dailystreak',{});
+    }
+    todayKey=origToday;
+  },
+  secret_17:()=>{ for(let i=0;i<10;i++)cancelReset(); },
+  secret_18:()=>{
+    devEnsureGame('city');
+    setTimeout(()=>{
+      coins=0;
+      zoms.push({x:P.x+40,y:P.y,type:'normal',r:16,hp:1,maxHp:10,spd:1,angle:0,dead:false,dT:0,isMinion:false,_frz:0});
+      hitZ(zoms[zoms.length-1],999);
+    },300);
+  },
+  secret_19:()=>{
+    devEnsureGame('city');
+    setTimeout(()=>{ P.hp=1; triggerBehindYou(); },300);
+  },
+  secret_20:()=>{
+    sv('hd_egg_lastseen',{ts:Date.now()-15*24*60*60*1000});
+    checkReturnedEgg();
+  },
+  secret_21:()=>{
+    devEnsureGame('tower');
+    setTimeout(()=>{
+      wave=66; spawnedCnt=totalSpawn; betweenWave=false;
+      zoms=zoms.filter(z=>z.isMinion);
+      update();
+    },300);
+  },
+  secret_22:()=>{
+    devEnsureGame('city');
+    setTimeout(()=>{
+      zoms.push({x:P.x+40,y:P.y,type:'ghost',r:15,hp:1,maxHp:1,spd:0.4,angle:0,dead:false,dT:0,isMinion:false,_dshC:999,_dsh:false,_dvx:0,_dvy:0,_healT:0,_phT:9999,_phased:false,_frz:0,wob:0,_cursedVisitor:true});
+      hitZ(zoms[zoms.length-1],999);
+    },300);
+  },
+  secret_23:()=>{ triggerFinalLetter(); },
+  secret_24:()=>{
+    devEnsureGame('city');
+    setTimeout(()=>{
+      ownedJobs['necromancer']=true;equippedJob='necromancer';
+      achStats.necroTotalSaved=495;
+      for(let i=0;i<3;i++){
+        for(let j=0;j<5;j++)zoms.push({x:P.x+20,y:P.y,type:'normal',r:16,hp:10,maxHp:10,spd:1,angle:0,dead:false,dT:0,isMinion:false,_frz:0});
+        execJobSkill('necromancer','E');
+      }
+    },300);
+  },
+  secret_25:()=>{
+    const petId='dev_preview_pet';
+    equippedPetId=petId;
+    const rec=lJ('hd_egg_petgames',{});
+    rec[petId]=99;
+    sv('hd_egg_petgames',rec);
+    devEnsureGame('city');
+  },
+  secret_26:()=>{
+    devEnsureGame('city');
+    setTimeout(()=>{
+      achStats.finalBossKills=9;saveAch();
+      onBossDie({bd:{name:'호두마루',hp:100,reward:{c:0,e:0}},bossMapId:null});
+    },300);
+  },
+  secret_27:()=>{
+    go('sLobby');
+    selMap=MAPS.find(m=>m.theme==='snow')||MAPS.find(m=>m.campEngine);
+    confirmMapSelect();
+    startGame();
+    setTimeout(()=>{ dnDay=249; startDay(); },300);
+  },
+  secret_28:()=>{
+    achStats.soloGames=99;saveAch();
+    partyBonus=1.0;
+    devEnsureGame('city');
+  },
+  secret_29:()=>{ go('sLobby'); unlockEgg('egg_newyear','secret_29'); showEggToast('🌅 새해 복 많이 받으세요, 생존자님.'); },
+};
+function openDevEggPreview(){
+  const modal=document.getElementById('devEggPreviewModal');
+  if(!modal)return;
+  const list=document.getElementById('devEggPreviewList');
+  list.innerHTML='';
+  ACHIEVEMENTS.filter(a=>a.id.startsWith('secret_')).forEach(a=>{
+    const isDone=!!achData[a.id];
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:8px;background:#1e1033;border-radius:8px;padding:8px 10px;';
+    row.innerHTML=`<div style="flex:1;min-width:0;"><div style="font-size:11px;font-weight:700;color:${isDone?'#4ade80':'#e5e7eb'};">${isDone?'✅ ':''}${a.name}</div><div style="font-size:9px;color:#9ca3af;">${a.desc}</div></div>`;
+    const btn=document.createElement('button');
+    btn.textContent='▶ 재생';
+    btn.style.cssText='flex-shrink:0;padding:5px 10px;border:none;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;';
+    btn.onclick=()=>{
+      closeDevEggPreview();
+      const fn=DEV_EGG_PREVIEWS[a.id];
+      if(fn)fn();
+    };
+    row.appendChild(btn);
+    list.appendChild(row);
+  });
+  modal.style.display='flex';
+}
+function closeDevEggPreview(){
+  const modal=document.getElementById('devEggPreviewModal');
+  if(modal)modal.style.display='none';
 }
 
 // ── 공통 헬퍼: 히든 업적 해금 + 알림 ──
@@ -363,7 +553,8 @@ function trackPetStreak(rarity){
 }
 
 // ══ 10. 새벽의 방문자 & 11. 크리스마스 손님 — 실시간 날짜 기반 ══
-setInterval(()=>{
+setInterval(checkDateBasedEggs,7000);
+function checkDateBasedEggs(){
   const scr=document.querySelector('.screen.on')?.id;
   if(scr!=='sLobby')return;
   const now=new Date();
@@ -392,7 +583,7 @@ setInterval(()=>{
       showEggToast('🌅 새해 복 많이 받으세요, 생존자님.');
     }
   }
-},7000);
+}
 let _eggSantaShown=false;
 function spawnSantaCameo(dayKey){
   _eggSantaShown=true;
@@ -501,7 +692,7 @@ function triggerBehindYou(){
 }
 
 // ══ 16. (감동) 돌아온 자리 — 14일 이상의 공백 뒤 복귀 ══
-(function(){
+function checkReturnedEgg(){
   const rec=lJ('hd_egg_lastseen',{ts:0});
   const now=Date.now();
   const gap=now-(rec.ts||0);
@@ -513,7 +704,8 @@ function triggerBehindYou(){
     },2000);
   }
   sv('hd_egg_lastseen',{ts:now});
-})();
+}
+checkReturnedEgg();
 
 // ══ 17. (호러/사냥) 13일의 금요일 — 낯선 방문객을 직접 사냥 ══
 // ══ 19. (감동) 영원한 동반자 — 같은 펫과 100판 ══
