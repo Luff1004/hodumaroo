@@ -70,10 +70,7 @@ const DEV_EGG_PREVIEWS={
     go('sLobby');
     setTimeout(()=>{
       spawnSantaCameo('dev_preview_'+Date.now());
-      setTimeout(()=>{
-        const el=[...document.querySelectorAll('div')].find(d=>d.textContent==='🎅');
-        if(el)el.dispatchEvent(new MouseEvent('click',{bubbles:true}));
-      },300);
+      showEggToast('🎅 화면 아래를 가로지르는 산타를 직접 클릭해보세요!');
     },200);
   },
   secret_14:()=>{
@@ -292,8 +289,13 @@ const EGG_STORY_TEXT={
     '새해 복 많이 받으세요, 생존자님.'
   ]}
 };
+let _storyOverlayQueue=[];
 function showStoryOverlay(icon,lines){
-  if(window._storyOverlayRunning)return;
+  // 다른 스토리 연출이 이미 재생 중이면 유실되지 않도록 대기열에 넣고 순서대로 재생한다
+  if(window._storyOverlayRunning){
+    _storyOverlayQueue.push([icon,lines]);
+    return;
+  }
   window._storyOverlayRunning=true;
   const overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;background:rgba(8,8,14,.96);z-index:9700;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 1.3s;padding:24px;';
@@ -307,7 +309,14 @@ function showStoryOverlay(icon,lines){
   const dur=Math.max(7000,lines.length*1500);
   setTimeout(()=>{
     overlay.style.opacity='0';
-    setTimeout(()=>{overlay.remove();window._storyOverlayRunning=false;},1400);
+    setTimeout(()=>{
+      overlay.remove();
+      window._storyOverlayRunning=false;
+      if(_storyOverlayQueue.length){
+        const[nextIcon,nextLines]=_storyOverlayQueue.shift();
+        showStoryOverlay(nextIcon,nextLines);
+      }
+    },1400);
   },dur);
 }
 
