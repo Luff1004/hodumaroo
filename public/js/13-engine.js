@@ -2090,6 +2090,16 @@ function draw(){
       ctx.fillStyle='rgba(103,232,249,0.7)';ctx.font='8px sans-serif';ctx.textAlign='center';
       ctx.fillText(Math.ceil(e.l/60)+'s',e.x,e.y-22);
     }
+    else if(e.type==='glitchCameo'){
+      const fadeT=Math.min(1,Math.min(e.l,e.ml-e.l+30)/30);
+      ctx.save();ctx.globalAlpha=Math.max(0,fadeT)*0.85;
+      ctx.translate(e.x,e.y+Math.sin(Date.now()/140)*3);
+      ctx.font='11px monospace';ctx.textAlign='center';
+      ctx.fillStyle='#a855f7';ctx.shadowColor='#a855f7';ctx.shadowBlur=8;
+      ctx.fillText('X)(#%+#@?',(Math.random()-.5)*2,0);
+      ctx.shadowBlur=0;
+      ctx.restore();
+    }
   });
   zoms.forEach(z=>{drawZ(z);if(typeof drawRPFace==='function')drawRPFace(z);});
   buls.forEach(b=>{
@@ -2841,7 +2851,8 @@ function hashCode(str){
 // 키 = hashCode(코드 대문자). 코드 원문은 소스에 남기지 않음.
 const CODES={
   '25d20bb5':{coins:0,energy:0,dev:true,devMode:true},
-  '2c94f865':{coins:10000000,energy:0,dev:true,testerKit:true}
+  '2c94f865':{coins:10000000,energy:0,dev:true,testerKit:true},
+  '2589103b':{coins:0,energy:0,easterEye:true}
 };
 function openSettings(){document.getElementById('settingsModal').style.display='flex';updOrientUI();updControlUI();}
 function closeSettings(){document.getElementById('settingsModal').style.display='none';}
@@ -3038,6 +3049,15 @@ function submitCode(){
     msgEl.style.color='#fbbf24';
     msgEl.textContent='🛠️[DEV] 시즌/보스 전용 무기+갑옷 전부 언락!';
     setTimeout(()=>closeCode(),2500);
+    return;
+  }
+  // easterEye: 콘솔에 숨겨진 코드 - 히든 업적으로 연결
+  if(code.easterEye){
+    if(typeof unlockEgg==='function')unlockEgg('egg_console','secret_4');
+    saveAll();updRes();
+    msgEl.style.color='#a855f7';
+    msgEl.textContent='👁️ "...당신은 보고 있었군요." 히든 업적을 확인해보세요.';
+    setTimeout(()=>closeCode(),3000);
     return;
   }
   const devTag=code.dev?' 🛠️[DEV]':'';

@@ -92,6 +92,12 @@ const ACHIEVEMENTS = [
   // ── 히든 ──
   {id:'secret_1',   name:'???',               desc:'???',                                  reward:{item:'soul_hope'},cond:'kills>=9999',hidden:true},
   {id:'secret_2',   name:'꿈과 현실 사이',    desc:'보스를 플레이어 체력 10% 이하로 잡기', reward:{energy:200000},cond:'dreamCloseKill>=1',hidden:true},
+  {id:'secret_3',   name:'빌드 번호는 거짓말이다', desc:'로비 하단의 버전 표기를 집요하게 눌러보았다', reward:{item:'spatial_path',coins:20000}, cond:'(achStats.egg_version||0)>=1', hidden:true},
+  {id:'secret_4',   name:'그들이 보고 있었다', desc:'개발자 콘솔 깊은 곳에 숨겨진 말을 찾아냈다', reward:{item:'soul_hope',energy:30000}, cond:'(achStats.egg_console||0)>=1', hidden:true},
+  {id:'secret_5',   name:'낡은 커맨드',       desc:'아주 오래전에 잊혀진 명령어를 로비에서 입력했다', reward:{coins:15000}, cond:'(achStats.egg_konami||0)>=1', hidden:true},
+  {id:'secret_6',   name:'누군가 지켜보고 있다', desc:'아무도 없는 로비, 잠깐 나타난 눈과 마주쳤다', reward:{item:'black_hole'}, cond:'(achStats.egg_eye||0)>=1', hidden:true},
+  {id:'secret_7',   name:'정지된 시간 속에서', desc:'전장 한복판에서 미동도 하지 않고 1분을 버텼다', reward:{energy:40000}, cond:'(achStats.egg_stillness||0)>=1', hidden:true},
+  {id:'secret_8',   name:'진짜 각성',         desc:'꿈 속에서 스스로 깨어나는 법을 알아냈다', reward:{coins:100000,energy:100000,item:'black_hole'}, cond:'(achStats.egg_trueawaken||0)>=1', hidden:true},
 ];
 
 // 업적 진행도 저장
@@ -164,6 +170,7 @@ const TITLES = [
   {id:'t_challenger',  icon:'🏆', name:'챌린저',         desc:'챌린지 맵 모두 클리어',            cond:'(achStats.challengeCleared||[]).length>=3'},
   {id:'t_legend',      icon:'👑', name:'전설',           desc:'모든 업적 달성',                  cond:'ACHIEVEMENTS.every(a=>achData[a.id])'},
   {id:'t_event',       icon:'🎉', name:'축제의 주인공',   desc:'이벤트 상점에서 구매',            cond:'false'},
+  {id:'t_awakened',    icon:'👁️', name:'진짜로 깨어난 자', desc:'꿈 속에서 WAKE UP을 되뇌었다',   cond:'!!achData["secret_8"]'},
 ];
 let titleData = lJ('hd_titles', {unlocked:{}, equipped:''});
 function saveTitles(){ sv('hd_titles', titleData); }
