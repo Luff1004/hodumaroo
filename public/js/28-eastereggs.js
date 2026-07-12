@@ -193,6 +193,9 @@ function openDevEggPreview(){
     btn.style.cssText='flex-shrink:0;padding:5px 10px;border:none;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;';
     btn.onclick=()=>{
       closeDevEggPreview();
+      // 프리뷰는 이미 달성한 상태여도 매번 토스트+스토리 연출을 다시 보여줘야 한다
+      delete achData[a.id];
+      saveAch();
       const fn=DEV_EGG_PREVIEWS[a.id];
       if(fn)fn();
     };
