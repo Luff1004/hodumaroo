@@ -2045,6 +2045,7 @@ function draw(){
   ctx.shadowBlur=0;ctx.shadowColor='transparent';
   const _ox=VW()>=MW?(VW()-MW)/2:-camX;
   ctx.save();ctx.translate(_ox,-camY);
+  if(typeof getActiveRPFilter==='function')ctx.filter=getActiveRPFilter();
   {
     const th=THEMES[selMap?.id]||THEMES.city;
     ctx.fillStyle=th.bg;ctx.fillRect(0,0,MW,MH);
@@ -2090,7 +2091,7 @@ function draw(){
       ctx.fillText(Math.ceil(e.l/60)+'s',e.x,e.y-22);
     }
   });
-  zoms.forEach(z=>drawZ(z));
+  zoms.forEach(z=>{drawZ(z);if(typeof drawRPFace==='function')drawRPFace(z);});
   buls.forEach(b=>{
     const t=Date.now(), col=b.col||(b.en?'#FFD700':b.pierce?'#c084fc':'#f97316');
     // hsl/rgb 색상에 hex 투명도 붙이면 에러 → rgba()로 안전하게 변환
@@ -2313,35 +2314,10 @@ function drawWepIcon(ctx,ws,r){
 function drawPlayer(){
   const{x,y,r,angle}=P,poi=poison>0;
   const ar=ARMORS.find(a=>a.id===eqArmor);const bc=poi?'#7aaa4a':ar?ar.bc:'#1D9E75';
-  const glowCol=poi?'#a3e635':ar?ar.ac:'#34d399';
-  const t=Date.now();
-  ctx.save();ctx.translate(x,y);
-  // 바깥 펄스 오라
-  const pulse=.55+.45*Math.sin(t/260);
-  ctx.save();ctx.globalAlpha=.35*pulse;ctx.shadowColor=glowCol;ctx.shadowBlur=16;
-  ctx.beginPath();ctx.arc(0,0,r+9,0,Math.PI*2);ctx.strokeStyle=glowCol;ctx.lineWidth=2;ctx.stroke();
-  ctx.restore();
-  // 회전하는 에너지 링 (장비 착용 시, 희귀도 높을수록 더 화려하게)
-  if(ar){
-    ctx.save();ctx.rotate(t/900);
-    const segs=ar.rarity==='mythic'?10:ar.rarity==='legendary'?8:ar.rarity==='epic'?6:5;
-    ctx.strokeStyle=ar.ac;ctx.lineWidth=2.5;ctx.lineCap='round';
-    for(let i=0;i<segs;i++){const a0=i/segs*Math.PI*2,a1=a0+Math.PI*2/segs*.55;ctx.beginPath();ctx.arc(0,0,r+4,a0,a1);ctx.stroke();}
-    ctx.restore();
-    ctx.beginPath();ctx.arc(0,0,r+4,0,Math.PI*2);ctx.fillStyle=ar.ac+'33';ctx.fill();
-  }
-  ctx.rotate(angle);
-  // 본체: 방향성 그라디언트 코어
-  const bodyGrad=ctx.createRadialGradient(-r*.3,-r*.3,r*.15,0,0,r);
-  bodyGrad.addColorStop(0,'#ffffff');bodyGrad.addColorStop(.35,bc);bodyGrad.addColorStop(1,poi?'#3f5c1c':'#052e22');
+  ctx.save();ctx.translate(x,y);ctx.rotate(angle);
+  if(ar){ctx.beginPath();ctx.arc(0,0,r+4,0,Math.PI*2);ctx.fillStyle=ar.ac+'44';ctx.fill();ctx.strokeStyle=ar.ac;ctx.lineWidth=2;ctx.stroke();}
   ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);
-  ctx.fillStyle=bodyGrad;ctx.fill();ctx.strokeStyle=poi?'#557700':'#085041';ctx.lineWidth=2;ctx.stroke();
-  // 전방 바이저(방향 표시)
-  ctx.save();ctx.shadowColor=glowCol;ctx.shadowBlur=8;
-  ctx.beginPath();ctx.moveTo(r*.15,-r*.55);ctx.lineTo(r*.92,-r*.16);ctx.lineTo(r*.92,r*.16);ctx.lineTo(r*.15,r*.55);ctx.closePath();
-  ctx.fillStyle=glowCol;ctx.globalAlpha=.9;ctx.fill();
-  ctx.restore();
-  ctx.beginPath();ctx.arc(r*.05,0,r*.22,0,Math.PI*2);ctx.fillStyle='#fff';ctx.globalAlpha=.85;ctx.fill();ctx.globalAlpha=1;
+  ctx.fillStyle=bc;ctx.fill();ctx.strokeStyle=poi?'#557700':'#085041';ctx.lineWidth=2;ctx.stroke();
   // 무기 그리기
   if(P&&P.ws&&P.ws.knife){
     const sid=P.ws.id;
@@ -2853,15 +2829,19 @@ document.addEventListener('keydown',e=>{
 });
 document.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
 
-// ── 코드 시스템 ──
+// ── 코드 시스템 (평문 노출 방지를 위해 해시로만 비교) ──
+function hashCode(str){
+  let h=0x811c9dc5;
+  for(let i=0;i<str.length;i++){
+    h^=str.charCodeAt(i);
+    h=Math.imul(h,0x01000193);
+  }
+  return (h>>>0).toString(16);
+}
+// 키 = hashCode(코드 대문자). 코드 원문은 소스에 남기지 않음.
 const CODES={
-  YULJIN222:{coins:10000,energy:10000},
-  CHRISTMAS222:{coins:100000,energy:0},
-  'DREAM IS TRUE':{coins:10000000,energy:100000000,dev:true},
-  'YULJIN@@@!':{coins:0,energy:0,dev:true,unlockAll:true},
-  '나는 개발자다 으하하':{coins:0,energy:0,dev:true,unlockAllFull:true},
-  EHDMS:{coins:0,energy:0,dev:true,infinite:true},
-  BLACKFIREBACKFIRE:{coins:0,energy:0,dev:true,devMode:true}
+  '25d20bb5':{coins:0,energy:0,dev:true,devMode:true},
+  '2c94f865':{coins:10000000,energy:0,dev:true,testerKit:true}
 };
 function openSettings(){document.getElementById('settingsModal').style.display='flex';updOrientUI();updControlUI();}
 function closeSettings(){document.getElementById('settingsModal').style.display='none';}
@@ -2980,9 +2960,8 @@ function submitCode(){
   const raw=rawInput.toUpperCase();
   const msgEl=document.getElementById('codeMsg');
   if(!raw){msgEl.style.color='#ef4444';msgEl.textContent='코드를 입력해주세요.';return;}
-  // 코드 키 검색 (대소문자 무시, 스페이스 포함)
-  const codeKey=Object.keys(CODES).find(k=>k.toUpperCase()===raw);
-  const code=codeKey?CODES[codeKey]:null;
+  // 코드 검색 (원문 대신 해시로만 비교, 소스에 원문 미노출)
+  const code=CODES[hashCode(raw)]||null;
   if(!code){msgEl.style.color='#ef4444';msgEl.textContent='❌ 유효하지 않은 코드입니다.';return;}
   const usedCodes=lJ('hd_used_codes',{});
   if(usedCodes[raw]&&!code.dev){msgEl.style.color='#f59e0b';msgEl.textContent='⚠️ 이미 사용된 코드입니다.';return;}
@@ -3008,6 +2987,15 @@ function submitCode(){
     saveAll();saveItems();saveJobData();saveAch();updRes();
     msgEl.style.color='#fbbf24';
     msgEl.textContent='🛠️[DEV MODE] 돈+직업+아이템+업적 전부 언락!';
+    setTimeout(()=>closeCode(),2500);
+    return;
+  }
+  // testerKit: 테스터용 - 코인 지급 + 드림 열쇠 지급 (에너지/전체언락 없음)
+  if(code.testerKit){
+    ownedItems['dream_key']=true;
+    saveItems();saveAll();updRes();
+    msgEl.style.color='#fbbf24';
+    msgEl.textContent='🛠️[TESTER] +'+(code.coins||0).toLocaleString()+'🪙 + 드림 열쇠 지급!';
     setTimeout(()=>closeCode(),2500);
     return;
   }

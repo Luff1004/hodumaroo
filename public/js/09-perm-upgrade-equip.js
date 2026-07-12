@@ -38,7 +38,7 @@ function renderUpg(){
     g.appendChild(d);
   });
 }
-function byUpg(id){const u=PUGR.find(x=>x.id===id);if(!u)return;const lv=pUpgLv[id]||0,cost=gpC(u);if(energy<cost||lv>=u.m)return;energy-=cost;pUpgLv[id]=lv+1;saveAll();renderUpg();}
+function byUpg(id){const u=PUGR.find(x=>x.id===id);if(!u)return;const lv=pUpgLv[id]||0,cost=gpC(u);if(energy<cost||lv>=u.m)return;energy-=cost;pUpgLv[id]=lv+1;saveAll();renderUpg();if(typeof updateRPButton==='function')updateRPButton();}
 
 // ══════════════ 장비 탭 ══════════════
 let selEqId=null;
