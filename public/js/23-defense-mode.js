@@ -1142,6 +1142,13 @@ function updDefenseHUD(){
   }
   const dayEl=document.getElementById('hDay');
   if(dayEl)dayEl.textContent=(dnPhase==='day'?'☀️ ':(isSnowTheme()?'🌨️ ':'🌙 '))+dnDay+'일차';
+  const timeEl=document.getElementById('hTime');
+  if(timeEl){
+    const framesLeft=Math.max(0,(dnPhase==='day'?DAY_FRAMES:NIGHT_FRAMES)-dnTimer);
+    const secLeft=Math.ceil(framesLeft/60);
+    const mm=String(Math.floor(secLeft/60)).padStart(2,'0'), ss=String(secLeft%60).padStart(2,'0');
+    timeEl.textContent=(dnPhase==='day'?'⏳ 밤까지 ':'⏳ 낮까지 ')+mm+':'+ss;
+  }
   const baseEl=document.getElementById('hBaseHp');
   if(baseEl){baseEl.textContent=`🏕 ${Math.ceil(campfire.hp)}/${campfire.maxHp}`;baseEl.style.color=campfire.hp/campfire.maxHp>.5?'#fb923c':'#ef4444';}
   const phaseInd=document.getElementById('defensePhaseIndicator');

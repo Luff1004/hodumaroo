@@ -2788,7 +2788,7 @@ function startGame(){
   document.getElementById('waveSpeedBtn').style.display=(isDefense&&selMap.noWaveSpeed)?'none':'block';
   document.getElementById('fireModeBtn').style.display=(isDefense&&selMap.noWeapons)?'none':'block';
   ['hw','hsc','ham','hkl','hco','hen'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=isDefense?'none':'';});
-  ['hDay','hBaseHp'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=isDefense?'':'none';});
+  ['hDay','hTime','hBaseHp'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=isDefense?'':'none';});
   document.getElementById('defenseSackBar').style.display=isDefense?'flex':'none';
   document.getElementById('defenseVitalsBar').style.display=isDefense?'block':'none';
   document.getElementById('defenseHotbar').style.display=isDefense?'flex':'none';

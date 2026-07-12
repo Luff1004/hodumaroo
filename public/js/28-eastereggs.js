@@ -1,6 +1,21 @@
 // ══════════════ 히든 이스터에그 16종 ══════════════
 // 찾기 어렵지만, 찾으면 게임의 세계관(드림코어/시크릿코드)과 이어지는 보상.
 
+// ── 개발자 전용: 이스터에그 전체 공개 (업적 화면 DEV 버튼) ──
+function devRevealAllEggs(){
+  if(typeof devModeUnlocked==='undefined'||!devModeUnlocked)return;
+  ACHIEVEMENTS.filter(a=>a.id.startsWith('secret_')).forEach(a=>{
+    if(!achData[a.id]){
+      achData[a.id]=true;
+      grantAchReward(a);
+    }
+  });
+  saveAch();
+  checkTitles();
+  if(typeof renderAchievements==='function')renderAchievements();
+  showEggToast('🛠️ 모든 이스터에그가 공개되었습니다 (DEV)');
+}
+
 // ── 공통 헬퍼: 히든 업적 해금 + 알림 ──
 function showEggToast(html){
   let t=document.getElementById('eggToast');

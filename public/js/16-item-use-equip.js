@@ -325,6 +325,8 @@ function renderAchievements(){
   const done=ACHIEVEMENTS.filter(a=>achData[a.id]).length;
   const prog=document.getElementById('achProgress');
   if(prog)prog.textContent=done+'/'+ACHIEVEMENTS.length+' 달성 · 업적 포인트 '+done*10;
+  const devBtn=document.getElementById('devEggRevealBtn');
+  if(devBtn)devBtn.style.display=(typeof devModeUnlocked!=='undefined'&&devModeUnlocked)?'inline-block':'none';
   checkAchievements();
   ACHIEVEMENTS.forEach(a=>{
     const isDone=!!achData[a.id];
