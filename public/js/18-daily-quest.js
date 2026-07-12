@@ -65,6 +65,7 @@ function claimQuest(qid){
   sv('hd_daily_quest', dailyQuestData);
   updRes();
   renderDailyQuest();
+  if(typeof trackDailyStreak==='function')trackDailyStreak();
 }
 
 function renderDailyQuest(){

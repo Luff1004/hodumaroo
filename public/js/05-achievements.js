@@ -92,12 +92,33 @@ const ACHIEVEMENTS = [
   // ── 히든 ──
   {id:'secret_1',   name:'???',               desc:'???',                                  reward:{item:'soul_hope'},cond:'kills>=9999',hidden:true},
   {id:'secret_2',   name:'꿈과 현실 사이',    desc:'보스를 플레이어 체력 10% 이하로 잡기', reward:{energy:200000},cond:'dreamCloseKill>=1',hidden:true},
-  {id:'secret_3',   name:'빌드 번호는 거짓말이다', desc:'로비 하단의 버전 표기를 집요하게 눌러보았다', reward:{item:'spatial_path',coins:20000}, cond:'(achStats.egg_version||0)>=1', hidden:true},
-  {id:'secret_4',   name:'그들이 보고 있었다', desc:'개발자 콘솔 깊은 곳에 숨겨진 말을 찾아냈다', reward:{item:'soul_hope',energy:30000}, cond:'(achStats.egg_console||0)>=1', hidden:true},
-  {id:'secret_5',   name:'낡은 커맨드',       desc:'아주 오래전에 잊혀진 명령어를 로비에서 입력했다', reward:{coins:15000}, cond:'(achStats.egg_konami||0)>=1', hidden:true},
-  {id:'secret_6',   name:'누군가 지켜보고 있다', desc:'아무도 없는 로비, 잠깐 나타난 눈과 마주쳤다', reward:{item:'black_hole'}, cond:'(achStats.egg_eye||0)>=1', hidden:true},
-  {id:'secret_7',   name:'정지된 시간 속에서', desc:'전장 한복판에서 미동도 하지 않고 1분을 버텼다', reward:{energy:40000}, cond:'(achStats.egg_stillness||0)>=1', hidden:true},
-  {id:'secret_8',   name:'진짜 각성',         desc:'꿈 속에서 스스로 깨어나는 법을 알아냈다', reward:{coins:100000,energy:100000,item:'black_hole'}, cond:'(achStats.egg_trueawaken||0)>=1', hidden:true},
+  {id:'secret_3',   name:'빌드 번호는 거짓말이다', desc:'로비 하단의 버전 표기를 집요하게 눌러보았다', reward:{job:'egg_job_debugger'}, cond:'(achStats.egg_version||0)>=1', hidden:true},
+  {id:'secret_4',   name:'그들이 보고 있었다', desc:'개발자 콘솔 깊은 곳에 숨겨진 말을 찾아냈다', reward:{job:'egg_job_observer'}, cond:'(achStats.egg_console||0)>=1', hidden:true},
+  {id:'secret_5',   name:'낡은 커맨드',       desc:'아주 오래전에 잊혀진 명령어를 로비에서 입력했다', reward:{job:'egg_job_retro'}, cond:'(achStats.egg_konami||0)>=1', hidden:true},
+  {id:'secret_6',   name:'누군가 지켜보고 있다', desc:'아무도 없는 로비, 잠깐 나타난 눈과 마주쳤다', reward:{job:'egg_job_owl'}, cond:'(achStats.egg_eye||0)>=1', hidden:true},
+  {id:'secret_7',   name:'정지된 시간 속에서', desc:'전장 한복판에서 미동도 하지 않고 1분을 버텼다', reward:{job:'egg_job_statue'}, cond:'(achStats.egg_stillness||0)>=1', hidden:true},
+  {id:'secret_8',   name:'진짜 각성',         desc:'꿈 속에서 스스로 깨어나는 법을 알아냈다', reward:{job:'egg_job_awakened'}, cond:'(achStats.egg_trueawaken||0)>=1', hidden:true},
+  {id:'secret_9',   name:'이 세계를 만든 이', desc:'로비의 로고를 오래도록 붙잡고 있었다', reward:{job:'egg_job_developer'}, cond:'(achStats.egg_logo||0)>=1', hidden:true},
+  {id:'secret_10',  name:'불운의 인장',       desc:'인챈트가 8번 연속으로 가장 낮은 결과만 내놓았다', reward:{job:'egg_job_cursed'}, cond:'(achStats.egg_badluck||0)>=1', hidden:true},
+  {id:'secret_11',  name:'위로의 선물',       desc:'행운 없이도 50마리의 펫을 품에 안았다', reward:{job:'egg_job_beastfriend'}, cond:'(achStats.egg_petcomfort||0)>=1', hidden:true},
+  {id:'secret_12',  name:'새벽의 방문자',     desc:'아무도 없는 시간, 자정의 로비를 찾았다', reward:{job:'egg_job_sleepwalker'}, cond:'(achStats.egg_midnight||0)>=1', hidden:true},
+  {id:'secret_13',  name:'메리 크리스마스, 생존자', desc:'크리스마스, 로비에 몰래 다녀간 손님을 붙잡았다', reward:{job:'egg_job_xmasmiracle'}, cond:'(achStats.egg_xmas||0)>=1', hidden:true},
+  {id:'secret_14',  name:'이름을 걸고',       desc:'갑옷 하나 없이 자신의 이름을 가진 자를 쓰러뜨렸다', reward:{job:'egg_job_barewarrior'}, cond:'(achStats.egg_nakedboss||0)>=1', hidden:true},
+  {id:'secret_15',  name:'고요 속의 외침',    desc:'음악을 미친 듯이 껐다 켰다 반복했다', reward:{job:'egg_job_soundlord'}, cond:'(achStats.egg_bgmtoggle||0)>=1', hidden:true},
+  {id:'secret_16',  name:'성실함의 증표',     desc:'7일 연속으로 하루도 거르지 않았다', reward:{job:'egg_job_persistent'}, cond:'(achStats.egg_dailystreak||0)>=1', hidden:true},
+  {id:'secret_17',  name:'포기하지 않는 마음', desc:'초기화 버튼 앞에서 열 번이나 마음을 고쳐먹었다', reward:{job:'egg_job_unyielding'}, cond:'(achStats.egg_nevergiveup||0)>=1', hidden:true},
+  {id:'secret_18',  name:'무일푼 생존자',     desc:'동전 한 닢 없이도 살아남아 좀비를 쓰러뜨렸다', reward:{job:'egg_job_penniless'}, cond:'(achStats.egg_broke||0)>=1', hidden:true},
+  {id:'secret_19',  name:'누군가 당신 뒤에 있다', desc:'체력 1로 5초간 버틴 순간, 등 뒤에서 무언가를 느꼈다', reward:{job:'egg_job_shadowsurvivor'}, cond:'(achStats.egg_behind||0)>=1', hidden:true},
+  {id:'secret_20',  name:'돌아온 자리',       desc:'오랜 공백 끝에, 이 자리는 여전히 당신을 기다리고 있었다', reward:{job:'egg_job_returned'}, cond:'(achStats.egg_returned||0)>=1', hidden:true},
+  {id:'secret_21',  name:'66층의 속삭임',     desc:'무한의 탑 66층에서, 오르지 말라는 속삭임을 들었다', reward:{job:'egg_job_abysswanderer'}, cond:'(achStats.egg_tower66||0)>=1', hidden:true},
+  {id:'secret_22',  name:'13일의 금요일',     desc:'불길한 날, 낯선 방문객을 직접 사냥했다', reward:{job:'egg_job_fridayhunter'}, cond:'(achStats.egg_friday13||0)>=1', hidden:true},
+  {id:'secret_23',  name:'마지막 편지',       desc:'모든 흔적을 다 찾은 자에게만 남겨진, 만든 이의 마지막 인사', reward:{job:'egg_job_laststanding'}, cond:'["secret_3","secret_4","secret_5","secret_6","secret_7","secret_8","secret_9","secret_10","secret_11","secret_12","secret_13","secret_14","secret_15","secret_16","secret_17","secret_18"].every(id=>achData[id])', hidden:true},
+  {id:'secret_24',  name:'그들도 누군가였다', desc:'네크로맨서로 오백 번째 그림자를 되살렸다', reward:{job:'egg_job_restgiver'}, cond:'(achStats.egg_necrosaved||0)>=1', hidden:true},
+  {id:'secret_25',  name:'영원한 동반자',     desc:'같은 펫과 백 번의 전장을 함께 넘었다', reward:{job:'egg_job_petbond'}, cond:'(achStats.egg_petloyalty||0)>=1', hidden:true},
+  {id:'secret_26',  name:'다시 만난 사람',     desc:'이 세계와 같은 이름을 가진 존재를, 열 번째로 떠나보냈다', reward:{job:'egg_job_letgo'}, cond:'(achStats.egg_bossreunion||0)>=1', hidden:true},
+  {id:'secret_27',  name:'빈 방',             desc:'눈 속에서 250일을 살아내고, 다 쓰지 못한 하루를 대신 살았다', reward:{job:'egg_job_wintersurvivor'}, cond:'(achStats.egg_wintersurvivor||0)>=1', hidden:true},
+  {id:'secret_28',  name:'다른 발소리',       desc:'혼자라고 생각했던 백 번의 전장, 사실은 둘이었다', reward:{job:'egg_job_shadowcompanion'}, cond:'(achStats.egg_sologhost||0)>=1', hidden:true},
+  {id:'secret_29',  name:'새로운 새벽',       desc:'새해 첫날, 여전히 이 자리를 지키고 있었다', reward:{job:'egg_job_newdawn'}, cond:'(achStats.egg_newyear||0)>=1', hidden:true},
 ];
 
 // 업적 진행도 저장
@@ -142,6 +163,7 @@ function grantAchReward(a){
   if(r.coins){ coins+=r.coins; sv('hd_c',coins); }
   if(r.energy){ energy+=r.energy; sv('hd_e',energy); }
   if(r.item){ ownedItems[r.item]=true; saveItems(); }
+  if(r.job){ ownedJobs[r.job]=true; saveJobData(); }
   updRes();
 }
 

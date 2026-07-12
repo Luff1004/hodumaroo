@@ -490,6 +490,8 @@ function hitZ(z,dmg){
     z.dead=true;z.dT=z.isBoss?80:35;z._justDied=true;
     score+=Math.floor((z.isBoss?z.bd.reward.c:(ZT[z.type]?.sc||10))*(1+(pUpgLv['pxp']||0)*.1));kills++;
     achStats.kills=(achStats.kills||0)+1;
+    if(coins===0&&typeof unlockEgg==='function')unlockEgg('egg_broke','secret_18');
+    if(z._cursedVisitor&&typeof unlockEgg==='function')unlockEgg('egg_friday13','secret_22');
     if(typeof eventData!=='undefined'){eventData.points=(eventData.points||0)+1;}
     const vl=perkLv['vampiric']??-1;
     if(vl>=0)P.hp=Math.min(P.maxHp,P.hp+[.5,1,2,3,5][Math.min(vl,4)]);
@@ -516,6 +518,7 @@ function takeDmg(d){
   if(P._invincible>0)return;
   if(selMap&&selMap.id==='tower'&&typeof towerRelics!=='undefined'&&towerRelics.greedDmg)d*=(1+towerRelics.greedDmg);
   if(P._shadow>0){d*=0.3;}
+  if(P._petrified>0){d*=0.05;}
   if(P._shield>0)return;
   waveDmgTaken+=d;
   const dl=perkLv['dodge']??-1;
@@ -575,6 +578,11 @@ function onBossDie(z){
   if(z.bd&&z.bd.id&&z.bd.id.startsWith('dream_')){ achStats.bossKills=achStats.bossKills||{}; const dk=z.bd.id.replace('_boss',''); achStats.bossKills[dk]=(achStats.bossKills[dk]||0)+1; }
   if(waveDmgTaken===0){achStats.noDmgBoss=(achStats.noDmgBoss||0)+1;}
   if(P.hp<=z.bd.hp*0.1+1){achStats.dreamCloseKill=(achStats.dreamCloseKill||0)+1;}
+  if(z.bd.name==='호두마루'&&!eqArmor&&typeof unlockEgg==='function')unlockEgg('egg_nakedboss','secret_14');
+  if(z.bd.name==='호두마루'&&!z.bossMapId){
+    achStats.finalBossKills=(achStats.finalBossKills||0)+1;
+    if(achStats.finalBossKills>=10&&typeof unlockEgg==='function')unlockEgg('egg_bossreunion','secret_26');
+  }
   if(typeof eventData!=='undefined'){eventData.points=(eventData.points||0)+100;saveEventData();}
   checkAchievements(); saveAch();
   activeBoss=null;document.getElementById('bossBar').style.display='none';
@@ -1383,7 +1391,8 @@ function update(){
   }
   if(P._infiniteAmmo)P.ammo=P.maxAmmo;
   const wsid=P.ws.id;
-  const fr=wsid==='minigun'?3:wsid==='gatling'?2:wsid==='machinegun'?4:wsid==='smg'?4:wsid==='laser_gun'?4:wsid==='flamer'?5:P.ws.knife?1:wsid==='sniper'?45:wsid==='railgun'?60:wsid==='shotgun'?32:wsid==='autocannon'?30:P.ws.auto?6:14;
+  let fr=wsid==='minigun'?3:wsid==='gatling'?2:wsid==='machinegun'?4:wsid==='smg'?4:wsid==='laser_gun'?4:wsid==='flamer'?5:P.ws.knife?1:wsid==='sniper'?45:wsid==='railgun'?60:wsid==='shotgun'?32:wsid==='autocannon'?30:P.ws.auto?6:14;
+  if(P._fastFire)fr=Math.max(1,Math.floor(fr*0.5));
   // 발사 모드: manual(기존, 클릭 필요) / semi(클릭으로 발사 토글) / auto(계속 발사)
   const held=fireMode==='auto'?true:fireMode==='semi'?!!P._semiOn:P._mdown;
   const firing=fireMode==='manual'?(P.ws.auto&&held):held;
@@ -1426,6 +1435,7 @@ function update(){
     if(selMap.id==='tower'){
       const prevBest=parseInt(localStorage.getItem('hd_tower_best')||'0');
       if(wave>prevBest)localStorage.setItem('hd_tower_best',wave);
+      if(wave===66&&typeof unlockEgg==='function')unlockEgg('egg_tower66','secret_21');
       if(typeof gainTowerEssence==='function')gainTowerEssence(1+Math.floor(wave/10));
       if(typeof towerRelics!=='undefined'&&towerRelics.greedCoin){
         const bonus=Math.floor((50+wave*5)*towerRelics.greedCoin);
@@ -2936,7 +2946,7 @@ function updSemiIndicator(){
   el.classList.toggle('on',on);
 }
 function confirmReset(){document.getElementById('settingsModal').style.display='none';document.getElementById('resetConfirmModal').style.display='flex';}
-function cancelReset(){document.getElementById('resetConfirmModal').style.display='none';}
+function cancelReset(){document.getElementById('resetConfirmModal').style.display='none';if(typeof trackCancelReset==='function')trackCancelReset();}
 function doResetKeepEnchant(){
   const savedEnchants=localStorage.getItem('hd_enchants');
   try{localStorage.clear();}catch(e){}

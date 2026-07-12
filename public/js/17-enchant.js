@@ -308,6 +308,7 @@ function doEnchant(){
   coins-=ENCHANT_COST; sv('hd_c',coins); updRes();
   achStats.enchantAttempts=(achStats.enchantAttempts||0)+1; saveAch();
   const resultTier=rollEnchantTier();
+  if(typeof trackEnchantStreak==='function')trackEnchantStreak(resultTier);
   if(pendingRolls.length>0){ pendingRolls.shift(); savePotionState(); } // 대박 행운 큐에서 1회 소모
   runEnchantRoulette(resultTier);
 }

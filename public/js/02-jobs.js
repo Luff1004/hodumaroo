@@ -246,6 +246,121 @@ const JOBS = [
   {id:'ev_gr_job',name:'산타클로스',icon:'🎅',price:0,desc:'산타의 선물배달 이벤트 보상. 얼음과 선물의 지배자.',
    color:'#ef4444',skinBg:'linear-gradient(135deg,#7f1d1d,#ef4444)',spOnly:true,eventOnly:true,rarity:'legendary',
    skills:[{key:'E',name:'선물 폭탄',icon:'🎁',desc:'반경 250 전체 동결+데미지',cd:600,fn:'jobSkillE'},{key:'Q',name:'루돌프 질주',icon:'🦌',desc:'10초간 이동속도+3, 무적',cd:900,fn:'jobSkillQ'}]},
+  // ── 히든 이스터에그 전용 직업 21종 (찾은 자만 얻는다) ──
+  {id:'egg_job_debugger',name:'디버거',icon:'🐛',price:0,eggOnly:true,rarity:'mythic',
+   desc:'거짓된 버전 뒤의 진실을 본 자. 세상의 흐름에 잠깐씩 손을 댈 수 있다.',
+   color:'#8b5cf6',skinBg:'linear-gradient(135deg,#1e1b4b,#5b21b6)',
+   skills:[{key:'E',name:'브레이크포인트',icon:'⏸️',desc:'반경 200 모든 적 1.5초 완전 정지',cd:660,fn:'jobSkillE'}]},
+  {id:'egg_job_observer',name:'관측자',icon:'👁️',price:0,eggOnly:true,rarity:'mythic',
+   desc:'콘솔 너머에서 지켜보던 이의 시선을 물려받았다. 약점은 숨길 수 없다.',
+   color:'#a855f7',skinBg:'linear-gradient(135deg,#1e1b4b,#6b21a8)',
+   skills:[{key:'E',name:'관측',icon:'👁️',desc:'6초간 모든 공격 치명타 확정',cd:900,fn:'jobSkillE'}]},
+  {id:'egg_job_retro',name:'레트로 게이머',icon:'🕹️',price:0,eggOnly:true,rarity:'legendary',
+   desc:'낡은 커맨드 하나로 세상을 놀라게 한 자. 그 시절의 여분의 목숨을 기억한다.',
+   color:'#22c55e',skinBg:'linear-gradient(135deg,#14532d,#166534)',
+   skills:[{key:'E',name:'1UP',icon:'💚',desc:'HP 완전 회복 + 2초 무적',cd:1200,fn:'jobSkillE'}]},
+  {id:'egg_job_owl',name:'야행성',icon:'🦉',price:0,eggOnly:true,rarity:'legendary',
+   desc:'아무도 없는 로비에서 눈과 마주친 자. 어둠 속에서 더 또렷하게 본다.',
+   color:'#facc15',skinBg:'linear-gradient(135deg,#1c1917,#422006)',
+   skills:[{key:'E',name:'야간 투시',icon:'🌒',desc:'8초간 이동속도+2, 치명타율+30%',cd:900,fn:'jobSkillE'}]},
+  {id:'egg_job_statue',name:'석상',icon:'🗿',price:0,eggOnly:true,rarity:'legendary',
+   desc:'전장에서 미동도 없이 1분을 버틴 자. 움직이지 않을수록 굳건해진다.',
+   color:'#78716c',skinBg:'linear-gradient(135deg,#292524,#57534e)',
+   skills:[{key:'E',name:'부동',icon:'🗿',desc:'3초간 이동 불가 대신 피해 95% 감소',cd:900,fn:'jobSkillE'}]},
+  {id:'egg_job_awakened',name:'각성자',icon:'🌌',price:0,eggOnly:true,rarity:'mythic',
+   desc:'꿈 속에서 스스로 깨어나는 법을 알아낸 자. 반복되는 세계를 더는 두려워하지 않는다.',
+   color:'#c084fc',skinBg:'linear-gradient(135deg,#0f0020,#3b0764)',
+   skills:[
+     {key:'E',name:'각성의 눈',icon:'🌌',desc:'화면 내 모든 적에게 40 데미지',cd:900,fn:'jobSkillE'},
+     {key:'Q',name:'깨어남',icon:'✨',desc:'HP 완전 회복 + 4초 무적 + 5초간 이동속도+2',cd:1500,fn:'jobSkillQ'}]},
+  {id:'egg_job_developer',name:'개발자',icon:'👨‍💻',price:0,eggOnly:true,rarity:'legendary',
+   desc:'로비의 로고를 오래도록 붙잡은 자. 이 세계를 만든 이의 흔적을 나눠 받았다.',
+   color:'#7c3aed',skinBg:'linear-gradient(135deg,#1e1b4b,#4c1d95)',
+   skills:[{key:'E',name:'핫픽스',icon:'🛠️',desc:'즉시 HP 40% 회복 + 2초 무적',cd:720,fn:'jobSkillE'}]},
+  {id:'egg_job_cursed',name:'저주받은 자',icon:'🎲',price:0,eggOnly:true,rarity:'legendary',
+   desc:'인챈트의 불운을 여덟 번 연속으로 삼킨 자. 불운마저 힘으로 바꾼다.',
+   color:'#57534e',skinBg:'linear-gradient(135deg,#1c1917,#44403c)',
+   skills:[{key:'E',name:'역전의 저주',icon:'🎲',desc:'50% 확률로 HP 30% 소모+범위 큰 피해, 50% 확률로 HP 30% 회복',cd:600,fn:'jobSkillE'}]},
+  {id:'egg_job_beastfriend',name:'짐승의 친구',icon:'🐾',price:0,eggOnly:true,rarity:'legendary',
+   desc:'행운 없이도 쉰 마리를 품에 안은 자. 곁을 지킨 마음은 배신하지 않는다.',
+   color:'#ec4899',skinBg:'linear-gradient(135deg,#500724,#9d174d)',
+   skills:[{key:'E',name:'무리 소환',icon:'🐾',desc:'주변 좀비 4마리를 즉시 아군으로 전환',cd:720,fn:'jobSkillE'}]},
+  {id:'egg_job_sleepwalker',name:'몽유병자',icon:'🌙',price:0,eggOnly:true,rarity:'legendary',
+   desc:'자정의 로비를 찾은 자. 꿈과 현실의 경계를 반쯤 걷는다.',
+   color:'#818cf8',skinBg:'linear-gradient(135deg,#1e1b4b,#312e81)',
+   skills:[{key:'E',name:'몽유',icon:'🌙',desc:'마우스 위치로 즉시 이동 + 1.5초 무적',cd:540,fn:'jobSkillE'}]},
+  {id:'egg_job_xmasmiracle',name:'크리스마스의 기적',icon:'🎄',price:0,eggOnly:true,rarity:'legendary',
+   desc:'로비를 몰래 지나던 손님을 붙잡은 자. 그날의 온기를 나눠 받았다.',
+   color:'#16a34a',skinBg:'linear-gradient(135deg,#052e16,#166534)',
+   skills:[{key:'E',name:'선물',icon:'🎁',desc:'HP 60% 회복 + 주변 적 밀쳐내기',cd:720,fn:'jobSkillE'}]},
+  {id:'egg_job_barewarrior',name:'맨몸의 전사',icon:'🥋',price:0,eggOnly:true,rarity:'mythic',
+   desc:'갑옷 하나 없이 자신의 이름을 가진 자를 쓰러뜨렸다. 아무것도 걸치지 않을 때 가장 강하다.',
+   color:'#f97316',skinBg:'linear-gradient(135deg,#431407,#9a3412)',
+   skills:[{key:'E',name:'결의',icon:'🥋',desc:'4초간 데미지 3배 (갑옷 미착용 시 4배)',cd:900,fn:'jobSkillE'}]},
+  {id:'egg_job_soundlord',name:'정적의 지배자',icon:'🔇',price:0,eggOnly:true,rarity:'legendary',
+   desc:'음악을 미친 듯이 껐다 켰다 반복한 자. 그 소음 속에서 침묵의 힘을 얻었다.',
+   color:'#0ea5e9',skinBg:'linear-gradient(135deg,#082f49,#0c4a6e)',
+   skills:[{key:'E',name:'침묵의 파동',icon:'🔇',desc:'반경 220 모든 적 2초 기절',cd:780,fn:'jobSkillE'}]},
+  {id:'egg_job_persistent',name:'꾸준함의 화신',icon:'📆',price:0,eggOnly:true,rarity:'legendary',
+   desc:'7일을 하루도 거르지 않은 자. 쌓아온 시간은 배신하지 않는다.',
+   color:'#0d9488',skinBg:'linear-gradient(135deg,#042f2e,#115e59)',
+   skills:[{key:'E',name:'루틴',icon:'📆',desc:'8초간 공격속도+50%, 이동속도+1',cd:780,fn:'jobSkillE'}]},
+  {id:'egg_job_unyielding',name:'불굴의 의지',icon:'💪',price:0,eggOnly:true,rarity:'legendary',
+   desc:'초기화 버튼 앞에서 열 번이나 마음을 고쳐먹은 자. 결코 포기하지 않는다.',
+   color:'#dc2626',skinBg:'linear-gradient(135deg,#450a0a,#7f1d1d)',
+   skills:[{key:'E',name:'재도전',icon:'💪',desc:'HP 100% 회복 + 3초 무적',cd:1200,fn:'jobSkillE'}]},
+  {id:'egg_job_penniless',name:'빈털터리 생존자',icon:'🎒',price:0,eggOnly:true,rarity:'legendary',
+   desc:'동전 한 닢 없이도 살아남아 좀비를 쓰러뜨린 자. 가진 것이 없을수록 절박함은 강해진다.',
+   color:'#a16207',skinBg:'linear-gradient(135deg,#422006,#713f12)',
+   skills:[{key:'E',name:'최후의 발악',icon:'🎒',desc:'전방 부채꼴로 큰 피해 (코인이 적을수록 강력)',cd:660,fn:'jobSkillE'}]},
+  {id:'egg_job_shadowsurvivor',name:'그림자 생존자',icon:'🌑',price:0,eggOnly:true,rarity:'mythic',
+   desc:'체력 1로 5초를 버틴 순간, 등 뒤의 무언가와 눈이 마주쳤다. 그 그림자는 이제 당신의 것이다.',
+   color:'#1e1b4b',skinBg:'linear-gradient(135deg,#000000,#1e1b4b)',
+   skills:[{key:'E',name:'그림자 속으로',icon:'🌑',desc:'3초간 은신 + 다음 공격 데미지 4배',cd:900,fn:'jobSkillE'}]},
+  {id:'egg_job_returned',name:'돌아온 자',icon:'🕯️',price:0,eggOnly:true,rarity:'legendary',
+   desc:'오랜 공백 끝에 돌아온 자. 이 자리는 언제나 당신을 기다리고 있었다.',
+   color:'#f59e0b',skinBg:'linear-gradient(135deg,#451a03,#78350f)',
+   skills:[{key:'E',name:'다시, 시작',icon:'🕯️',desc:'HP 완전 회복 + 5초간 이동속도+1.5',cd:900,fn:'jobSkillE'}]},
+  {id:'egg_job_abysswanderer',name:'심연의 방랑자',icon:'🕳️',price:0,eggOnly:true,rarity:'mythic',
+   desc:'무한의 탑 66층에서, 오르지 말라는 속삭임을 듣고도 계속 올라간 자.',
+   color:'#4c1d95',skinBg:'linear-gradient(135deg,#0f0020,#2e1065)',
+   skills:[{key:'E',name:'차원 도약',icon:'🕳️',desc:'랜덤 위치로 순간이동 + 착지 지점 반경 150 큰 피해',cd:780,fn:'jobSkillE'}]},
+  {id:'egg_job_fridayhunter',name:'저주받은 사냥꾼',icon:'🔪',price:0,eggOnly:true,rarity:'mythic',
+   desc:'13일의 금요일, 낯선 방문객을 직접 사냥한 자. 불길함을 두려워하지 않는다.',
+   color:'#991b1b',skinBg:'linear-gradient(135deg,#1c0a0a,#450a0a)',
+   skills:[{key:'E',name:'처형',icon:'🔪',desc:'가장 가까운 적에게 즉시 150 데미지',cd:660,fn:'jobSkillE'}]},
+  {id:'egg_job_laststanding',name:'마지막 생존자',icon:'🕊️',price:0,eggOnly:true,rarity:'mythic',
+   desc:'남겨진 모든 흔적을 찾아낸 자에게, 이 세계를 만든 이가 마지막 인사를 전한다. "여기까지 와줘서, 고마워요."',
+   color:'#fbbf24',skinBg:'linear-gradient(135deg,#1a0a00,#78350f)',
+   skills:[
+     {key:'E',name:'마지막 빛',icon:'🕊️',desc:'화면 내 모든 적에게 60 데미지',cd:900,fn:'jobSkillE'},
+     {key:'Q',name:'끝나지 않는 이야기',icon:'📖',desc:'HP 완전 회복 + 6초 무적 + 8초간 데미지+2배',cd:1800,fn:'jobSkillQ'}]},
+  {id:'egg_job_restgiver',name:'안식을 주는 자',icon:'🕊️',price:0,eggOnly:true,rarity:'mythic',
+   desc:'네크로맨서로 오백 번째 그림자를 되살린 자. 그들에게 필요했던 건 죽음이 아니라, 아주 잠깐의 목적이었다.',
+   color:'#a78bfa',skinBg:'linear-gradient(135deg,#1e1b4b,#4c1d95)',
+   skills:[{key:'E',name:'안식',icon:'🕊️',desc:'주변 좀비 5마리를 즉시 아군으로 전환 + HP 30% 회복',cd:780,fn:'jobSkillE'}]},
+  {id:'egg_job_petbond',name:'영원한 동반자',icon:'🐕',price:0,eggOnly:true,rarity:'legendary',
+   desc:'같은 펫과 백 번의 전장을 함께 넘은 자. 이름을 부르지 않아도 서로의 걸음을 안다.',
+   color:'#f472b6',skinBg:'linear-gradient(135deg,#500724,#831843)',
+   skills:[{key:'E',name:'함께라서',icon:'🐕',desc:'HP 50% 회복 + 8초간 이동속도+1.5, 펫 효과 2배',cd:780,fn:'jobSkillE'}]},
+  {id:'egg_job_letgo',name:'기억을 놓아준 자',icon:'🌒',price:0,eggOnly:true,rarity:'mythic',
+   desc:'이 세계와 같은 이름을 가진 존재를, 열 번째로 떠나보낸 자. 그건 승리가 아니라 작별이었다.',
+   color:'#94a3b8',skinBg:'linear-gradient(135deg,#0f172a,#1e293b)',
+   skills:[
+     {key:'E',name:'작별',icon:'🌒',desc:'화면 내 모든 적에게 50 데미지 + 2초 기절',cd:900,fn:'jobSkillE'},
+     {key:'Q',name:'그날의 기억',icon:'🕯️',desc:'HP 완전 회복 + 5초 무적 + 10초간 이동속도+1.5',cd:1500,fn:'jobSkillQ'}]},
+  {id:'egg_job_wintersurvivor',name:'겨울의 생환자',icon:'❄️',price:0,eggOnly:true,rarity:'legendary',
+   desc:'눈 속에서 250일을 살아내고, 누군가 다 쓰지 못한 하루를 대신 살아낸 자.',
+   color:'#7dd3fc',skinBg:'linear-gradient(135deg,#0c4a6e,#0369a1)',
+   skills:[{key:'E',name:'끝나지 않은 밤',icon:'❄️',desc:'반경 220 모든 적 3초 동결 + HP 30% 회복',cd:840,fn:'jobSkillE'}]},
+  {id:'egg_job_shadowcompanion',name:'그림자 동행자',icon:'👣',price:0,eggOnly:true,rarity:'legendary',
+   desc:'혼자라고 생각했던 백 번의 전장, 사실은 늘 둘이었다. 돌아보면 아무도 없지만, 걸음은 가벼워졌다.',
+   color:'#475569',skinBg:'linear-gradient(135deg,#0f172a,#334155)',
+   skills:[{key:'E',name:'동행',icon:'👣',desc:'3초간 무적 + 다음 5초간 이동속도+2',cd:900,fn:'jobSkillE'}]},
+  {id:'egg_job_newdawn',name:'새로운 새벽',icon:'🌅',price:0,eggOnly:true,rarity:'legendary',
+   desc:'새해 첫날, 여전히 이 자리를 지키고 있던 자. 끝나지 않은 밤들 속에서도, 다시 해가 뜬다.',
+   color:'#fb923c',skinBg:'linear-gradient(135deg,#7c2d12,#c2410c)',
+   skills:[{key:'E',name:'새 아침',icon:'🌅',desc:'HP 완전 회복 + 5초간 데미지+50%',cd:900,fn:'jobSkillE'}]},
 ];
 
 let ownedJobs = lJ('hd_jobs', {});
@@ -282,24 +397,30 @@ function renderJob() {
     const isSel=selJobId===job.id;
     const lv2=jobLv[job.id]||0;
     const isHyper=lv2>21;
+    const isMystery=job.eggOnly&&!isOwned;
 
     const div=document.createElement('div');
-    div.style.cssText='background:#fff;border-radius:12px;padding:10px 12px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;transition:all .15s;border:2px solid '+(isEq?job.color:isOwned?'#6ee7b7':'#e5e7eb')+(isSel?';box-shadow:0 0 0 3px '+job.color+'44':'');
+    div.style.cssText='background:'+(isMystery?'#f3f4f6':'#fff')+';border-radius:12px;padding:10px 12px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;transition:all .15s;border:2px solid '+(isEq?job.color:isOwned?'#6ee7b7':isMystery?'#d1d5db':'#e5e7eb')+(isSel?';box-shadow:0 0 0 3px '+job.color+'44':'');
 
     const ico=document.createElement('div');
-    ico.style.cssText='font-size:28px;flex-shrink:0;margin-top:2px';ico.textContent=job.icon;div.appendChild(ico);
+    ico.style.cssText='font-size:28px;flex-shrink:0;margin-top:2px;'+(isMystery?'filter:grayscale(100%);opacity:.5;':'');ico.textContent=isMystery?'🔒':job.icon;div.appendChild(ico);
 
     const info=document.createElement('div');info.style.flex='1';info.style.minWidth='0';
-    const nm=document.createElement('div');nm.style.cssText='font-size:12px;font-weight:800;color:#1f2937';
-    nm.textContent=job.name+(lv2>0?(isHyper?' ✨HYPER Lv.'+(lv2-21):' Lv.'+lv2):'');info.appendChild(nm);
-    const ds=document.createElement('div');ds.style.cssText='font-size:9px;color:#6b7280;margin-top:2px;line-height:1.3';ds.textContent=job.desc.split('\n')[0];info.appendChild(ds);
+    const nm=document.createElement('div');nm.style.cssText='font-size:12px;font-weight:800;color:'+(isMystery?'#9ca3af':'#1f2937');
+    nm.textContent=isMystery?'???':(job.name+(lv2>0?(isHyper?' ✨HYPER Lv.'+(lv2-21):' Lv.'+lv2):''));info.appendChild(nm);
+    const ds=document.createElement('div');ds.style.cssText='font-size:9px;color:#6b7280;margin-top:2px;line-height:1.3';ds.textContent=isMystery?'이스터에그 전용 직업 — 숨겨진 곳에서 찾아야 한다':job.desc.split('\n')[0];info.appendChild(ds);
     if(isEq||isOwned){const tg=document.createElement('div');tg.style.cssText='font-size:9px;margin-top:3px;font-weight:700;color:'+job.color;tg.textContent=isEq?'✅ 장착중':'보유';info.appendChild(tg);}
     div.appendChild(info);
 
     // 버튼 영역
     const bw=document.createElement('div');bw.style.cssText='flex-shrink:0;display:flex;flex-direction:column;gap:4px;min-width:80px';
 
-    if(job.spOnly&&!isOwned){
+    if(isMystery){
+      const lbtn=document.createElement('button');
+      lbtn.style.cssText='padding:5px 8px;border:none;border-radius:7px;font-size:9px;font-weight:700;width:100%;background:#e5e7eb;color:#9ca3af;cursor:default;';
+      lbtn.textContent='🔒 ???';
+      bw.appendChild(lbtn);
+    } else if(job.spOnly&&!isOwned){
       const sbtn=document.createElement('button');
       sbtn.style.cssText='padding:5px 8px;border:none;border-radius:7px;font-size:9px;font-weight:700;width:100%;background:#1e1b4b;color:#a78bfa;cursor:default;';
       const mStr2=job.eventOnly?'이벤트 전용':job.spMonth?job.spMonth+'월 Lv.'+job.spLv+' 보상':'시즌패스 전용';
@@ -346,6 +467,18 @@ function showJobPreview(job) {
   const descEl = document.getElementById('jpDesc');
   const skillEl = document.getElementById('jpSkills');
   if(!iconEl) return;
+  const isMystery=job.eggOnly&&!ownedJobs[job.id];
+  if(isMystery){
+    iconEl.textContent='🔒';
+    nameEl.textContent='???';
+    nameEl.style.color='#9ca3af';
+    descEl.textContent='아직 발견하지 못한 이스터에그 전용 직업입니다. 게임 곳곳에 숨겨진 흔적을 찾아보세요.';
+    descEl.style.whiteSpace='pre-line';
+    skillEl.innerHTML='<div style="background:#f3f4f6;border-radius:8px;padding:10px;text-align:center;color:#9ca3af;font-size:11px;">🔒 ??? ??? ???</div>';
+    const prev2=document.getElementById('jobPreview');
+    if(prev2)prev2.style.background='#e5e7eb';
+    return;
+  }
   iconEl.textContent = job.icon;
   nameEl.textContent = job.name;
   nameEl.style.color = job.color;

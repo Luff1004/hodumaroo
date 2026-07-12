@@ -759,6 +759,7 @@ function winDefenseGame(){
   if(!running)return;
   running=false;defenseWon=true;
   stopLoop();
+  if(isSnowTheme()&&typeof unlockEgg==='function')unlockEgg('egg_wintersurvivor','secret_27');
   document.getElementById('clearTitle').textContent=isSnowTheme()?'❄️ 눈속에서 클리어!':'🏕 위험한 캠핑 클리어!';
   document.getElementById('clearSub').textContent=`${dnDay}일차까지 생존에 성공했습니다!`;
   document.getElementById('clearReward').innerHTML=`<div style="background:#fef3c7;border:2px solid #f59e0b;color:#92400e;padding:8px 20px;border-radius:20px;font-weight:800;font-size:18px;">🏆 생존 성공</div>`;

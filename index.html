@@ -36,7 +36,7 @@
   <div style="position:fixed;bottom:10px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;z-index:25;background:rgba(255,255,255,0.85);padding:4px 14px;border-radius:20px;border:1px solid #e5e7eb;">
     <span style="font-size:11px;color:#6b7280;">🎵 BGM</span>
     <input type="range" id="bgmVol" min="0" max="1" step="0.05" value="0.18" style="width:80px;cursor:pointer;" oninput="setBGMVol(parseFloat(this.value))">
-    <button onclick="bgmPlaying?stopBGM():startBGM()" style="font-size:10px;padding:2px 8px;border:1px solid #d1d5db;border-radius:8px;background:#fff;cursor:pointer;">ON/OFF</button>
+    <button id="bgmToggleBtn" onclick="bgmPlaying?stopBGM():startBGM()" style="font-size:10px;padding:2px 8px;border:1px solid #d1d5db;border-radius:8px;background:#fff;cursor:pointer;">ON/OFF</button>
   </div>
   <button class="code-btn" onclick="openCode()">🔑 CODE</button>
   <button class="code-btn" style="right:14px;left:auto;" onclick="openSettings()">⚙️ 설정</button>

@@ -147,6 +147,7 @@ function hatchEgg(eggId){
   if(!egg||coins<egg.price) return;
   coins-=egg.price; sv('hd_c',coins); updRes();
   const rarity=rollPetRarity(egg.weights);
+  if(typeof trackPetStreak==='function')trackPetStreak(rarity);
   const pool=PETS.filter(p=>p.rarity===rarity);
   const pet=pool[Math.floor(Math.random()*pool.length)];
   if(!ownedPets[pet.id]) ownedPets[pet.id]={count:0,level:0};
