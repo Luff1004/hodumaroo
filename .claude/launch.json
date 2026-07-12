@@ -4,8 +4,9 @@
     {
       "name": "dev",
       "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
-      "runtimeArgs": ["node_modules/vite/bin/vite.js", "--port", "5183", "--strictPort"],
-      "port": 5183
+      "runtimeArgs": ["node_modules/vite/bin/vite.js"],
+      "port": 5183,
+      "autoPort": true
     },
     {
       "name": "dev-hud",
@@ -20,10 +21,10 @@
       "port": 4173
     },
     {
-      "name": "rhythm-game",
+      "name": "dev-verify",
       "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
-      "runtimeArgs": ["node_modules/vite/bin/vite.js", "rhythm-game", "--port", "5180"],
-      "port": 5180
+      "runtimeArgs": ["node_modules/vite/bin/vite.js", "--port", "5185", "--strictPort"],
+      "port": 5185
     }
   ]
 }

@@ -1,6 +1,8 @@
-// ══════════════ 디펜스 모드: 위험한 캠핑 ══════════════
+// ══════════════ 디펜스 모드: 위험한 캠핑 / 눈속에서 ══════════════
 // 기존 웨이브/보스 엔진(zoms/buls/MW/MH)과 완전히 분리된 독립 월드.
-// update()/draw()가 selMap.id==='danger_camp'일 때 이 파일의 함수로 조기 위임한다.
+// update()/draw()가 selMap.campEngine===true일 때 이 파일의 함수로 조기 위임한다.
+// selMap.theme(예: 'snow')에 따라 동일한 엔진을 재사용하면서 비주얼/몬스터/이벤트만 갈아끼운다.
+function isSnowTheme(){return !!(selMap&&selMap.theme==='snow');}
 
 const DMW=8000, DMH=8000; // 정사각형 대형 월드 (기존 MW/MH와 무관)
 let dCamX=0, dCamY=0;
@@ -27,9 +29,13 @@ const TOOL_LABEL=['나무','돌','철','금','다이아'];
 let axeTier=-1, pickaxeTier=-1, weaponTier=-1, armorTier=-1;
 const WEAPON_DMG=[10,18,28,42];
 const WEAPON_LABEL=['돌 투창','철 투창','금 투창','다이아 투창'];
+const WEAPON_LABEL_SNOW=['서리 투창','얼음 투창','빙하 투창','예티엄니 투창'];
 const ARMOR_LABEL=['가죽','철','금','다이아'];
+const ARMOR_LABEL_SNOW=['여우털','늑대털','북극곰털','예티가죽'];
 const ARMOR_DEFENSE=[8,18,30,45];
 const ARMOR_HP_BONUS=[20,40,70,110];
+function curWeaponLabel(tier){return (isSnowTheme()?WEAPON_LABEL_SNOW:WEAPON_LABEL)[tier];}
+function curArmorLabel(tier){return (isSnowTheme()?ARMOR_LABEL_SNOW:ARMOR_LABEL)[tier];}
 let hasWarmCoat=false, hasDesertHood=false;
 
 // 배고픔 / 손전등 / 스태미나
@@ -37,6 +43,12 @@ let hunger=100;
 let flashlightOn=false, flashlightBattery=100;
 let stamina=100, sprinting=false;
 let pFaceAngle=Math.PI/2; // 손전등 방향(마지막 이동 방향 기준)
+
+// 추위(눈속에서 맵 전용) — 캠프파이어/온열기/이글루 근처에서 감소, 벗어나면 상승. 밤 눈보라 중엔 훨씬 빠르게 상승.
+let cold=0;
+let hasFurLining=false; // 방한 털안감: 추위 상승 속도 50% 감소
+// 토네이도(눈속에서 맵 전용) — 10일마다 낮에 등장하는 이동형 재해
+let tornado=null;
 
 // 연출용 부가 상태(파티클/화면흔들림/낮밤 전환 틴트/앰비언트)
 let fxParticles=[], ambientParticles=[];
@@ -52,7 +64,7 @@ const NODE_ICON={tree:'🌳',rock_stone:'🪨',rock_iron:'⛰️',rock_gold:'⛰
 const HITS_REQ={tree:5,rock_stone:5,rock_iron:7,rock_gold:9,rock_diamond:12,crystal:5,ice:5};
 const TIER_REQ_IDX={rock_stone:0,rock_iron:1,rock_gold:2,rock_diamond:3};
 const YIELD={tree:{kind:'wood',qty:3},rock_stone:{kind:'stone',qty:2},rock_iron:{kind:'iron',qty:2},rock_gold:{kind:'gold',qty:1},rock_diamond:{kind:'diamond',qty:1},crystal:{kind:'desert_crystal',qty:2},ice:{kind:'ice',qty:2}};
-const RESOURCE_ICON={wood:'🪵',stone:'🪨',iron:'⛓️',gold:'🟡',diamond:'💎',desert_crystal:'🔶',ice:'🧊',pelt:'🦫',meat:'🍖',cooked_meat:'🍗',bandage:'🩹',jerky:'🥩',battery:'🔋',waterskin:'💧'};
+const RESOURCE_ICON={wood:'🪵',stone:'🪨',iron:'⛓️',gold:'🟡',diamond:'💎',desert_crystal:'🔶',ice:'🧊',pelt:'🦫',meat:'🍖',cooked_meat:'🍗',bandage:'🩹',jerky:'🥩',battery:'🔋',waterskin:'💧',hot_cocoa:'☕'};
 const DROP_ICON=RESOURCE_ICON;
 const CHEST_TIER_COLOR={common:'#8b5a2b',iron:'#94a3b8',gold:'#fbbf24',diamond:'#22d3ee',ruby:'#f43f5e'};
 const DECOR_ICONS=['🪦','🏚️','🛖','🗿','⚱️','🪵','🦴'];
@@ -61,6 +73,11 @@ const DEFENSE_BOSSES=[
   {name:'폐허의 파수꾼',icon:'🗿',hp:900,spd:0.9,dmg:9,atkDmg:26,col:'#9ca3af'},
   {name:'심연의 파괴자',icon:'👹',hp:2000,spd:1.0,dmg:13,atkDmg:38,col:'#dc2626'},
   {name:'재앙의 화신',icon:'💀',hp:3300,spd:1.1,dmg:17,atkDmg:50,col:'#7c3aed'},
+];
+const DEFENSE_BOSSES_SNOW=[
+  {name:'어린 예티',icon:'🧌',hp:900,spd:0.9,dmg:9,atkDmg:26,col:'#93c5fd'},
+  {name:'예티',icon:'🧌',hp:2000,spd:1.0,dmg:13,atkDmg:38,col:'#38bdf8'},
+  {name:'서리 군주 예티',icon:'🧌',hp:3300,spd:1.1,dmg:17,atkDmg:50,col:'#e0f2fe'},
 ];
 
 let defenseWon=false, defenseOver=false;
@@ -123,13 +140,19 @@ function drawFx(){
       ctx.beginPath();ctx.arc(a.x,a.y,2.2,0,Math.PI*2);ctx.fill();
     } else {
       ctx.font='12px sans-serif';ctx.textAlign='center';ctx.globalAlpha=0.75;
-      ctx.fillText('🦋',a.x,a.y);ctx.globalAlpha=1;
+      ctx.fillText(isSnowTheme()?'❄️':'🦋',a.x,a.y);ctx.globalAlpha=1;
     }
   });
 }
 
 function inSnowZone(x,y){return x<DMW*0.4&&y<DMH*0.4;}
 function inDesertZone(x,y){return x>DMW*0.6&&y>DMH*0.6;}
+
+const SNOW_NODE_ICON={rabbit:'🦊',golden_rabbit:'🦊',wolf:'🐺',tree:'🌲',rock_stone:'🪨',rock_iron:'⛰️',rock_gold:'⛰️',rock_diamond:'⛰️',ice:'🧊'};
+function nodeIcon(n){
+  if(isSnowTheme()&&SNOW_NODE_ICON[n.kind])return SNOW_NODE_ICON[n.kind];
+  return NODE_ICON[n.kind]||'❓';
+}
 
 // ── 초기화 / 정리 ──
 function initDefenseMode(){
@@ -145,6 +168,7 @@ function initDefenseMode(){
   hunger=100;
   flashlightOn=false;flashlightBattery=100;
   stamina=100;sprinting=false;pFaceAngle=Math.PI/2;
+  cold=0;hasFurLining=false;tornado=null;
   selectedSlot=0;
   fxParticles=[];ambientParticles=[];shakeT=0;shakeMag=0;transitionT=0;
   window._lastPHp=null;
@@ -185,8 +209,12 @@ function spawnDefenseWorld(){
   for(let i=0;i<25;i++){const p=randPointAnnulus(cx,cy,3500,6500);addNode('rock_diamond',p.x,p.y,0.7,1.4);}
   for(let i=0;i<10;i++){const p=randPointAnnulus(cx,cy,300,2600);addNode('rabbit',p.x,p.y,1,1);}
   for(let i=0;i<12;i++){const p=randPointAnnulus(cx,cy,900,4000);addNode('wolf',p.x,p.y,1,1);}
-  for(let i=0;i<40;i++){const p=randPointRect(0,0,DMW*0.38,DMH*0.38);addNode('ice',p.x,p.y,0.8,1.4);}
-  for(let i=0;i<40;i++){const p=randPointRect(DMW*0.62,DMH*0.62,DMW,DMH);addNode('crystal',p.x,p.y,0.8,1.4);}
+  if(isSnowTheme()){
+    for(let i=0;i<220;i++){const p=randPointAnnulus(cx,cy,300,4200);addNode('ice',p.x,p.y,0.8,1.6);}
+  } else {
+    for(let i=0;i<40;i++){const p=randPointRect(0,0,DMW*0.38,DMH*0.38);addNode('ice',p.x,p.y,0.8,1.4);}
+    for(let i=0;i<40;i++){const p=randPointRect(DMW*0.62,DMH*0.62,DMW,DMH);addNode('crystal',p.x,p.y,0.8,1.4);}
+  }
   // 상자 — 스폰 시점에 등급을 미리 굴려서 고정(색상으로 구분 가능하도록)
   for(let i=0;i<18;i++){
     const p=randPointAnnulus(cx,cy,300,6800);
@@ -304,12 +332,13 @@ function rebuildHotbar(){
   hotbar=[{type:'fists',icon:'✊',label:'맨손 (전투용)'}];
   if(axeTier>=0)hotbar.push({type:'axe',icon:'🪓',label:TOOL_LABEL[axeTier]+' 도끼'});
   if(pickaxeTier>=0)hotbar.push({type:'pickaxe',icon:'⛏',label:TOOL_LABEL[pickaxeTier]+' 곡괭이'});
-  if(weaponTier>=0)hotbar.push({type:'weapon',icon:'🗡',label:WEAPON_LABEL[weaponTier]});
+  if(weaponTier>=0)hotbar.push({type:'weapon',icon:'🗡',label:curWeaponLabel(weaponTier)});
   hotbar.push({type:'flashlight',icon:'🔦',label:'손전등'});
   if((sack.stacks.meat||0)>0)hotbar.push({type:'food',food:'meat',icon:'🍖',label:'고기'});
   if((sack.stacks.cooked_meat||0)>0)hotbar.push({type:'food',food:'cooked_meat',icon:'🍗',label:'익힌 고기'});
   if((sack.stacks.jerky||0)>0)hotbar.push({type:'food',food:'jerky',icon:'🥩',label:'육포'});
   if((sack.stacks.waterskin||0)>0)hotbar.push({type:'food',food:'waterskin',icon:'💧',label:'물통'});
+  if((sack.stacks.hot_cocoa||0)>0)hotbar.push({type:'food',food:'hot_cocoa',icon:'☕',label:'따뜻한 코코아'});
   if((sack.stacks.bandage||0)>0)hotbar.push({type:'bandage',icon:'🩹',label:'붕대'});
   if((sack.stacks.battery||0)>0)hotbar.push({type:'battery',icon:'🔋',label:'배터리'});
   if(prevType){const ni=hotbar.findIndex(h=>h.type===prevType);if(ni>=0)selectedSlot=ni;else selectedSlot=0;}
@@ -327,12 +356,14 @@ function selectDefenseSlot(i){
 function useSelectedConsumable(){
   const slot=hotbar[selectedSlot];if(!slot)return;
   if(slot.type==='food'){
-    const eff={meat:{hunger:20},cooked_meat:{hunger:35},jerky:{hunger:15},waterskin:{hunger:10}}[slot.food];
+    const eff={meat:{hunger:20},cooked_meat:{hunger:35},jerky:{hunger:15},waterskin:{hunger:10},hot_cocoa:{hunger:5,cold:-40}}[slot.food];
     if(!eff||(sack.stacks[slot.food]||0)<=0)return;
     sack.stacks[slot.food]--;if(sack.stacks[slot.food]<=0)delete sack.stacks[slot.food];
     hunger=Math.min(100,hunger+eff.hunger);
+    let msg=`${slot.icon} 배고픔 +${eff.hunger}`;
+    if(eff.cold){cold=Math.max(0,cold+eff.cold);msg+=`, 추위 ${eff.cold}`;}
     rebuildHotbar();
-    setDefenseMsg(`${slot.icon} 배고픔 +${eff.hunger}`);
+    setDefenseMsg(msg);
   } else if(slot.type==='bandage'){
     if((sack.stacks.bandage||0)<=0)return;
     sack.stacks.bandage--;if(sack.stacks.bandage<=0)delete sack.stacks.bandage;
@@ -426,7 +457,7 @@ function attackHostile(target){
     target.dead=true;
     spawnFx(target.x,target.y,'#fbbf24',10,4);
     if(target.kind==='wolf'){drops.push({kind:'pelt',x:target.x,y:target.y,qty:1});drops.push({kind:'meat',x:target.x,y:target.y,qty:2});}
-    else if(target.kind==='rabbit'){drops.push({kind:'meat',x:target.x,y:target.y,qty:1});}
+    else if(target.kind==='rabbit'){drops.push({kind:'meat',x:target.x,y:target.y,qty:1});if(isSnowTheme())drops.push({kind:'pelt',x:target.x,y:target.y,qty:1});}
     else if(target.kind==='golden_rabbit'){
       drops.push({kind:'meat',x:target.x,y:target.y,qty:5});
       drops.push({kind:'pelt',x:target.x,y:target.y,qty:3});
@@ -464,6 +495,8 @@ function confirmPlacing(){
   if(p.kind==='barricade')structures.push({kind:'barricade',x:wm.x,y:wm.y,hp:80,maxHp:80});
   else if(p.kind==='torch')structures.push({kind:'torch',x:wm.x,y:wm.y});
   else if(p.kind==='trap')structures.push({kind:'trap',x:wm.x,y:wm.y,armed:true});
+  else if(p.kind==='heater')structures.push({kind:'heater',x:wm.x,y:wm.y});
+  else if(p.kind==='igloo')structures.push({kind:'igloo',x:wm.x,y:wm.y});
   setDefenseMsg(`✅ ${p.icon} ${p.name} 설치 완료!`);
   placingStructure=null;
   rebuildHotbar();
@@ -484,6 +517,8 @@ function drawPlacementGhost(ox,oy){
   if(placingStructure.kind==='barricade')drawBarricadeShape(wm.x+ox,wm.y+oy,null,null,ok?1:0.5);
   else if(placingStructure.kind==='torch')drawTorchShape(wm.x+ox,wm.y+oy,ok?1:0.5);
   else if(placingStructure.kind==='trap')drawTrapShape(wm.x+ox,wm.y+oy,true,ok?1:0.5);
+  else if(placingStructure.kind==='heater')drawHeaterShape(wm.x+ox,wm.y+oy,ok?1:0.5);
+  else if(placingStructure.kind==='igloo')drawIglooShape(wm.x+ox,wm.y+oy,ok?1:0.5);
   ctx.globalAlpha=1;
   if(!ok){
     ctx.fillStyle='#ef4444';ctx.font='bold 12px sans-serif';ctx.textAlign='center';
@@ -503,24 +538,32 @@ function tickDayNight(){
 const SURVIVAL_MILESTONES=[10,50,100,150,200];
 function startNight(){
   dnPhase='night';dnTimer=0;
-  spawnNightZombies();
-  if(dnDay%10===0)spawnEscalationWave();
-  if(dnDay%100===0)spawnDefenseBoss();
-  transitionT=40;transitionRGB=[30,10,60];transitionMaxA=0.4;
-  setDefenseMsg(`🌙 ${dnDay}일차 밤이 되었습니다... (좀비 ${dzoms.length}마리 접근 중)`);
+  if(isSnowTheme()){
+    if(dnDay%100===0)spawnDefenseBoss();
+    transitionT=40;transitionRGB=[210,225,235];transitionMaxA=0.45;
+    setDefenseMsg('🌨️ 눈보라가 몰아칩니다! 캠프파이어/이글루/온열기 곁을 벗어나면 얼어붙습니다...');
+  } else {
+    spawnNightZombies();
+    if(dnDay%10===0)spawnEscalationWave();
+    if(dnDay%100===0)spawnDefenseBoss();
+    transitionT=40;transitionRGB=[30,10,60];transitionMaxA=0.4;
+    setDefenseMsg(`🌙 ${dnDay}일차 밤이 되었습니다... (좀비 ${dzoms.length}마리 접근 중)`);
+  }
 }
 function startDay(){
   dnPhase='day';dnTimer=0;dnDay++;
   dzoms=[];
-  transitionT=40;transitionRGB=[135,206,250];transitionMaxA=0.3;
+  transitionT=40;transitionRGB=isSnowTheme()?[224,242,254]:[135,206,250];transitionMaxA=0.3;
   if(dnDay>=250){winDefenseGame();return;}
   sackAdd('wood',2); // 아침 생존 보너스
   let msg=`☀️ ${dnDay}일차 낮이 밝았습니다.`;
   if(SURVIVAL_MILESTONES.includes(dnDay))msg=`🎉🎉 ${dnDay}일차 생존 달성! 대단한 기록입니다!`;
-  if(Math.random()<0.15){
+  if(isSnowTheme()&&dnDay%10===0&&dnDay>0){
+    spawnTornado();
+  } else if(Math.random()<0.15){
     const p=randPointAnnulus(campfire.x,campfire.y,300,1800);
     resNodes.push({kind:'golden_rabbit',x:p.x,y:p.y,dead:false,_flash:0,hp:8,maxHp:8,vx:0,vy:0,wanderT:0,scale:1.4});
-    msg+=' ✨ 근처에 황금 토끼가 나타났습니다!';
+    msg+=isSnowTheme()?' ✨ 근처에 황금 여우가 나타났습니다!':' ✨ 근처에 황금 토끼가 나타났습니다!';
   }
   setDefenseMsg(msg);
 }
@@ -543,8 +586,9 @@ function spawnEscalationWave(){
   setDefenseMsg(`⚠️ ${dnDay}일차 강화 웨이브! 신도/마법사 출현`);
 }
 function spawnDefenseBoss(){
-  const idx=Math.max(0,Math.min(DEFENSE_BOSSES.length-1,Math.floor(dnDay/100)-1));
-  const bd=DEFENSE_BOSSES[idx];
+  const list=isSnowTheme()?DEFENSE_BOSSES_SNOW:DEFENSE_BOSSES;
+  const idx=Math.max(0,Math.min(list.length-1,Math.floor(dnDay/100)-1));
+  const bd=list[idx];
   const ang=Math.random()*Math.PI*2,dist=1000;
   const x=Math.max(0,Math.min(DMW,campfire.x+Math.cos(ang)*dist));
   const y=Math.max(0,Math.min(DMH,campfire.y+Math.sin(ang)*dist));
@@ -658,6 +702,52 @@ function tickSurvivalStats(){
   }
 }
 
+// ── 추위(눈속에서 맵 전용) ──
+function heatRadiusOf(s){return s.kind==='igloo'?220:s.kind==='heater'?130:0;}
+function nearHeatSource(){
+  if(Math.hypot(P.x-campfire.x,P.y-campfire.y)<campfire.radius)return true;
+  return structures.some(s=>(s.kind==='igloo'||s.kind==='heater')&&Math.hypot(s.x-P.x,s.y-P.y)<heatRadiusOf(s));
+}
+function tickCold(){
+  if(!isSnowTheme())return;
+  const blizzard=dnPhase==='night';
+  const coldGainMul=hasFurLining?0.5:1;
+  if(nearHeatSource()){
+    cold=Math.max(0,cold-(blizzard?100/90:100/150));
+  } else {
+    cold=Math.min(100,cold+(blizzard?100/150:100/600)*coldGainMul);
+  }
+  if(cold>=100){
+    if(!(window._coldDmgT>=0))window._coldDmgT=0;
+    window._coldDmgT++;
+    if(window._coldDmgT>=(blizzard?20:45)){window._coldDmgT=0;takeDmg(blizzard?6:2);}
+  } else window._coldDmgT=0;
+}
+
+// ── 토네이도(눈속에서 맵 전용) ──
+function spawnTornado(){
+  const ang=Math.random()*Math.PI*2, dist=1600+Math.random()*1000;
+  tornado={x:Math.max(60,Math.min(DMW-60,campfire.x+Math.cos(ang)*dist)),y:Math.max(60,Math.min(DMH-60,campfire.y+Math.sin(ang)*dist)),r:110,life:900,_atkT:0,_wob:Math.random()*Math.PI*2};
+  setDefenseMsg('🌪️ 토네이도가 몰아치기 시작했습니다! 피하세요!');
+}
+function tickTornado(){
+  if(!tornado)return;
+  tornado.life--;
+  tornado._wob+=0.05;
+  const toCf=Math.atan2(campfire.y-tornado.y,campfire.x-tornado.x);
+  const ang=toCf+Math.sin(tornado._wob)*1.4;
+  tornado.x=Math.max(60,Math.min(DMW-60,tornado.x+Math.cos(ang)*2.2));
+  tornado.y=Math.max(60,Math.min(DMH-60,tornado.y+Math.sin(ang)*2.2));
+  const pd=Math.hypot(P.x-tornado.x,P.y-tornado.y);
+  if(pd<tornado.r){
+    const kx=(P.x-tornado.x)/(pd||1),ky=(P.y-tornado.y)/(pd||1);
+    P.x=Math.max(P.r,Math.min(DMW-P.r,P.x+kx*6));P.y=Math.max(P.r,Math.min(DMH-P.r,P.y+ky*6));
+    tornado._atkT++;
+    if(tornado._atkT>=30){tornado._atkT=0;takeDmg(8);addShake(10);}
+  }
+  if(tornado.life<=0){tornado=null;setDefenseMsg('🌪️ 토네이도가 지나갔습니다.');}
+}
+
 // ── 승리 / 패배 ──
 function loseDefenseGame(){
   if(!running)return;
@@ -669,7 +759,7 @@ function winDefenseGame(){
   if(!running)return;
   running=false;defenseWon=true;
   stopLoop();
-  document.getElementById('clearTitle').textContent='🏕 위험한 캠핑 클리어!';
+  document.getElementById('clearTitle').textContent=isSnowTheme()?'❄️ 눈속에서 클리어!':'🏕 위험한 캠핑 클리어!';
   document.getElementById('clearSub').textContent=`${dnDay}일차까지 생존에 성공했습니다!`;
   document.getElementById('clearReward').innerHTML=`<div style="background:#fef3c7;border:2px solid #f59e0b;color:#92400e;padding:8px 20px;border-radius:20px;font-weight:800;font-size:18px;">🏆 생존 성공</div>`;
   document.getElementById('clearScreen').style.display='flex';
@@ -690,8 +780,10 @@ function updateDefenseMode(){
   if(moving)pFaceAngle=Math.atan2(dy,dx);
   sprinting=!!keys['shift']&&moving&&stamina>0;
   let spd=P.spd*(sprinting?1.6:1);
-  if(inSnowZone(P.x,P.y)&&!hasWarmCoat)spd*=0.7;
-  if(inDesertZone(P.x,P.y)&&!hasDesertHood)spd*=0.7;
+  if(!isSnowTheme()){
+    if(inSnowZone(P.x,P.y)&&!hasWarmCoat)spd*=0.7;
+    if(inDesertZone(P.x,P.y)&&!hasDesertHood)spd*=0.7;
+  }
   P.x=Math.max(P.r,Math.min(DMW-P.r,P.x+dx*spd));
   P.y=Math.max(P.r,Math.min(DMH-P.r,P.y+dy*spd));
   dCamX+=(dClampX(P.x-VW()/2)-dCamX)*.1;
@@ -704,6 +796,8 @@ function updateDefenseMode(){
   tickWildlife();
   tickDzombies();
   tickSurvivalStats();
+  tickCold();
+  tickTornado();
   tickAutoPickup();
   tickAmbientFx();
   updDefenseHUD();
@@ -711,8 +805,29 @@ function updateDefenseMode(){
 
 // ── draw ──
 function drawBiomeZones(){
+  if(isSnowTheme())return; // 눈속에서 맵은 전역이 이미 설원이라 코너 바이옴이 필요 없음
   ctx.fillStyle='rgba(224,242,254,.12)';ctx.fillRect(0,0,DMW*0.4,DMH*0.4);
   ctx.fillStyle='rgba(217,119,6,.14)';ctx.fillRect(DMW*0.6,DMH*0.6,DMW*0.4,DMH*0.4);
+}
+function drawHeaterShape(x,y,alpha){
+  ctx.globalAlpha=alpha==null?1:alpha;
+  ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.ellipse(x,y+13,12,4,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#374151';ctx.fillRect(x-8,y-4,16,18);
+  ctx.strokeStyle='#111827';ctx.lineWidth=1.5;ctx.strokeRect(x-8,y-4,16,18);
+  const flick=Math.sin(Date.now()/140+x)*1.5;
+  ctx.fillStyle='#fb923c';ctx.beginPath();ctx.ellipse(x,y-8+flick,6,9,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#fde68a';ctx.beginPath();ctx.ellipse(x,y-9+flick,3,5,0,0,Math.PI*2);ctx.fill();
+  ctx.globalAlpha=1;
+}
+function drawIglooShape(x,y,alpha){
+  ctx.globalAlpha=alpha==null?1:alpha;
+  ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.ellipse(x,y+18,34,8,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#e5edf5';ctx.beginPath();ctx.arc(x,y+8,32,Math.PI,0);ctx.fill();
+  ctx.strokeStyle='#93c5fd';ctx.lineWidth=1.5;
+  for(let i=0;i<4;i++){ctx.beginPath();ctx.arc(x,y+8,32,Math.PI+i*0.2,Math.PI+i*0.2+0.02);ctx.stroke();}
+  ctx.beginPath();ctx.arc(x,y+8,32,Math.PI,0);ctx.stroke();
+  ctx.fillStyle='#0c2a3a';ctx.beginPath();ctx.arc(x,y+8,10,Math.PI*0.12,Math.PI*0.88);ctx.fill();
+  ctx.globalAlpha=1;
 }
 function drawNode(n){
   if(n.kind==='chest'){
@@ -731,7 +846,7 @@ function drawNode(n){
   }
   ctx.font=size+'px sans-serif';ctx.textAlign='center';
   ctx.globalAlpha=n._flash>0?0.5:1;
-  ctx.fillText(NODE_ICON[n.kind]||'❓',n.x,n.y);
+  ctx.fillText(nodeIcon(n),n.x,n.y);
   ctx.globalAlpha=1;
   if(n.hits&&n.hitsLeft<n.hits){
     ctx.fillStyle='#000';ctx.fillRect(n.x-16,n.y-size*0.9,32,4);
@@ -826,6 +941,8 @@ function drawStructures(){
     if(s.kind==='barricade')drawBarricadeShape(s.x,s.y,s.hp,s.maxHp);
     else if(s.kind==='torch')drawTorchShape(s.x,s.y);
     else if(s.kind==='trap')drawTrapShape(s.x,s.y,s.armed);
+    else if(s.kind==='heater')drawHeaterShape(s.x,s.y);
+    else if(s.kind==='igloo')drawIglooShape(s.x,s.y);
   });
   decor.forEach(d=>{
     ctx.font=(24*d.scale)+'px sans-serif';ctx.textAlign='center';ctx.globalAlpha=0.85;
@@ -839,9 +956,24 @@ function drawDefenseMode(){
   const shakeOX=shakeT>0?(Math.random()-0.5)*shakeMag:0;
   const shakeOY=shakeT>0?(Math.random()-0.5)*shakeMag:0;
   ctx.save();ctx.translate(ox+shakeOX,oy+shakeOY);
-  ctx.fillStyle='#1a2e0a';ctx.fillRect(0,0,DMW,DMH);
+  ctx.fillStyle=isSnowTheme()?'#e8f1f8':'#1a2e0a';ctx.fillRect(0,0,DMW,DMH);
   drawBiomeZones();
   drawStructures();
+  if(tornado){
+    ctx.save();ctx.translate(tornado.x,tornado.y);
+    const spin=Date.now()/120;
+    for(let i=0;i<5;i++){
+      const rr=tornado.r*(1-i*0.16);
+      ctx.beginPath();ctx.ellipse(0,0,rr,rr*0.32,0,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(${200-i*10},${210-i*10},${220-i*10},${0.5-i*0.06})`;ctx.lineWidth=6-i;
+      ctx.stroke();
+    }
+    ctx.rotate(spin%(Math.PI*2));
+    ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=3;
+    for(let i=0;i<3;i++){const a=i/3*Math.PI*2;ctx.beginPath();ctx.moveTo(Math.cos(a)*10,Math.sin(a)*10);ctx.lineTo(Math.cos(a)*tornado.r*0.9,Math.sin(a)*tornado.r*0.9);ctx.stroke();}
+    ctx.restore();
+    ctx.font='20px sans-serif';ctx.textAlign='center';ctx.fillText('🌪️',tornado.x,tornado.y-tornado.r-10);
+  }
 
   ctx.strokeStyle='rgba(251,191,36,.5)';ctx.lineWidth=3;
   ctx.beginPath();ctx.arc(campfire.x,campfire.y,campfire.radius,0,Math.PI*2);ctx.stroke();
@@ -899,7 +1031,36 @@ function drawDefenseMode(){
 
   if(placingStructure)drawPlacementGhost(ox,oy);
 
-  if(dnPhase==='night'){
+  if(dnPhase==='night'&&isSnowTheme()){
+    // 눈보라 화이트아웃: 어둠 대신 백색 시야 방해 + 캠프파이어/온열기/이글루 주변만 안전
+    ctx.fillStyle='rgba(210,225,235,.6)';ctx.fillRect(0,0,VW(),VH());
+    const t2=Date.now();
+    ctx.save();ctx.globalAlpha=.5;
+    for(let i=0;i<40;i++){
+      const sx=(i*97+t2/6)%VW();
+      const sy=(i*53+t2/2.2)%VH();
+      ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(sx,sy,1.5+((i*7)%3),0,Math.PI*2);ctx.fill();
+    }
+    ctx.restore();
+    const cfSx=campfire.x+ox, cfSy=campfire.y+oy;
+    const cfGrad=ctx.createRadialGradient(cfSx,cfSy,10,cfSx,cfSy,campfire.radius*0.7);
+    cfGrad.addColorStop(0,'rgba(251,191,36,.3)');cfGrad.addColorStop(1,'rgba(251,191,36,0)');
+    ctx.fillStyle=cfGrad;ctx.fillRect(0,0,VW(),VH());
+    structures.forEach(s=>{
+      if(s.kind!=='torch'&&s.kind!=='heater'&&s.kind!=='igloo')return;
+      const sx=s.x+ox, sy=s.y+oy, rad=s.kind==='igloo'?220:s.kind==='heater'?130:140;
+      const tg=ctx.createRadialGradient(sx,sy,5,sx,sy,rad);
+      tg.addColorStop(0,'rgba(251,146,60,.4)');tg.addColorStop(1,'rgba(251,146,60,0)');
+      ctx.fillStyle=tg;ctx.fillRect(0,0,VW(),VH());
+    });
+    // 추위 비네트: 추위 수치가 높을수록 화면 가장자리가 파랗게
+    if(cold>40){
+      const t=(cold-40)/60;
+      const vg=ctx.createRadialGradient(VW()/2,VH()/2,Math.min(VW(),VH())*0.3,VW()/2,VH()/2,Math.max(VW(),VH())*0.7);
+      vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,`rgba(56,189,248,${0.4*t})`);
+      ctx.fillStyle=vg;ctx.fillRect(0,0,VW(),VH());
+    }
+  } else if(dnPhase==='night'){
     const darkness=flashlightOn?0.72:0.85;
     ctx.fillStyle=`rgba(3,3,15,${darkness})`;ctx.fillRect(0,0,VW(),VH());
     const cfSx=campfire.x+ox, cfSy=campfire.y+oy;
@@ -970,13 +1131,22 @@ function updDefenseHUD(){
   if(hungerFill){hungerFill.style.width=Math.max(0,hunger)+'%';hungerFill.style.background=hunger>40?'linear-gradient(90deg,#b45309,#f59e0b)':'linear-gradient(90deg,#7f1d1d,#dc2626)';}
   const staminaFill=document.getElementById('defenseStaminaFill');
   if(staminaFill){staminaFill.style.width=Math.max(0,stamina)+'%';staminaFill.style.background=stamina>25?'linear-gradient(90deg,#16a34a,#4ade80)':'linear-gradient(90deg,#7f1d1d,#dc2626)';}
+  const coldWrap=document.getElementById('defenseColdBarWrap');
+  if(coldWrap){
+    coldWrap.style.display=isSnowTheme()?'block':'none';
+    if(isSnowTheme()){
+      const coldFill=document.getElementById('defenseColdFill');
+      if(coldFill){coldFill.style.width=Math.max(0,cold)+'%';coldFill.style.background=cold<50?'linear-gradient(90deg,#0ea5e9,#38bdf8)':cold<80?'linear-gradient(90deg,#2563eb,#60a5fa)':'linear-gradient(90deg,#1d4ed8,#93c5fd)';}
+    }
+  }
   const dayEl=document.getElementById('hDay');
-  if(dayEl)dayEl.textContent=(dnPhase==='day'?'☀️ ':'🌙 ')+dnDay+'일차';
+  if(dayEl)dayEl.textContent=(dnPhase==='day'?'☀️ ':(isSnowTheme()?'🌨️ ':'🌙 '))+dnDay+'일차';
   const baseEl=document.getElementById('hBaseHp');
   if(baseEl){baseEl.textContent=`🏕 ${Math.ceil(campfire.hp)}/${campfire.maxHp}`;baseEl.style.color=campfire.hp/campfire.maxHp>.5?'#fb923c':'#ef4444';}
   const phaseInd=document.getElementById('defensePhaseIndicator');
   if(phaseInd){
-    if(dnPhase==='day'){phaseInd.textContent='☀️ 낮 - 채집 시간';phaseInd.style.background='rgba(250,204,21,.25)';phaseInd.style.color='#fde68a';}
+    if(dnPhase==='day'){phaseInd.textContent=isSnowTheme()?'☀️ 낮 - 채집 시간 (10일마다 토네이도 주의)':'☀️ 낮 - 채집 시간';phaseInd.style.background='rgba(250,204,21,.25)';phaseInd.style.color='#fde68a';}
+    else if(isSnowTheme()){phaseInd.textContent='🌨️ 밤 - 눈보라! 열원 곁을 벗어나지 마세요';phaseInd.style.background='rgba(56,189,248,.3)';phaseInd.style.color='#e0f2fe';}
     else{phaseInd.textContent='🌙 밤 - 캠프파이어를 지키세요!';phaseInd.style.background='rgba(30,10,60,.5)';phaseInd.style.color='#fca5a5';}
   }
   const hintEl=document.getElementById('defenseInteractHint');
@@ -1037,7 +1207,7 @@ function updDefenseHUD(){
 
 // ── 핫바 번호키 (1~9) — 이 맵에서만 동작 ──
 document.addEventListener('keydown',e=>{
-  if(!running||!selMap||selMap.id!=='danger_camp')return;
+  if(!running||!selMap||!selMap.campEngine)return;
   const k=e.key;
   if(/^[1-9]$/.test(k)){
     const idx=parseInt(k,10)-1;
@@ -1046,5 +1216,5 @@ document.addEventListener('keydown',e=>{
 });
 // ── 우클릭: 설치 모드 취소 ──
 gC.addEventListener('contextmenu',e=>{
-  if(selMap&&selMap.id==='danger_camp'&&placingStructure){e.preventDefault();cancelPlacing();}
+  if(selMap&&selMap.campEngine&&placingStructure){e.preventDefault();cancelPlacing();}
 });

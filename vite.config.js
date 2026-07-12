@@ -43,4 +43,8 @@ function singleFilePlugin() {
 
 export default defineConfig({
   plugins: [singleFilePlugin()],
+  server: {
+    port: Number(process.env.PORT) || 5173,
+    strictPort: false,
+  },
 });

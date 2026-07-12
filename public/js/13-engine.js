@@ -11,7 +11,7 @@ function resize(){gC.width=window.innerWidth;gC.height=window.innerHeight;}
 resize();window.addEventListener('resize',()=>{
   resize();
   if(P){
-    if(selMap&&selMap.id==='danger_camp'&&typeof dClampX==='function'){dCamX=dClampX(P.x-VW()/2);dCamY=dClampY(P.y-VH()/2);}
+    if(selMap&&selMap.campEngine&&typeof dClampX==='function'){dCamX=dClampX(P.x-VW()/2);dCamY=dClampY(P.y-VH()/2);}
     else{camY=clampC(P.y-VH()/2);camX=clampCX(P.x-VW()/2);}
   }
 });
@@ -158,6 +158,10 @@ function initGame(){
   wave=1;score=0;kills=0;poison=0;
   achStats.gamesPlayed=(achStats.gamesPlayed||0)+1;saveAch();
   spawnT=0;spawnedCnt=0;totalSpawn=calcWZ();spawnInt=selMap.challenge?60:Math.round(75/(HARD_WAVE_MUL[selMap.id]||1));betweenWave=false;relTimer=0;
+  if(typeof extremeMode!=='undefined'&&extremeMode&&!selMap.boss){
+    totalSpawn=Math.round(totalSpawn*2);
+    spawnInt=Math.max(10,Math.round(spawnInt/2));
+  }
   waveSpeedMul=1;
   const wsBtn=document.getElementById('waveSpeedBtn');
   if(wsBtn){wsBtn.textContent='⏩ 2배';wsBtn.classList.remove('on');}
@@ -211,7 +215,7 @@ function initGame(){
   if(!selMap.noItems)spawnHpItems();
   itemCooldowns={};
   if(!selMap.noItems)renderItemBar();
-  if(selMap.id==='danger_camp'&&typeof initDefenseMode==='function')initDefenseMode();
+  if(selMap.campEngine&&typeof initDefenseMode==='function')initDefenseMode();
   if(selMap.id==='tower'&&typeof initTowerRun==='function')initTowerRun();
 }
 
@@ -1340,7 +1344,7 @@ function triggerChallengeClear(){
 
 // ── UPDATE ──
 function update(){
-  if(selMap&&selMap.id==='danger_camp'){updateDefenseMode();return;}
+  if(selMap&&selMap.campEngine){updateDefenseMode();return;}
   // 적 탄환 폭증 방지 상한선 (렉 방지)
   if(buls.length>200){
     let enemyBuls=buls.filter(b=>b.en);
@@ -1444,6 +1448,7 @@ function update(){
     },1500);}}
   }
   const slowM=P._timewarp>0?.35:1;
+  const extSpdM=(typeof extremeMode!=='undefined'&&extremeMode&&selMap&&!selMap.boss)?1.6:1;
   zoms=zoms.filter(z=>{
     if(z.dead){z.dT--;return z.dT>0;}
     if(z._frz>0){z._frz--;return true;}
@@ -1451,7 +1456,7 @@ function update(){
       z._burnT--;
       if(z._burnT%20===0){hitZ(z,2);if(z.dead)return true;}
     }
-    const spd=z.spd*slowM;
+    const spd=z.spd*slowM*(z.isBoss?1:extSpdM);
     const ddx=P.x-z.x,ddy=P.y-z.y,dl=Math.sqrt(d2(P.x,P.y,z.x,z.y))||1;
     z.angle=Math.atan2(ddy,ddx);z.wob=(z.wob||0)+.05;
     if(z.isBoss){
@@ -1643,7 +1648,9 @@ function update(){
     }
     else{z.x+=ddx/dl*spd+Math.cos(z.wob)*.2;z.y+=ddy/dl*spd+Math.sin(z.wob)*.2;}
     z.x=Math.max(z.r,Math.min(MW-z.r,z.x));z.y=Math.max(z.r,Math.min(MH-z.r,z.y));
-    if(dl<z.r+P.r&&!z.isMinion){let dps=z.isBoss?1.5:z.type==='tanker'?.8:z.type==='supertank'?2:z.type==='the_thing'?1.5:z.type==='starfish'?.6:z.type==='robot'?.7:z.type==='the_god'?2:z.type==='dim_rift'?1.2:z.type==='glitch_entity'?1.3:z.type==='super_zombie'?.9:.35;dps+=(ZT[z.type]?.dmgMult||1)*.05;if(z.type==='rob'&&!P._bobPlayerMode){running=false;return true;}takeDmg(dps);if((z.type==='poison'||z.type==='parasite'||z.type==='worm')&&poison<=0){poison=300;for(let i=0;i<6;i++)parts.push({x:P.x,y:P.y,vx:(Math.random()-.5)*4,vy:(Math.random()-.5)*4,l:20,ml:20,r:4,col:'#8DB800'});}if((z.type==='exploder'||z.type==='suicide_zombie')&&!z._ex){z._ex=true;z.dead=true;z.dT=30;addExp(z.x,z.y,z.type==='suicide_zombie'?95:70,'#FF6600');takeDmg(z.type==='suicide_zombie'?26:18);}}
+    if(dl<z.r+P.r&&!z.isMinion){let dps=z.isBoss?1.5:z.type==='tanker'?.8:z.type==='supertank'?2:z.type==='the_thing'?1.5:z.type==='starfish'?.6:z.type==='robot'?.7:z.type==='the_god'?2:z.type==='dim_rift'?1.2:z.type==='glitch_entity'?1.3:z.type==='super_zombie'?.9:.35;dps+=(ZT[z.type]?.dmgMult||1)*.05;if(z.type==='rob'&&!P._bobPlayerMode){running=false;return true;}
+      const extDmgMul=(typeof extremeMode!=='undefined'&&extremeMode&&!selMap.boss&&!z.isBoss)?2.5:1;
+      takeDmg(dps*extDmgMul);if((z.type==='poison'||z.type==='parasite'||z.type==='worm')&&poison<=0){poison=300;for(let i=0;i<6;i++)parts.push({x:P.x,y:P.y,vx:(Math.random()-.5)*4,vy:(Math.random()-.5)*4,l:20,ml:20,r:4,col:'#8DB800'});}if((z.type==='exploder'||z.type==='suicide_zombie')&&!z._ex){z._ex=true;z.dead=true;z.dT=30;addExp(z.x,z.y,z.type==='suicide_zombie'?95:70,'#FF6600');takeDmg((z.type==='suicide_zombie'?26:18)*extDmgMul);}}
     return true;
   });
   buls=buls.filter(b=>{
@@ -2034,7 +2041,7 @@ const THEMES={city:{bg:'#7a7a7a',bd:'rgba(60,60,60,.6)'},forest:{bg:'#1a2e1a',bd
 
 function draw(){
   ctx.clearRect(0,0,VW(),VH());
-  if(selMap&&selMap.id==='danger_camp'){drawDefenseMode();return;}
+  if(selMap&&selMap.campEngine){drawDefenseMode();return;}
   ctx.shadowBlur=0;ctx.shadowColor='transparent';
   const _ox=VW()>=MW?(VW()-MW)/2:-camX;
   ctx.save();ctx.translate(_ox,-camY);
@@ -2197,6 +2204,27 @@ function draw(){
   if(poison>0){const a=Math.min(.2,poison/300*.25)*Math.abs(Math.sin(Date.now()/200));const g=ctx.createRadialGradient(VW()/2,VH()/2,VH()*.3,VW()/2,VH()/2,VH()*.7);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,`rgba(80,160,0,${a})`);ctx.fillStyle=g;ctx.fillRect(0,0,VW(),VH());}
   if(P._frozen>0){ctx.fillStyle=`rgba(125,211,252,${P._frozen/120*.25})`;ctx.fillRect(0,0,VW(),VH());}
   if(P._timewarp>0){ctx.fillStyle='rgba(167,139,250,.05)';ctx.fillRect(0,0,VW(),VH());}
+  if(typeof extremeMode!=='undefined'&&extremeMode&&selMap&&!selMap.boss){
+    const et=Date.now();
+    const pulse=.10+.06*Math.sin(et/220);
+    const eg=ctx.createRadialGradient(VW()/2,VH()/2,VH()*.22,VW()/2,VH()/2,VH()*.75);
+    eg.addColorStop(0,'rgba(0,0,0,0)');
+    eg.addColorStop(.65,`rgba(220,38,38,${pulse})`);
+    eg.addColorStop(1,`rgba(124,20,20,${pulse+.2})`);
+    ctx.fillStyle=eg;ctx.fillRect(0,0,VW(),VH());
+    ctx.strokeStyle=`rgba(251,146,60,${.4+.25*Math.sin(et/150)})`;
+    ctx.lineWidth=7;ctx.strokeRect(3,3,VW()-6,VH()-6);
+    ctx.save();ctx.globalAlpha=.75;
+    for(let i=0;i<14;i++){
+      const seed=i*137.5;
+      const ex=(seed*97%VW()+Math.sin(et/900+i)*14+VW())%VW();
+      const ey=VH()-((et/14+seed*53)%(VH()+40));
+      const es=1.5+Math.sin(et/300+i)*1;
+      ctx.beginPath();ctx.arc(ex,ey,Math.max(.5,es),0,Math.PI*2);
+      ctx.fillStyle=i%2===0?'#fbbf24':'#f97316';ctx.fill();
+    }
+    ctx.restore();
+  }
   // minimap
   mmc.fillStyle='rgba(10,10,20,.85)';mmc.fillRect(0,0,72,108);mmc.strokeStyle='rgba(255,255,255,.2)';mmc.lineWidth=1;mmc.strokeRect(0,0,72,108);
 
@@ -2205,7 +2233,16 @@ function draw(){
     // vision lv>=2: 유령도 미니맵에 표시
     if(z.type==='ghost'&&z._phased&&vl2<2)return;
     mmc.fillStyle=z.isBoss?z.bd.col:(ZT[z.type]?.col||'#888');mmc.fillRect(z.x/MW*72-1,z.y/MH*108-1,z.isBoss?5:2,z.isBoss?5:2);});
-  mmc.fillStyle='#1D9E75';mmc.beginPath();mmc.arc(P.x/MW*72,P.y/MH*108,3,0,Math.PI*2);mmc.fill();
+  {
+    const pmx=P.x/MW*72,pmy=P.y/MH*108;
+    mmc.save();
+    mmc.shadowColor='#5eead4';mmc.shadowBlur=6;
+    mmc.beginPath();mmc.arc(pmx,pmy,4,0,Math.PI*2);mmc.fillStyle='rgba(94,234,212,.35)';mmc.fill();
+    mmc.translate(pmx,pmy);mmc.rotate(P.angle||0);
+    mmc.beginPath();mmc.moveTo(4.5,0);mmc.lineTo(-3,-3);mmc.lineTo(-3,3);mmc.closePath();
+    mmc.fillStyle='#5eead4';mmc.fill();mmc.strokeStyle='#0f3d33';mmc.lineWidth=.8;mmc.stroke();
+    mmc.restore();
+  }
   const v1=camY/MH*108,v2=(camY+VH())/MH*108;
   const vx1=VW()>=MW?0:camX/MW*72,vx2=VW()>=MW?72:Math.min(72,(camX+VW())/MW*72);
   mmc.strokeStyle='rgba(168,85,247,.5)';mmc.lineWidth=1.5;mmc.strokeRect(vx1,v1,vx2-vx1,v2-v1);
@@ -2276,10 +2313,35 @@ function drawWepIcon(ctx,ws,r){
 function drawPlayer(){
   const{x,y,r,angle}=P,poi=poison>0;
   const ar=ARMORS.find(a=>a.id===eqArmor);const bc=poi?'#7aaa4a':ar?ar.bc:'#1D9E75';
-  ctx.save();ctx.translate(x,y);ctx.rotate(angle);
-  if(ar){ctx.beginPath();ctx.arc(0,0,r+4,0,Math.PI*2);ctx.fillStyle=ar.ac+'44';ctx.fill();ctx.strokeStyle=ar.ac;ctx.lineWidth=2;ctx.stroke();}
+  const glowCol=poi?'#a3e635':ar?ar.ac:'#34d399';
+  const t=Date.now();
+  ctx.save();ctx.translate(x,y);
+  // 바깥 펄스 오라
+  const pulse=.55+.45*Math.sin(t/260);
+  ctx.save();ctx.globalAlpha=.35*pulse;ctx.shadowColor=glowCol;ctx.shadowBlur=16;
+  ctx.beginPath();ctx.arc(0,0,r+9,0,Math.PI*2);ctx.strokeStyle=glowCol;ctx.lineWidth=2;ctx.stroke();
+  ctx.restore();
+  // 회전하는 에너지 링 (장비 착용 시, 희귀도 높을수록 더 화려하게)
+  if(ar){
+    ctx.save();ctx.rotate(t/900);
+    const segs=ar.rarity==='mythic'?10:ar.rarity==='legendary'?8:ar.rarity==='epic'?6:5;
+    ctx.strokeStyle=ar.ac;ctx.lineWidth=2.5;ctx.lineCap='round';
+    for(let i=0;i<segs;i++){const a0=i/segs*Math.PI*2,a1=a0+Math.PI*2/segs*.55;ctx.beginPath();ctx.arc(0,0,r+4,a0,a1);ctx.stroke();}
+    ctx.restore();
+    ctx.beginPath();ctx.arc(0,0,r+4,0,Math.PI*2);ctx.fillStyle=ar.ac+'33';ctx.fill();
+  }
+  ctx.rotate(angle);
+  // 본체: 방향성 그라디언트 코어
+  const bodyGrad=ctx.createRadialGradient(-r*.3,-r*.3,r*.15,0,0,r);
+  bodyGrad.addColorStop(0,'#ffffff');bodyGrad.addColorStop(.35,bc);bodyGrad.addColorStop(1,poi?'#3f5c1c':'#052e22');
   ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);
-  ctx.fillStyle=bc;ctx.fill();ctx.strokeStyle=poi?'#557700':'#085041';ctx.lineWidth=2;ctx.stroke();
+  ctx.fillStyle=bodyGrad;ctx.fill();ctx.strokeStyle=poi?'#557700':'#085041';ctx.lineWidth=2;ctx.stroke();
+  // 전방 바이저(방향 표시)
+  ctx.save();ctx.shadowColor=glowCol;ctx.shadowBlur=8;
+  ctx.beginPath();ctx.moveTo(r*.15,-r*.55);ctx.lineTo(r*.92,-r*.16);ctx.lineTo(r*.92,r*.16);ctx.lineTo(r*.15,r*.55);ctx.closePath();
+  ctx.fillStyle=glowCol;ctx.globalAlpha=.9;ctx.fill();
+  ctx.restore();
+  ctx.beginPath();ctx.arc(r*.05,0,r*.22,0,Math.PI*2);ctx.fillStyle='#fff';ctx.globalAlpha=.85;ctx.fill();ctx.globalAlpha=1;
   // 무기 그리기
   if(P&&P.ws&&P.ws.knife){
     const sid=P.ws.id;

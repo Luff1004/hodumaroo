@@ -418,17 +418,4 @@ setTimeout(()=>{
   checkDreamUnlock();
 },500);
 
-setTimeout(()=>{
-  const btnMap={
-    'btn-play':()=>go('sMap'),
-    'btn-shop':()=>go('sShop'),
-    'btn-skin':()=>go('sJob'),
-    'btn-upg':()=>go('sUpg'),
-    'btn-equip':()=>go('sEquip'),
-  };
-  Object.entries(btnMap).forEach(([id,fn])=>{
-    const el=document.getElementById(id);
-    if(el)el.addEventListener('click',fn);
-  });
-},200);
 

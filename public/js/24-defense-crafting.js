@@ -10,6 +10,8 @@ const BUILD_RECIPES=[
   {id:'build_barricade',kind:'build_repeat',placeKind:'barricade',unlockGet:()=>craftTableBuilt,name:'바리케이드',icon:'🚧',cost:{wood:20,stone:10},desc:'좀비가 캠프파이어보다 먼저 공격하는 방어 구조물 · 클릭한 위치에 설치'},
   {id:'build_torch',kind:'build_repeat',placeKind:'torch',unlockGet:()=>craftTableBuilt,name:'횃불',icon:'🔥',cost:{wood:8},desc:'밤에 주변을 밝혀주는 고정 조명 · 클릭한 위치에 설치'},
   {id:'build_trap',kind:'build_repeat',placeKind:'trap',unlockGet:()=>craftTableBuilt,name:'덫',icon:'⚠️',cost:{iron:6,wood:4},desc:'밟은 좀비에게 피해를 주는 1회용 함정 · 클릭한 위치에 설치'},
+  {id:'build_heater',kind:'build_repeat',placeKind:'heater',unlockGet:()=>craftTableBuilt,name:'온열기',icon:'🔥',cost:{iron:12,wood:6},desc:'주변의 추위를 식혀주는 이동형 열원 · 클릭한 위치에 설치',themeOnly:'snow'},
+  {id:'build_igloo',kind:'build_repeat',placeKind:'igloo',unlockGet:()=>craftTableBuilt,name:'이글루',icon:'🧊',cost:{ice:40,wood:10},desc:'넓은 범위를 완전히 데워주는 대형 쉼터 · 클릭한 위치에 설치',themeOnly:'snow'},
 ];
 
 // ── 도구(도끼/곡괭이) + 소모품 + 장비형 아이템 ──
@@ -29,11 +31,14 @@ const CRAFT_RECIPES=[
   {id:'item_battery',kind:'consumable',outputId:'battery',outputQty:1,name:'배터리',icon:'🔋',cost:{iron:5},desc:'손전등 배터리 완전 충전'},
   {id:'item_waterskin',kind:'consumable',outputId:'waterskin',outputQty:1,name:'물통',icon:'💧',cost:{ice:2},desc:'사용 시 배고픔 +10'},
   {id:'item_warm_coat',kind:'equip_once',flagGet:()=>hasWarmCoat,name:'방한 코트',icon:'🧥',cost:{pelt:6,ice:2},desc:'설원 지대 이동속도 감소 해제',
-    apply:()=>{hasWarmCoat=true;}},
+    apply:()=>{hasWarmCoat=true;},themeExclude:'snow'},
   {id:'item_desert_hood',kind:'equip_once',flagGet:()=>hasDesertHood,name:'사막 두건',icon:'🧣',cost:{pelt:4,desert_crystal:3},desc:'사막 지대 이동속도 감소 해제',
-    apply:()=>{hasDesertHood=true;}},
+    apply:()=>{hasDesertHood=true;},themeExclude:'snow'},
   {id:'item_better_sack',kind:'equip_once',flagGet:()=>sack.slots>=6,name:'튼튼한 자루',icon:'🎒',cost:{pelt:5,stone:10},desc:'자루 칸을 6칸으로 확장',
     apply:()=>{sack.slots=Math.max(sack.slots,6);}},
+  {id:'item_fur_lining',kind:'equip_once',flagGet:()=>hasFurLining,name:'방한 털안감',icon:'🧣',cost:{pelt:6,ice:4},desc:'추위 상승 속도 50% 감소',
+    apply:()=>{hasFurLining=true;},themeOnly:'snow'},
+  {id:'item_hot_cocoa',kind:'consumable',outputId:'hot_cocoa',outputQty:1,name:'따뜻한 코코아',icon:'☕',cost:{meat:1,wood:2},desc:'사용 시 추위 -40, 배고픔 +5',themeOnly:'snow'},
 ];
 
 // ── 무기(투창) ──
@@ -43,6 +48,12 @@ const WEAPON_RECIPES=[
   {id:'wep_2',kind:'tool',toolType:'weapon',tierIdx:2,name:'금 투창',icon:'🗡',cost:{iron:10,gold:15},minCfLevel:4},
   {id:'wep_3',kind:'tool',toolType:'weapon',tierIdx:3,name:'다이아 투창',icon:'🗡',cost:{gold:10,diamond:10,desert_crystal:5,ice:5},minCfLevel:5},
 ];
+const WEAPON_RECIPES_SNOW=[
+  {id:'wep_0',kind:'tool',toolType:'weapon',tierIdx:0,name:'서리 투창',icon:'🗡',cost:{wood:10,ice:15},minCfLevel:3},
+  {id:'wep_1',kind:'tool',toolType:'weapon',tierIdx:1,name:'얼음 투창',icon:'🗡',cost:{ice:10,iron:15},minCfLevel:3},
+  {id:'wep_2',kind:'tool',toolType:'weapon',tierIdx:2,name:'빙하 투창',icon:'🗡',cost:{ice:15,gold:15},minCfLevel:4},
+  {id:'wep_3',kind:'tool',toolType:'weapon',tierIdx:3,name:'예티엄니 투창',icon:'🗡',cost:{ice:20,diamond:10,pelt:10},minCfLevel:5},
+];
 
 // ── 방어구 ──
 const ARMOR_RECIPES=[
@@ -51,6 +62,14 @@ const ARMOR_RECIPES=[
   {id:'ar_2',kind:'tool',toolType:'armor',tierIdx:2,name:'금 갑옷',icon:'🦺',cost:{gold:15,iron:5},minCfLevel:4},
   {id:'ar_3',kind:'tool',toolType:'armor',tierIdx:3,name:'다이아 갑옷',icon:'🦺',cost:{diamond:12,gold:5},minCfLevel:5},
 ];
+const ARMOR_RECIPES_SNOW=[
+  {id:'ar_0',kind:'tool',toolType:'armor',tierIdx:0,name:'여우털 코트',icon:'🦺',cost:{pelt:8},minCfLevel:2},
+  {id:'ar_1',kind:'tool',toolType:'armor',tierIdx:1,name:'늑대털 코트',icon:'🦺',cost:{pelt:12,ice:4},minCfLevel:3},
+  {id:'ar_2',kind:'tool',toolType:'armor',tierIdx:2,name:'북극곰털 코트',icon:'🦺',cost:{pelt:16,ice:8,iron:5},minCfLevel:4},
+  {id:'ar_3',kind:'tool',toolType:'armor',tierIdx:3,name:'예티가죽 코트',icon:'🦺',cost:{pelt:20,ice:15,diamond:5},minCfLevel:5},
+];
+function curWeaponRecipes(){return isSnowTheme()?WEAPON_RECIPES_SNOW:WEAPON_RECIPES;}
+function curArmorRecipes(){return isSnowTheme()?ARMOR_RECIPES_SNOW:ARMOR_RECIPES;}
 
 let _dcTab='build';
 
@@ -75,7 +94,13 @@ function setTierOf(toolType,idx){
 }
 
 function findRecipe(id){
-  return BUILD_RECIPES.find(r=>r.id===id)||CRAFT_RECIPES.find(r=>r.id===id)||WEAPON_RECIPES.find(r=>r.id===id)||ARMOR_RECIPES.find(r=>r.id===id);
+  return BUILD_RECIPES.find(r=>r.id===id)||CRAFT_RECIPES.find(r=>r.id===id)||curWeaponRecipes().find(r=>r.id===id)||curArmorRecipes().find(r=>r.id===id);
+}
+function themeVisible(r){
+  const t=(selMap&&selMap.theme)||'camp';
+  if(r.themeOnly&&r.themeOnly!==t)return false;
+  if(r.themeExclude&&r.themeExclude===t)return false;
+  return true;
 }
 
 function craftItem(id){
@@ -161,7 +186,7 @@ function renderDefenseCraftList(){
       list.innerHTML=`<div style="color:#9ca3af;text-align:center;padding:20px;font-size:13px;">캠프파이어에 나무를 넣어 Lv.2를 달성하면<br>건설 메뉴가 열립니다.</div>`;
       return;
     }
-    list.innerHTML=BUILD_RECIPES.map(r=>{
+    list.innerHTML=BUILD_RECIPES.filter(themeVisible).map(r=>{
       let disabled,note,btnLabel;
       if(r.kind==='build_once'){
         const built=r.flagGet(),unlocked=r.unlockGet();
@@ -186,7 +211,7 @@ function renderDefenseCraftList(){
     list.innerHTML=`<div style="color:#9ca3af;text-align:center;padding:20px;font-size:13px;">⚔️ 건설 탭에서 무기제작대를 먼저 지어주세요.<br>(캠프파이어 Lv.3 필요)</div>`;
     return;
   }
-  const recipes=_dcTab==='craft'?CRAFT_RECIPES:_dcTab==='weapon'?WEAPON_RECIPES:ARMOR_RECIPES;
+  const recipes=(_dcTab==='craft'?CRAFT_RECIPES:_dcTab==='weapon'?curWeaponRecipes():curArmorRecipes()).filter(themeVisible);
   list.innerHTML=recipes.map(r=>{
     let disabled,note,btnLabel;
     if(r.kind==='tool'){
@@ -231,12 +256,12 @@ function renderDefenseInventory(){
   const eq=[
     ['🪓 도끼',axeTier>=0?TOOL_LABEL[axeTier]:'없음'],
     ['⛏ 곡괭이',pickaxeTier>=0?TOOL_LABEL[pickaxeTier]:'없음'],
-    ['🗡 무기',weaponTier>=0?WEAPON_LABEL[weaponTier]:'없음'],
-    ['🦺 방어구',armorTier>=0?ARMOR_LABEL[armorTier]+' 갑옷 (방어력 '+ARMOR_DEFENSE[armorTier]+')':'없음'],
-    ['🧥 방한 코트',hasWarmCoat?'보유':'없음'],
-    ['🧣 사막 두건',hasDesertHood?'보유':'없음'],
-    ['🔦 손전등 배터리',Math.round(flashlightBattery)+'%'],
+    ['🗡 무기',weaponTier>=0?curWeaponLabel(weaponTier):'없음'],
+    ['🦺 방어구',armorTier>=0?curArmorLabel(armorTier)+(isSnowTheme()?' 코트 (방어력 ':' 갑옷 (방어력 ')+ARMOR_DEFENSE[armorTier]+')':'없음'],
   ];
+  if(isSnowTheme())eq.push(['🧣 방한 털안감',hasFurLining?'보유':'없음']);
+  else eq.push(['🧥 방한 코트',hasWarmCoat?'보유':'없음'],['🧣 사막 두건',hasDesertHood?'보유':'없음']);
+  eq.push(['🔦 손전등 배터리',Math.round(flashlightBattery)+'%']);
   html+=eq.map(([k,v])=>`<div style="display:flex;justify-content:space-between;background:#1f1a10;border:1px solid #3a2f18;border-radius:8px;padding:6px 12px;margin-bottom:4px;"><span>${k}</span><span style="color:#93c5fd;font-weight:800;">${v}</span></div>`).join('');
   html+=`<div style="color:#fde68a;font-weight:800;margin:12px 0 4px;">🏕 캠프파이어</div>`;
   html+=`<div style="display:flex;justify-content:space-between;background:#1f1a10;border:1px solid #3a2f18;border-radius:8px;padding:6px 12px;"><span>Lv.${campfire.level} · 반경 ${campfire.radius}</span><span style="color:#fb923c;font-weight:800;">${Math.ceil(campfire.hp)}/${campfire.maxHp}</span></div>`;

@@ -57,7 +57,7 @@ const ARMORS=[
   {id:'ev_tr_armor',name:'탐험가 갑옷',icon:'🗺️',price:0,def:52,bc:'#b45309',ac:'#92400e',desc:'보물찾기 대회 이벤트 보상. 방어+52%, 코인+30%, 데미지+6',bonus:{coinBonus:0.3,dmg:6},rarity:'legendary',eventOnly:true},
   {id:'ev_wm_armor',name:'여름 축제 반다나',icon:'🍉',price:0,def:56,bc:'#22c55e',ac:'#16a34a',desc:'여름 수박격파 대회 이벤트 보상. 방어+56%, 이동속도+1, HP+180',bonus:{spd:1,hp:180},rarity:'legendary',eventOnly:true},
   {id:'ev_as_armor',name:'사과농장 조끼',icon:'🍎',price:0,def:50,bc:'#dc2626',ac:'#991b1b',desc:'가을 사과 슬링샷 대회 이벤트 보상. 방어+50%, 데미지+7, HP+150',bonus:{dmg:7,hp:150},rarity:'legendary',eventOnly:true},
-  {id:'ev_gr_armor',name:'산타 코트',icon:'🎅',price:0,def:60,bc:'#ef4444',ac:'#b91c1c',desc:'산타의 선물배달 이벤트 보상. 방어+60%, 냉기오라, HP+250',bonus:{coldAura:true,hp:250},rarity:'legendary',eventOnly:true},
+  {id:'ev_gr_armor',name:'산타 코트',icon:'🎅',price:0,def:48,bc:'#ef4444',ac:'#b91c1c',desc:'산타의 선물배달 이벤트 보상. 방어+48%, 냉기오라, HP+150',bonus:{coldAura:true,hp:150},rarity:'legendary',eventOnly:true},
 ];
 
 // ══════════════ 상점 ══════════════

@@ -72,19 +72,26 @@ const MAPS=[
   // ── 디펜스 맵 (낮/밤 생존·채집·제작, 직업/무기/아이템/2배속 없음, 250일 클리어) ──
   {id:'danger_camp',name:'위험한 캠핑',desc:'정사각형의 광활한 야생. 낮엔 채집·제작, 밤엔 좀비로부터 캠프파이어를 지켜라. 250일차 생존이 목표다.',
    tags:[{t:'🏕 DEFENSE',c:'#a3e635',bg:'#1a2e05'},{t:'무기 없음·채집/제작',c:'#fde68a',bg:'#422006'}],
-   type:'danger_camp',diff:1,boss:null,category:'defense',noJobs:true,noWeapons:true,noItems:true,noWaveSpeed:true},
+   type:'danger_camp',diff:1,boss:null,category:'defense',noJobs:true,noWeapons:true,noItems:true,noWaveSpeed:true,campEngine:true},
+  {id:'snow_camp',name:'눈속에서',desc:'끝없는 설원. 밤에는 좀비 대신 눈보라가 몰아쳐 캠프파이어 밖은 얼어죽을 만큼 위험하다. 10일마다 토네이도가 몰아치며, 250일차 생존이 목표다.',
+   tags:[{t:'❄️ DEFENSE',c:'#bae6fd',bg:'#0c2a3a'},{t:'추위 관리·채집/제작',c:'#e0f2fe',bg:'#1e3a4f'}],
+   type:'snow_camp',diff:2,boss:null,category:'defense',noJobs:true,noWeapons:true,noItems:true,noWaveSpeed:true,campEngine:true,theme:'snow'},
   // ── 무한의 탑 (로그라이크. 3층마다 갈림길에서 문 선택, 끝없이 상승) ──
   {id:'tower',name:'무한의 탑',desc:'끝없이 오르는 시련의 탑. 3층마다 갈림길에서 전투·보물·휴식 중 하나를 골라 다음 층으로 향하라. 오를수록 강한 존재가 기다린다.',
    tags:[{t:'🗼 TOWER',c:'#c4b5fd',bg:'#1e1b4b'},{t:'무한 로그라이크',c:'#fde68a',bg:'#422006'}],
    type:'tower',diff:1,boss:null,category:'tower'},
 ];
 let mapCategory='wave',mapIdx=0,selMap=MAPS[0];
+let extremeMode=false;
 function catMaps(){return MAPS.filter(m=>m.category===mapCategory).sort((a,b)=>(a.diff||0)-(b.diff||0));}
 function openMapSelect(){
   mapCategory='wave';mapIdx=0;
+  extremeMode=false;updExtremeBtn();
   go('sMap');
   document.querySelectorAll('#sMap .stab').forEach(b=>b.classList.remove('on'));
   const firstTab=document.querySelector('#sMap .stab');if(firstTab)firstTab.classList.add('on');
+  selMap=catMaps()[0];
+  drawMP();
 }
 function mapTab(cat,btn){
   mapCategory=cat;mapIdx=0;
@@ -108,6 +115,17 @@ function chMap(d){
   mapIdx=ni;selMap=list[mapIdx];drawMP();
 }
 function setMapMsg(t){const el=document.getElementById('mapMsg');if(el){el.textContent=t;setTimeout(()=>{if(el.textContent===t)el.textContent='';},2500);}}
+function toggleExtremeMode(){
+  extremeMode=!extremeMode;
+  updExtremeBtn();
+  setMapMsg(extremeMode?'🔥 EXTREME 모드 ON! 스폰율+100% · 대미지+150% · 몹 양+100% (보스전 제외)':'EXTREME 모드 OFF');
+}
+function updExtremeBtn(){
+  const btn=document.getElementById('extremeBtn');
+  if(btn)btn.classList.toggle('on',extremeMode);
+  const glow=document.getElementById('extremeGlow');
+  if(glow)glow.classList.toggle('on',extremeMode);
+}
 function confirmMapSelect(){
   if(selMap&&selMap.noWeapons){startGame();return;}
   go('sWeapon');
@@ -131,7 +149,7 @@ function drawMP(){
    sun:'#1a0800',machine:'#060e1a',bacteria:'#041008',clock:'#0c0818',
    skeleton:'#101010',reanimation:'#1a0000',kraken:'#000d1a',symphony:'#0a0008',
    robot_factory:'#0f172a',underwater:'#083344',hardest_world:'#1a0000',
-   volcano:'#2a0a00',frost:'#04202e',void:'#0f0620',danger_camp:'#0c1a08',tower:'#12102a'};
+   volcano:'#2a0a00',frost:'#04202e',void:'#0f0620',danger_camp:'#0c1a08',snow_camp:'#0a1620',tower:'#12102a'};
   x.fillStyle=BG[m.type]||'#111';x.fillRect(0,0,400,210);
 
   if(m.type==='city'){
@@ -293,6 +311,29 @@ function drawMP(){
     x.fillStyle='#f97316';x.beginPath();x.arc(200,105,10,0,Math.PI*2);x.fill();
     x.fillStyle='#fde68a';x.beginPath();x.arc(200,105,5,0,Math.PI*2);x.fill();
     x.fillStyle='rgba(255,255,255,0.15)';x.font='bold 13px sans-serif';x.textAlign='center';x.fillText('위험한 캠핑',200,195);
+  } else if(m.type==='snow_camp'){
+    // 눈 덮인 설원 미리보기: 중앙 캠프파이어 + 하얀 침엽수 + 이글루 + 눈송이
+    const sg=x.createLinearGradient(0,0,0,210);sg.addColorStop(0,'#0a1620');sg.addColorStop(1,'#1a3548');x.fillStyle=sg;x.fillRect(0,0,400,210);
+    x.fillStyle='rgba(224,242,254,0.1)';x.fillRect(40,5,320,200);
+    x.strokeStyle='rgba(186,230,253,0.4)';x.lineWidth=2;x.strokeRect(40,5,320,200);
+    // 눈 덮인 침엽수
+    [[90,60],[140,100],[300,50],[260,140],[110,160]].forEach(([tx,ty])=>{
+      x.fillStyle='#5c4a3a';x.fillRect(tx-3,ty+14,6,18);
+      x.fillStyle='#1e3a4f';x.beginPath();x.moveTo(tx,ty-22);x.lineTo(tx-16,ty+14);x.lineTo(tx+16,ty+14);x.closePath();x.fill();
+      x.fillStyle='#e0f2fe';x.beginPath();x.moveTo(tx,ty-14);x.lineTo(tx-8,ty+2);x.lineTo(tx+8,ty+2);x.closePath();x.fill();
+    });
+    // 이글루
+    x.fillStyle='#dbeafe';x.beginPath();x.arc(320,175,20,Math.PI,0);x.fill();
+    x.strokeStyle='#93c5fd';x.lineWidth=1.5;x.beginPath();x.arc(320,175,20,Math.PI,0);x.stroke();
+    x.fillStyle='#0c2a3a';x.beginPath();x.arc(320,175,6,Math.PI*0.15,Math.PI*0.85);x.fill();
+    // 캠프파이어(중앙)
+    x.strokeStyle='rgba(251,191,36,0.5)';x.lineWidth=2;x.beginPath();x.arc(200,105,38,0,Math.PI*2);x.stroke();
+    x.fillStyle='#f97316';x.beginPath();x.arc(200,105,10,0,Math.PI*2);x.fill();
+    x.fillStyle='#fde68a';x.beginPath();x.arc(200,105,5,0,Math.PI*2);x.fill();
+    // 눈송이
+    x.fillStyle='rgba(255,255,255,0.7)';
+    [[60,30],[350,90],[30,150],[380,180],[180,20],[250,180]].forEach(([sx,sy])=>{x.beginPath();x.arc(sx,sy,2,0,Math.PI*2);x.fill();});
+    x.fillStyle='rgba(255,255,255,0.2)';x.font='bold 13px sans-serif';x.textAlign='center';x.fillText('눈속에서',200,195);
   } else if(m.type==='tower'){
     // 무한의 탑: 위로 갈수록 좁아지는 탑 실루엣 + 창문 불빛 + 계단
     x.fillStyle='#12102a';x.fillRect(0,0,400,210);
