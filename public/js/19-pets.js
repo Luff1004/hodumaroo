@@ -2,7 +2,10 @@
 // ══ 펫(반려동물) 시스템 ══
 // ════════════════════════════════════════════
 
-function isPetUnlocked(){return (achStats.dreamEntered||0)>=1;}
+function isPetUnlocked(){
+  if(typeof devModeUnlocked!=='undefined'&&devModeUnlocked)return true;
+  return (achStats.dreamEntered||0)>=1;
+}
 function updatePetButton(){
   const btn=document.getElementById('btn-pet');if(!btn)return;
   if(isPetUnlocked()){

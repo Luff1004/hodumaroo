@@ -10,7 +10,10 @@ const RESOURCE_PACKS=[
 ];
 let selectedRP=lS('hd_rp','');
 function saveRP(){sv('hd_rp',selectedRP||'');}
-function isRPUnlocked(){return typeof PUGR!=='undefined'&&PUGR.every(u=>(pUpgLv[u.id]||0)>=u.m);}
+function isRPUnlocked(){
+  if(typeof devModeUnlocked!=='undefined'&&devModeUnlocked)return true;
+  return typeof PUGR!=='undefined'&&PUGR.every(u=>(pUpgLv[u.id]||0)>=u.m);
+}
 function updateRPButton(){
   const btn=document.getElementById('btn-rpack');if(!btn)return;
   if(isRPUnlocked()){

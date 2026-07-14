@@ -3017,6 +3017,8 @@ function submitCode(){
     sv('hd_devmode',true);
     if(typeof devModeUnlocked!=='undefined')devModeUnlocked=true;
     if(typeof renderEventGameScreen==='function')renderEventGameScreen();
+    if(typeof updatePetButton==='function')updatePetButton();
+    if(typeof updateRPButton==='function')updateRPButton();
     coins=999999999999;energy=999999999999;
     Object.values(WEPS).forEach(w=>owned[w.id]=true);
     ARMORS.forEach(a=>owned['ar_'+a.id]=true);
