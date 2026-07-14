@@ -234,7 +234,7 @@ function openDevEggPreview(){
     const isDone=!!achData[a.id];
     const row=document.createElement('div');
     row.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:8px;background:#1e1033;border-radius:8px;padding:8px 10px;';
-    row.innerHTML=`<div style="flex:1;min-width:0;"><div style="font-size:11px;font-weight:700;color:${isDone?'#4ade80':'#e5e7eb'};">${isDone?'✅ ':''}${a.name}</div><div style="font-size:9px;color:#9ca3af;">${a.desc}</div></div>`;
+    row.innerHTML=`<div style="flex:1;min-width:0;"><div style="font-size:11px;font-weight:700;color:${isDone?'#4ade80':'#e5e7eb'};">${isDone?'✅ ':''}${a.name}</div><div style="font-size:9px;color:#9ca3af;">${a.desc}</div><div style="font-size:9px;color:#c4b5fd;margin-top:2px;">${achRewardText(a)}</div></div>`;
     const btn=document.createElement('button');
     btn.textContent='▶ 재생';
     btn.style.cssText='flex-shrink:0;padding:5px 10px;border:none;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;';
