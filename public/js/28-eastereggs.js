@@ -451,8 +451,11 @@ function showStoryOverlay(icon,lines){
     }
   });
 })();
+let _versionEggQueue=0;
 function triggerVersionEgg(){
-  if(window._versionEggRunning||typeof triggerGlitchTransition!=='function')return;
+  if(typeof triggerGlitchTransition!=='function')return;
+  // 이미 재생 중이면 유실되지 않도록 대기열에 넣고 끝나는 대로 이어서 재생한다
+  if(window._versionEggRunning){_versionEggQueue++;return;}
   window._versionEggRunning=true;
   const verEl=document.querySelector('.ver');
   const orig=verEl?verEl.textContent:'';
@@ -461,6 +464,7 @@ function triggerVersionEgg(){
     if(verEl)verEl.textContent=orig;
     window._versionEggRunning=false;
     unlockEgg('egg_version','secret_3');
+    if(_versionEggQueue>0){_versionEggQueue--;triggerVersionEgg();}
   });
 }
 
@@ -594,8 +598,11 @@ function spawnGlitchCameo(){
     }
   });
 })();
+let _trueWakeQueue=0;
 function triggerTrueWake(){
-  if(window._trueWakeRunning||typeof triggerGlitchTransition!=='function')return;
+  if(typeof triggerGlitchTransition!=='function')return;
+  // 이미 재생 중이면 유실되지 않도록 대기열에 넣고 끝나는 대로 이어서 재생한다
+  if(window._trueWakeRunning){_trueWakeQueue++;return;}
   window._trueWakeRunning=true;
   triggerGlitchTransition(()=>{
     const overlay=document.createElement('div');
@@ -616,6 +623,7 @@ function triggerTrueWake(){
         overlay.remove();
         window._trueWakeRunning=false;
         unlockEgg('egg_trueawaken','secret_8');
+        if(_trueWakeQueue>0){_trueWakeQueue--;triggerTrueWake();}
       },1200);
     },8600);
   });
@@ -940,8 +948,10 @@ function trySpawnCursedVisitor(){
 }
 
 // ══ 18. (감동, 캡스톤) 마지막 편지 — 위 16개 이스터에그를 모두 찾은 자에게만 ══
+let _finalLetterQueue=0;
 function triggerFinalLetter(){
-  if(window._finalLetterRunning)return;
+  // 이미 재생 중이면 유실되지 않도록 대기열에 넣고 끝나는 대로 이어서 재생한다
+  if(window._finalLetterRunning){_finalLetterQueue++;return;}
   window._finalLetterRunning=true;
   const overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;background:rgba(10,5,20,.97);z-index:9700;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 1.5s;padding:20px;';
@@ -963,7 +973,11 @@ function triggerFinalLetter(){
   setTimeout(()=>{box.style.opacity='1';},900);
   setTimeout(()=>{
     overlay.style.opacity='0';
-    setTimeout(()=>{overlay.remove();window._finalLetterRunning=false;},1600);
+    setTimeout(()=>{
+      overlay.remove();
+      window._finalLetterRunning=false;
+      if(_finalLetterQueue>0){_finalLetterQueue--;triggerFinalLetter();}
+    },1600);
   },9500);
 }
 
