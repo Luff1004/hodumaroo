@@ -43,6 +43,7 @@ function byUpg(id){const u=PUGR.find(x=>x.id===id);if(!u)return;const lv=pUpgLv[
 // ══════════════ 장비 탭 ══════════════
 let selEqId=null;
 const WLC=[300,600,1000,1500,2000],ALC=[200,500,900,1400,2000];
+const WEP_RARITY_RANK={mythic:0,legendary:1,epic:2,rare:3,common:4};
 function renderEquip(){
   if(isDreamMode){renderDreamEquip();return;}
   if(curEquipTab==='item'){renderEquipItemTab();return;}
@@ -59,18 +60,36 @@ function renderEquip(){
       d.onclick=()=>{selEqId=eid;renderEquip();showED('ar',ar.id);};list.appendChild(d);
     });
   } else {
-    Object.keys(WEPS).filter(id=>owned[id]&&!DFLT.includes(id)).forEach(id=>{
+    Object.keys(WEPS).filter(id=>owned[id]&&!DFLT.includes(id))
+      .sort((a,b)=>{
+        const wa=WEPS[a],wb=WEPS[b];
+        const ra=wa.secret?-1:(WEP_RARITY_RANK[wa.rarity||'common']??4);
+        const rb=wb.secret?-1:(WEP_RARITY_RANK[wb.rarity||'common']??4);
+        if(ra!==rb)return ra-rb;
+        return (wb.dmg||0)-(wa.dmg||0);
+      })
+      .forEach(id=>{
       has=true;const w=WEPS[id],lv=wepLv[id]||0,isEq=eqWepId===id,eid='wep_'+id;
-      const _rar=w.rarity||'';
+      const _rar=w.secret?'secret':(w.rarity||'');
       const _rarCls=_rar?(' rarity-'+_rar):'';
       const d=document.createElement('div');d.className='ei'+(isEq?' eq':'')+(selEqId===eid?' sel':'')+_rarCls;
-      const _rarBadge2={'rare':'<span class="rbadge rare">RARE</span>','epic':'<span class="rbadge epic">EPIC</span>','legendary':'<span class="rbadge legendary">✨ LEGEND</span>','mythic':'<span class="rbadge mythic">🌈 MYTHIC</span>'};
-      d.innerHTML=`<div class="eico">${w.icon}</div><div><div class="enm">${w.name} ${_rarBadge2[_rar]||''}</div><div class="elv">${lv>0?'Lv.'+lv:''} ${isEq?'<span style="font-size:8px;background:#14532d;color:#4ade80;padding:1px 5px;border-radius:5px">장착중</span>':''}</div>${enchantStatText(id,'wep')}</div>`;
+      const _rarBadge2={'rare':'<span class="rbadge rare">RARE</span>','epic':'<span class="rbadge epic">EPIC</span>','legendary':'<span class="rbadge legendary">✨ LEGEND</span>','mythic':'<span class="rbadge mythic">🌈 MYTHIC</span>','secret':'<span class="rbadge secret">❓ SECRET</span>'};
+      const _dispName=w.secret?'???':w.name;
+      d.innerHTML=`<div class="eico">${w.secret?'❓':w.icon}</div><div><div class="enm">${_dispName} ${_rarBadge2[_rar]||''}</div><div class="elv">${lv>0?'Lv.'+lv:''} ${isEq?'<span style="font-size:8px;background:#14532d;color:#4ade80;padding:1px 5px;border-radius:5px">장착중</span>':''}</div>${enchantStatText(id,'wep')}</div>`;
       d.onclick=()=>{selEqId=eid;renderEquip();showED('wep',id);};list.appendChild(d);
     });
   }
   if(!has)list.innerHTML='<div style="color:#6b7280;font-size:12px;padding:24px;text-align:center;">상점에서 장비를 구매하세요</div>';
   drawPP();
+}
+function edStatLine(html){
+  let el=document.getElementById('edStat');
+  if(!el){
+    el=document.createElement('div');el.id='edStat';
+    el.style.cssText='font-size:10px;color:#4b5563;margin-top:6px;line-height:1.6;background:#f3f4f6;border-radius:8px;padding:6px 8px;';
+    document.getElementById('edDs').insertAdjacentElement('afterend',el);
+  }
+  el.innerHTML=html;
 }
 function showED(type,id){
   document.getElementById('eDet').style.display='block';
@@ -79,14 +98,24 @@ function showED(type,id){
     const ar=ARMORS.find(x=>x.id===id),lv=arLv[id]||0,cost=lv<5?ALC[lv]:null;
     document.getElementById('edNm').textContent=ar.icon+' '+ar.name+'갑옷'+(lv>0?' Lv.'+lv:'');
     document.getElementById('edDs').textContent=ar.desc;
+    const curDef=ar.def+lv*5,nextDef=cost?ar.def+(lv+1)*5:null;
+    edStatLine(`🛡️ 방어력 <b>${curDef}</b>`+(nextDef?` → 강화 시 <b style="color:#16a34a">${nextDef}</b>`:' (최대 강화)'));
     wB.textContent=eqArmor===id?'🔓 해제':'✅ 장착';
     wB.onclick=()=>{eqArmor=eqArmor===id?null:id;saveAll();renderEquip();};
     uB.textContent=cost?`⚡ 강화 (${cost})`:'✅ 최대레벨';uB.disabled=!cost||energy<cost;
     uB.onclick=()=>{if(!cost||energy<cost)return;energy-=cost;arLv[id]=(lv+1);saveAll();updRes();renderEquip();showED('ar',id);};
   } else {
     const w=WEPS[id],lv=wepLv[id]||0,cost=lv<5?WLC[lv]:null;
-    document.getElementById('edNm').textContent=w.icon+' '+w.name+(lv>0?' Lv.'+lv:'');
-    document.getElementById('edDs').textContent=w.desc;
+    document.getElementById('edNm').textContent=(w.secret?'❓ ???':w.icon+' '+w.name)+(lv>0?' Lv.'+lv:'');
+    document.getElementById('edDs').textContent=w.secret?'???':w.desc;
+    const dBArr=[0,1,2,3,5,8],aMArr=[1,1,1.2,1.2,1.4,2];
+    const curDmg=w.dmg+dBArr[Math.min(lv,5)],curSpd=aMArr[Math.min(lv,5)];
+    const nlv=cost?lv+1:null;
+    const nextDmg=nlv?w.dmg+dBArr[Math.min(nlv,5)]:null,nextSpd=nlv?aMArr[Math.min(nlv,5)]:null;
+    edStatLine(
+      `🔥 데미지 <b>${curDmg}</b>`+(nlv?` → <b style="color:#16a34a">${nextDmg}</b>`:' (최대 강화)')+`<br>`+
+      `⚡ 공격속도 <b>x${curSpd}</b>`+(nlv?` → <b style="color:#16a34a">x${nextSpd}</b>`:'')
+    );
     wB.textContent=eqWepId===id?'🔓 해제':'✅ 장착';
     wB.onclick=()=>{eqWepId=eqWepId===id?'minigun':id;saveAll();renderEquip();checkDreamUnlock();renderWepSel();};
     uB.textContent=cost?`⚡ 강화 (${cost})`:'✅ MG레벨';uB.disabled=!cost||energy<cost;

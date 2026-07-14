@@ -134,6 +134,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#f0ede8;font-family:
 .rar-transcendent{border-color:#f472b6!important;box-shadow:0 0 26px #f472b6a0;animation:glow-rainbow .8s infinite;}
 .rar-absolute{border-color:#ffffff!important;box-shadow:0 0 32px #ffffffcc;animation:glow-rainbow .6s infinite;}
 .rar-event{border-color:#22d3ee!important;box-shadow:0 0 22px #22d3ee90;animation:glow-rainbow 1s infinite;}
+.rar-secret{border-color:#000!important;background:linear-gradient(135deg,#0a0a0f,#1a0a24)!important;box-shadow:0 0 24px #00000090;animation:glow-secret 1.6s infinite;}
+.rar-secret .snm,.rar-secret .sds{color:#c4b5fd!important;}
 
 .si.cb2{border-color:#f59e0b;cursor:pointer;}.si.cb2:hover{transform:translateY(-2px);box-shadow:0 4px 12px #f59e0b25;}
 .si.own{border-color:#6ee7b7;background:#f0fdf4;}.si.mx{border-color:#c4b5fd;background:#faf5ff;}
@@ -191,14 +193,18 @@ html,body{width:100%;height:100%;overflow:hidden;background:#f0ede8;font-family:
 .rarity-epic{border-color:#a855f7!important;background:linear-gradient(135deg,#faf5ff,#fff)!important;box-shadow:0 0 10px #a855f750;animation:glow-epic 2s infinite;}
 .rarity-legendary{border-color:#f59e0b!important;background:linear-gradient(135deg,#fffbeb,#fff)!important;box-shadow:0 0 14px #f59e0b60;animation:glow-gold 1.5s infinite;}
 .rarity-mythic{border-image:linear-gradient(135deg,#ec4899,#8b5cf6,#06b6d4) 1!important;border-width:2px!important;border-style:solid!important;background:linear-gradient(135deg,#fdf4ff,#eff6ff,#f0fdf4)!important;box-shadow:0 0 18px #8b5cf670;animation:glow-rainbow 1.2s infinite;}
+.rarity-secret{border-color:#000!important;border-width:2px!important;background:linear-gradient(135deg,#0a0a0f,#1a0a24)!important;box-shadow:0 0 20px #00000090;animation:glow-secret 1.6s infinite;}
+.rarity-secret .enm{color:#c4b5fd!important;}
 .rbadge{display:inline-block;font-size:7px;padding:1px 5px;border-radius:5px;font-weight:800;vertical-align:middle;margin-left:3px;}
 .rbadge.rare{background:#6366f1;color:#fff;}
 .rbadge.epic{background:#a855f7;color:#fff;}
 .rbadge.legendary{background:linear-gradient(90deg,#f59e0b,#fbbf24);color:#fff;}
 .rbadge.mythic{background:linear-gradient(90deg,#ec4899,#8b5cf6,#06b6d4);color:#fff;}
+.rbadge.secret{background:linear-gradient(90deg,#000,#4c1d95,#000);color:#c4b5fd;}
 @keyframes glow-epic{0%,100%{box-shadow:0 0 8px #a855f740}50%{box-shadow:0 0 18px #a855f7aa}}
 @keyframes glow-gold{0%,100%{box-shadow:0 0 10px #f59e0b50}50%{box-shadow:0 0 22px #f59e0bcc}}
 @keyframes glow-rainbow{0%{box-shadow:0 0 14px #ec489980}33%{box-shadow:0 0 14px #8b5cf680}66%{box-shadow:0 0 14px #06b6d480}100%{box-shadow:0 0 14px #ec489980}}
+@keyframes glow-secret{0%,100%{box-shadow:0 0 10px #00000080}50%{box-shadow:0 0 26px #7c3aedcc}}
 @keyframes cutsceneShake{0%{transform:translate(0,0)}10%{transform:translate(-8px,4px)}20%{transform:translate(7px,-6px)}30%{transform:translate(-6px,-4px)}40%{transform:translate(8px,5px)}50%{transform:translate(-5px,6px)}60%{transform:translate(6px,-3px)}70%{transform:translate(-7px,3px)}80%{transform:translate(4px,-5px)}90%{transform:translate(-4px,2px)}100%{transform:translate(0,0)}}
 .cutshake{animation:cutsceneShake .35s linear infinite;}
 @keyframes cutTextPulse{0%,100%{filter:brightness(1) drop-shadow(0 0 20px #a855f7)}50%{filter:brightness(1.5) drop-shadow(0 0 50px #fbbf24)}}

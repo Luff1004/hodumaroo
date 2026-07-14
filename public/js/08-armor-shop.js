@@ -205,11 +205,11 @@ function renderShop(){
       }
       g.appendChild(d);
     });
-    // ── 보스 클리어 보상 섹션 ──
-    const _bHdr=document.createElement('div');
-    _bHdr.style.cssText='grid-column:1/-1;padding:6px 10px;background:linear-gradient(90deg,#1e1b4b,#4c1d95);color:#c4b5fd;border-radius:8px;font-size:11px;font-weight:800;text-align:center;margin-top:8px;border:1px solid #6d28d9;';
-    _bHdr.textContent='⚔️ 보스 클리어 전용 무기';g.appendChild(_bHdr);
-    Object.values(WEPS).filter(w=>w.bossReward).forEach(w=>{
+    // 보스 클리어 보상과 시즌 이벤트 보상은 같은 bossReward 필드를 공유하므로, 이벤트 id 목록으로 구분
+    const EVENT_WEP_KEYS=['event','ev_cookwar','ev_garden','ev_treasure','ev_watermelon','ev_slingshot','ev_giftrhythm'];
+    const bossNames={sun:'THE SUN',machine:'MACHINE',bacteria:'BACTERIA',skeleton:'SKELETON',clock:'CLOCK',reanimation:'REANIMATION',kraken:'KRAKEN',symphony:'SYMPHONY',volcano:'VOLCANO',frost:'FROST EMPRESS',void:'VOID REAPER',event:'이벤트 상점',ev_cookwar:'요리전쟁',ev_garden:'봄맞이 텃밭 가꾸기',ev_treasure:'보물찾기 대회',ev_watermelon:'여름 수박격파 대회',ev_slingshot:'가을 사과 슬링샷 대회',ev_giftrhythm:'산타의 선물배달'};
+    const _rBdg={'rare':'<span style="font-size:7px;padding:1px 4px;border-radius:4px;background:#6366f1;color:#fff">RARE</span>','epic':'<span style="font-size:7px;padding:1px 4px;border-radius:4px;background:#a855f7;color:#fff">EPIC</span>','legendary':'<span style="font-size:7px;padding:1px 4px;border-radius:4px;background:#f59e0b;color:#fff">✨LEGEND</span>','mythic':'<span style="font-size:7px;padding:1px 4px;border-radius:4px;background:linear-gradient(90deg,#ec4899,#8b5cf6);color:#fff">🌈MYTHIC</span>'};
+    function _renderBossStyleWep(w,lockSuffix){
       const ow=owned[w.id]||false;
       const rarCls=w.rarity?' rar-'+w.rarity:'';
       const d=document.createElement('div');
@@ -217,19 +217,28 @@ function renderShop(){
       if(!ow)d.style.cssText+='background:#0f0020;';
       const ico=document.createElement('div');ico.className='sico';ico.textContent=w.icon;d.appendChild(ico);
       const nm=document.createElement('div');nm.className='snm';
-      const _rBdg={'rare':'<span style="font-size:7px;padding:1px 4px;border-radius:4px;background:#6366f1;color:#fff">RARE</span>','epic':'<span style="font-size:7px;padding:1px 4px;border-radius:4px;background:#a855f7;color:#fff">EPIC</span>','legendary':'<span style="font-size:7px;padding:1px 4px;border-radius:4px;background:#f59e0b;color:#fff">✨LEGEND</span>','mythic':'<span style="font-size:7px;padding:1px 4px;border-radius:4px;background:linear-gradient(90deg,#ec4899,#8b5cf6);color:#fff">🌈MYTHIC</span>'};
       nm.innerHTML=w.name+(_rBdg[w.rarity]||'');d.appendChild(nm);
       const ds=document.createElement('div');ds.className='sds';ds.textContent=w.desc;d.appendChild(ds);
-      const bossNames={sun:'THE SUN',machine:'MACHINE',bacteria:'BACTERIA',skeleton:'SKELETON',clock:'CLOCK',reanimation:'REANIMATION',kraken:'KRAKEN',symphony:'SYMPHONY',volcano:'VOLCANO',frost:'FROST EMPRESS',void:'VOID REAPER',event:'이벤트 상점',ev_cookwar:'요리전쟁',ev_garden:'봄맞이 텃밭 가꾸기',ev_treasure:'보물찾기 대회',ev_watermelon:'여름 수박격파 대회',ev_slingshot:'가을 사과 슬링샷 대회',ev_giftrhythm:'산타의 선물배달'};
       if(ow){
-        const done=document.createElement('div');done.style.cssText='font-size:9px;color:#4ade80;font-weight:700;margin-top:3px;';done.textContent='✅ 보스 클리어 획득';d.appendChild(done);
+        const done=document.createElement('div');done.style.cssText='font-size:9px;color:#4ade80;font-weight:700;margin-top:3px;';done.textContent='✅ 획득 완료';d.appendChild(done);
       } else {
         const lock=document.createElement('div');lock.style.cssText='font-size:9px;background:#1e1b4b;color:#a78bfa;padding:3px 6px;border-radius:6px;border:1px solid #4c1d95;margin-top:3px;';
-        lock.textContent='🔒 '+(bossNames[w.bossReward]||w.bossReward)+' 처치 보상';d.appendChild(lock);
+        lock.textContent='🔒 '+(bossNames[w.bossReward]||w.bossReward)+' '+lockSuffix;d.appendChild(lock);
       }
       d.onclick=()=>{selWepId=ow?w.id:selWepId;renderShop();showWepDetail&&showWepDetail(w);};
       g.appendChild(d);
-    });
+    }
+    // ── 보스 클리어 보상 섹션 ──
+    const _bHdr=document.createElement('div');
+    _bHdr.style.cssText='grid-column:1/-1;padding:6px 10px;background:linear-gradient(90deg,#1e1b4b,#4c1d95);color:#c4b5fd;border-radius:8px;font-size:11px;font-weight:800;text-align:center;margin-top:8px;border:1px solid #6d28d9;';
+    _bHdr.textContent='⚔️ 보스 클리어 전용 무기';g.appendChild(_bHdr);
+    Object.values(WEPS).filter(w=>w.bossReward&&!EVENT_WEP_KEYS.includes(w.bossReward)).forEach(w=>_renderBossStyleWep(w,'처치 보상'));
+
+    // ── 이벤트 전용 무기 섹션 ──
+    const _evHdr=document.createElement('div');
+    _evHdr.style.cssText='grid-column:1/-1;padding:6px 10px;background:linear-gradient(90deg,#0e4a4a,#0891b2);color:#a5f3fc;border-radius:8px;font-size:11px;font-weight:800;text-align:center;margin-top:8px;border:1px solid #0e7490;';
+    _evHdr.textContent='🎉 이벤트 전용 무기';g.appendChild(_evHdr);
+    Object.values(WEPS).filter(w=>w.bossReward&&EVENT_WEP_KEYS.includes(w.bossReward)).forEach(w=>_renderBossStyleWep(w,'보상'));
 
     // ── 시즌패스 전용 무기 섹션 ──
     const _spHdr=document.createElement('div');
