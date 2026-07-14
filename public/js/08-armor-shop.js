@@ -236,7 +236,7 @@ function renderShop(){
 
     // ── 이벤트 전용 무기 섹션 ──
     const _evHdr=document.createElement('div');
-    _evHdr.style.cssText='grid-column:1/-1;padding:6px 10px;background:linear-gradient(90deg,#0e4a4a,#0891b2);color:#a5f3fc;border-radius:8px;font-size:11px;font-weight:800;text-align:center;margin-top:8px;border:1px solid #0e7490;';
+    _evHdr.style.cssText='grid-column:1/-1;padding:6px 10px;background:linear-gradient(90deg,#1e1b4b,#4c1d95);color:#c4b5fd;border-radius:8px;font-size:11px;font-weight:800;text-align:center;margin-top:8px;border:1px solid #6d28d9;';
     _evHdr.textContent='🎉 이벤트 전용 무기';g.appendChild(_evHdr);
     Object.values(WEPS).filter(w=>w.bossReward&&EVENT_WEP_KEYS.includes(w.bossReward)).forEach(w=>_renderBossStyleWep(w,'보상'));
 
@@ -259,6 +259,26 @@ function renderShop(){
         const lock=document.createElement('div');lock.style.cssText='font-size:9px;background:#1a0a3e;color:#c084fc;padding:3px 6px;border-radius:6px;border:1px solid #7c3aed;margin-top:3px;';
         const mStr=w.spMonth?w.spMonth+'월 시즌패스 Lv.'+w.spLv+' 보상':'시즌패스 보상';
         lock.textContent='🌟 '+mStr;d.appendChild(lock);
+      }
+      g.appendChild(d);
+    });
+
+    // ── 이스터에그 전용 무기 섹션 (장비칸과 달리 보유 여부와 무관하게 항상 ???로 표기) ──
+    const _eggHdr=document.createElement('div');
+    _eggHdr.style.cssText='grid-column:1/-1;padding:6px 10px;background:linear-gradient(90deg,#1e1b4b,#4c1d95);color:#c4b5fd;border-radius:8px;font-size:11px;font-weight:800;text-align:center;margin-top:8px;border:1px solid #6d28d9;';
+    _eggHdr.textContent='❓ 이스터에그 전용 무기';g.appendChild(_eggHdr);
+    Object.values(WEPS).filter(w=>w.secret).forEach(w=>{
+      const ow=owned[w.id]||false;
+      const d=document.createElement('div');
+      d.className='si'+(ow?' own':'')+' rar-secret';
+      const ico=document.createElement('div');ico.className='sico';ico.textContent='❓';d.appendChild(ico);
+      const nm=document.createElement('div');nm.className='snm';nm.innerHTML='??? <span class="rbadge secret">❓ SECRET</span>';d.appendChild(nm);
+      const ds=document.createElement('div');ds.className='sds';ds.textContent='???';d.appendChild(ds);
+      if(ow){
+        const done=document.createElement('div');done.style.cssText='font-size:9px;color:#c4b5fd;font-weight:700;margin-top:3px;';done.textContent='✅ 보유 중';d.appendChild(done);
+      } else {
+        const lock=document.createElement('div');lock.style.cssText='font-size:9px;background:#1a0a24;color:#a78bfa;padding:3px 6px;border-radius:6px;border:1px solid #4c1d95;margin-top:3px;';
+        lock.textContent='🔒 알 수 없는 방법으로 획득';d.appendChild(lock);
       }
       g.appendChild(d);
     });

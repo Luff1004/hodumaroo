@@ -82,6 +82,9 @@ const WEPS={
   sp_nova:{id:'sp_nova',name:'[시즌] 성운 포',icon:'🌌',price:0,ammo:8,max:8,rel:120,spd:14,dmg:55,r:9,life:180,knife:false,sg:false,energy:true,pierce:true,explosive:true,spOnly:true,rarity:'mythic',spMonth:11,spLv:25,desc:'11월 시즌Lv.25. 데미지110, 성운 폭발'},
   sp_blade:{id:'sp_blade',name:'[시즌] 성흔의 검',icon:'🌠',price:0,ammo:999,max:999,rel:0,spd:0,dmg:45,r:0,life:0,knife:true,sg:false,chain:true,spOnly:true,rarity:'legendary',desc:'시즌Lv.25 전용(홀수월). 데미지88, 처치시HP+10'},
   sp_cannon:{id:'sp_cannon',name:'[시즌] 별의 포',icon:'💫',price:0,ammo:15,max:15,rel:100,spd:18,dmg:60,r:8,life:200,knife:false,sg:false,energy:true,pierce:true,explosive:true,spOnly:true,rarity:'mythic',desc:'시즌Lv.50 전용(홀수월). 데미지120, 관통+폭발+에너지'},
+
+  // ── 이스터에그 전용 무기 (secret:true → 이름/등급 항상 ???/SECRET 표기) ──
+  egg_letter_wep:{id:'egg_letter_wep',name:'마지막 인사',icon:'📜',price:0,ammo:999,max:999,rel:0,spd:0,dmg:40,r:0,life:0,knife:true,sg:false,chain:true,pierce:true,secret:true,desc:'모든 이스터에그를 찾아낸 자에게만 전해지는, 만든 이의 마지막 무기'},
 };
 const DFLT=['pistol','shotgun','knife'];
 let selWepId='pistol';
