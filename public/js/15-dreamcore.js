@@ -76,6 +76,7 @@ function stopGlitchOverlay(){
 function enterDreamworld(){
   achStats.dreamEntered=(achStats.dreamEntered||0)+1;
   saveAch(); checkAchievements();
+  updatePetButton();
   stopGlitchOverlay();
   isDreamMode = true;
   // 이미지 설정

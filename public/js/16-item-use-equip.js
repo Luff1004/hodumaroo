@@ -339,6 +339,7 @@ function renderAchievements(){
     if(r.coins)rTxt+='🪙 '+r.coins.toLocaleString()+'코인';
     if(r.energy)rTxt+='⚡ '+r.energy.toLocaleString()+'에너지';
     if(r.item){const it=ITEMS.find(x=>x.id===r.item);rTxt+=it?it.icon+' '+it.name:'아이템';}
+    if(r.job){const jb=JOBS.find(x=>x.id===r.job);rTxt+=jb?jb.icon+' '+jb.name+' 직업':'직업';}
     card.innerHTML=
       '<div class="ach-ico">'+(isDone?'🏆':'⬜')+'</div>'+
       '<div class="ach-info">'+

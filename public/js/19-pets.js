@@ -2,6 +2,34 @@
 // ══ 펫(반려동물) 시스템 ══
 // ════════════════════════════════════════════
 
+function isPetUnlocked(){return (achStats.dreamEntered||0)>=1;}
+function updatePetButton(){
+  const btn=document.getElementById('btn-pet');if(!btn)return;
+  if(isPetUnlocked()){
+    btn.textContent='🐾 펫';
+    btn.style.background='linear-gradient(135deg,#be185d,#831843)';
+    btn.style.color='#fce7f3';
+    btn.style.border='1.5px solid #ec4899';
+  } else {
+    btn.textContent='🔒 ???';
+    btn.style.background='linear-gradient(135deg,#334155,#1e293b)';
+    btn.style.color='#94a3b8';
+    btn.style.border='1.5px solid #475569';
+  }
+}
+function openPetScreen(){
+  if(!isPetUnlocked()){
+    const btn=document.getElementById('btn-pet');
+    if(btn&&!btn._petMsgT){
+      const prev=btn.textContent;
+      btn.textContent='드림코어 방문 시 해금!';
+      btn._petMsgT=setTimeout(()=>{btn.textContent=prev;btn._petMsgT=null;},1800);
+    }
+    return;
+  }
+  go('sPets');
+}
+
 const PETS = [
   // ── 커먼 (4) ──
   {id:'pet_slime',  name:'슬라임',   icon:'🟢', rarity:'common', bonus:{dmgPct:4}},
@@ -213,12 +241,17 @@ function renderPetScreen(){
   document.getElementById('petEquipDisp').textContent = eqPet?`장착중: ${eqPet.icon} ${eqPet.name} Lv.${petLevel(eqPet.id)}`:'장착중인 펫 없음';
 
   if(curPetTab==='eggs'){
+    const RARITY_ORDER=['common','rare','epic','legendary','mythic','ancient','divine','ethereal','transcendent','absolute'];
+    const RARITY_ABBR={common:'커먼',rare:'레어',epic:'에픽',legendary:'레전',mythic:'신화',ancient:'고대',divine:'신성',ethereal:'천계',transcendent:'초월',absolute:'절대'};
     PET_EGGS.forEach(egg=>{
       const cb=coins>=egg.price;
       const d=document.createElement('div');
       d.className='si'+(cb?' cb2':'');
+      const parts=RARITY_ORDER.filter(r=>egg.weights[r]>0).map(r=>`${RARITY_ABBR[r]}${egg.weights[r]}%`);
+      let oddsHtml='';
+      for(let i=0;i<parts.length;i+=3) oddsHtml+=parts.slice(i,i+3).join(' ')+'<br>';
       d.innerHTML=`<div class="sico">${egg.icon}</div><div class="snm">${egg.name}</div>`+
-        `<div style="font-size:8px;color:#6b7280;margin-top:3px;">커먼${egg.weights.common}% 레어${egg.weights.rare}% 에픽${egg.weights.epic}%<br>레전${egg.weights.legendary}% 신화${egg.weights.mythic}%</div>`+
+        `<div style="font-size:8px;color:#6b7280;margin-top:3px;">${oddsHtml}</div>`+
         `<div style="font-size:10px;font-weight:700;color:${cb?'#d97706':'#9ca3af'};margin-top:4px;">🪙${egg.price.toLocaleString()}</div>`;
       const btn=document.createElement('button');btn.className='bybtn';btn.textContent='부화';btn.disabled=!cb;
       btn.style.marginTop='6px';
@@ -272,4 +305,6 @@ function applyPetBonus(){
   if(b.coinPct) window._petCoinMult=1+b.coinPct*scale/100;
   if(b.energyPct) window._petEnergyMult=1+b.energyPct*scale/100;
   if(b.xpPct) window._petXpMult=1+b.xpPct*scale/100;
+}
+updatePetButton();
 }

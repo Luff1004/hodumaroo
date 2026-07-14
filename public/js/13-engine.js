@@ -593,7 +593,7 @@ function onBossDie(z){
   if(z.bossMapId){ achStats.bossKills=achStats.bossKills||{}; achStats.bossKills[z.bossMapId]=(achStats.bossKills[z.bossMapId]||0)+1; }
   if(z.bd&&z.bd.id&&z.bd.id.startsWith('dream_')){ achStats.bossKills=achStats.bossKills||{}; const dk=z.bd.id.replace('_boss',''); achStats.bossKills[dk]=(achStats.bossKills[dk]||0)+1; }
   if(waveDmgTaken===0){achStats.noDmgBoss=(achStats.noDmgBoss||0)+1;}
-  if(P.hp<=z.bd.hp*0.1+1){achStats.dreamCloseKill=(achStats.dreamCloseKill||0)+1;}
+  if(P.hp<=P.maxHp*0.1+1){achStats.dreamCloseKill=(achStats.dreamCloseKill||0)+1;}
   if(z.bd.name==='호두마루'&&!eqArmor&&typeof unlockEgg==='function')unlockEgg('egg_nakedboss','secret_14');
   if(z.bd.name==='호두마루'&&!z.bossMapId){
     achStats.finalBossKills=(achStats.finalBossKills||0)+1;
