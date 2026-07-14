@@ -501,6 +501,14 @@ function renderJob() {
 }
 
 
+function jobEnhanceStat(job){
+  const jobEncTier=(typeof enchants!=='undefined')?enchants['job_'+job.id]:null;
+  const jlv=(jobLv[job.id]||0)+(jobEncTier!=null&&typeof ENCHANT_TIERS!=='undefined'&&ENCHANT_TIERS[jobEncTier]?(jobEncTier+1)*2:0);
+  const jmult=jlv>21?1+(jlv-21)*.1:1+jlv*.03;
+  const cdMult=Math.max(.2,jlv>21?0.685-(jlv-21)*.03:1-jlv*.015);
+  const dmgBonus=Math.floor(jlv*.5*jmult);
+  return{jlv,jmult,cdMult,dmgBonus};
+}
 function showJobPreview(job) {
   const iconEl = document.getElementById('jpIcon');
   const nameEl = document.getElementById('jpName');
@@ -524,12 +532,21 @@ function showJobPreview(job) {
   nameEl.style.color = job.color;
   descEl.textContent = job.desc.replace('\n','\n');
   descEl.style.whiteSpace = 'pre-line';
-  skillEl.innerHTML = job.skills.map(s=>`
+  const st=jobEnhanceStat(job);
+  const isOwned=ownedJobs[job.id];
+  skillEl.innerHTML = (isOwned?`
+    <div style="font-size:10px;color:#4b5563;margin-bottom:8px;line-height:1.6;background:#f3f4f6;border-radius:8px;padding:6px 8px;">
+      🔥 강화 데미지 <b>+${st.dmgBonus}</b>${st.jlv>21?' <b style="color:#9333ea">✨HYPER</b>':''}<br>
+      🔄 스킬 쿨타임 <b>${Math.round((1-st.cdMult)*100)}%</b> 감소
+    </div>`:'') + job.skills.map(s=>{
+    const realCd=Math.floor(s.cd*st.cdMult);
+    const changed=isOwned&&realCd!==s.cd;
+    return `
     <div style="background:#f3f4f6;border-radius:8px;padding:7px 10px;margin-bottom:6px;border-left:3px solid ${job.color}">
       <div style="font-size:12px;font-weight:700;color:#1f2937">${s.icon} [${s.key}] ${s.name}</div>
       <div style="font-size:10px;color:#6b7280;margin-top:2px">${s.desc}</div>
-      <div style="font-size:9px;color:#9ca3af;margin-top:1px">쿨타임 ${(s.cd/60).toFixed(0)}초</div>
-    </div>`).join('');
+      <div style="font-size:9px;color:#9ca3af;margin-top:1px">쿨타임 ${changed?`<s>${(s.cd/60).toFixed(0)}초</s> <b style="color:#16a34a">${(realCd/60).toFixed(1)}초</b>`:(s.cd/60).toFixed(0)+'초'}</div>
+    </div>`;}).join('');
   // 미리보기 배경
   const prev = document.getElementById('jobPreview');
   if(prev) prev.style.background = job.skinBg || '#f8f4ff';

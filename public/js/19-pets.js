@@ -219,17 +219,19 @@ function setPetTab(tab,btn){
   renderPetScreen();
 }
 
-function petBonusDesc(pet){
+function petBonusDesc(pet,lv){
   const b=pet.bonus, parts=[];
-  if(b.dmgPct)parts.push(`데미지+${b.dmgPct}%`);
-  if(b.hpPct)parts.push(`최대HP+${b.hpPct}%`);
-  if(b.spdFlat)parts.push(`이동속도+${b.spdFlat}`);
-  if(b.coinPct)parts.push(`코인+${b.coinPct}%`);
-  if(b.energyPct)parts.push(`에너지+${b.energyPct}%`);
-  if(b.xpPct)parts.push(`시즌XP+${b.xpPct}%`);
-  if(b.critPct)parts.push(`치명타+${b.critPct}%`);
-  if(b.lifestealFlat)parts.push(`처치시 HP+${b.lifestealFlat}`);
-  if(b.luckPct)parts.push(`인챈트 행운+${b.luckPct}%`);
+  const scale=1+(lv||0)*0.15;
+  const n=(v,d)=>{const r=Math.round(v*scale*10)/10;return d?r.toFixed(1):r;};
+  if(b.dmgPct)parts.push(`데미지+${n(b.dmgPct)}%`);
+  if(b.hpPct)parts.push(`최대HP+${n(b.hpPct)}%`);
+  if(b.spdFlat)parts.push(`이동속도+${n(b.spdFlat,true)}`);
+  if(b.coinPct)parts.push(`코인+${n(b.coinPct)}%`);
+  if(b.energyPct)parts.push(`에너지+${n(b.energyPct)}%`);
+  if(b.xpPct)parts.push(`시즌XP+${n(b.xpPct)}%`);
+  if(b.critPct)parts.push(`치명타+${n(b.critPct)}%`);
+  if(b.lifestealFlat)parts.push(`처치시 HP+${n(b.lifestealFlat)}`);
+  if(b.luckPct)parts.push(`인챈트 행운+${n(b.luckPct)}%`);
   return parts.join(' · ');
 }
 
@@ -269,7 +271,7 @@ function renderPetScreen(){
       d.innerHTML=`<div class="sico" style="${lockedStyle}">${pet.icon}</div>`+
         `<div class="snm" style="color:${PET_RARITY_COLOR[pet.rarity]};">${owned?pet.name:'???'}</div>`+
         `<div style="font-size:8px;color:#9ca3af;">${PET_RARITY_LABEL[pet.rarity]}</div>`+
-        (owned?`<div style="font-size:8px;color:#6b7280;margin-top:2px;">${petBonusDesc(pet)}</div><div style="font-size:9px;color:#7c3aed;font-weight:700;margin-top:2px;">Lv.${owned.level} (보유 ${owned.count}개)</div>`:'');
+        (owned?`<div style="font-size:8px;color:#6b7280;margin-top:2px;">${petBonusDesc(pet,owned.level)}</div><div style="font-size:9px;color:#7c3aed;font-weight:700;margin-top:2px;">Lv.${owned.level} (보유 ${owned.count}개)</div>`:'');
       if(owned){
         const btnRow=document.createElement('div');btnRow.style.cssText='display:flex;gap:4px;margin-top:6px;justify-content:center;';
         const eqBtn=document.createElement('button');eqBtn.className='bybtn';eqBtn.textContent=isEq?'해제':'장착';
@@ -307,4 +309,3 @@ function applyPetBonus(){
   if(b.xpPct) window._petXpMult=1+b.xpPct*scale/100;
 }
 updatePetButton();
-}

@@ -124,7 +124,7 @@ function getWep(){
     if(encData.effect==='pierce')encEffect.enchPierce=true;
     if(encData.effect==='crit')encEffect.enchCrit=true;
   }
-  return{...base,...encEffect,dmg:Math.round((base.dmg+dB)*encMul),max:Math.floor(base.max*aM),ammo:Math.floor(base.max*aM)};
+  return{...base,...encEffect,dmg:Math.round((base.dmg+dB)*encMul),max:Math.floor(base.max*aM),ammo:Math.floor(base.max*aM),atkSpdMul:aM};
 }
 
 function initGame(){
@@ -201,15 +201,18 @@ function initGame(){
     const jobEncTier=(typeof enchants!=='undefined')?enchants['job_'+equippedJob]:null;
     const jlv=(jobLv[equippedJob]||0)+(jobEncTier!=null&&ENCHANT_TIERS[jobEncTier]?(jobEncTier+1)*2:0);
     const jmult=jlv>21?1+(jlv-21)*.1:1+jlv*.03; // HYPER: +10%/lv, 일반: +3%/lv
-    P.dmgB=(P.dmgB||0)+Math.floor(jlv*.5); // 레벨당 데미지+0.5
-    if(equippedJob==='medic'){const bonus=50+jlv*10;P.maxHp+=bonus;P.hp+=bonus;}
-    if(equippedJob==='ninja'){P.spd+=1+jlv*.05;P.armor=(P.armor||0)+15+jlv*2;}
+    P.dmgB=(P.dmgB||0)+Math.floor(jlv*.5*jmult); // 레벨당 데미지+0.5, jmult로 전 직업 공통 강화
+    // 스킬 쿨타임: 일반 강화 시 레벨당 소폭 감소, 하이퍼레벨(jlv>21) 진입 시 대폭 추가 감소
+    const cdMult=jlv>21?0.685-(jlv-21)*.03:1-jlv*.015;
+    P._skillCdMult=Math.max(.2,cdMult);
+    if(equippedJob==='medic'){const bonus=Math.floor((50+jlv*10)*jmult);P.maxHp+=bonus;P.hp+=bonus;}
+    if(equippedJob==='ninja'){P.spd+=(1+jlv*.05)*jmult;P.armor=(P.armor||0)+Math.floor((15+jlv*2)*jmult);}
     if(equippedJob==='berserker'){P._berserkDmg=jmult;}
-    if(equippedJob==='sniper_job'){P.armor=(P.armor||0)+10+jlv*3;}
+    if(equippedJob==='sniper_job'){P.armor=(P.armor||0)+Math.floor((10+jlv*3)*jmult);}
     if(equippedJob==='miner'){P._minerPassive=true;}
     if(equippedJob==='engineer'){P.ws={...P.ws,pierce:true};}
-    if(equippedJob==='god'){P.maxHp+=jlv*20;P.hp+=jlv*20;P.spd+=jlv*.05;}
-    if(equippedJob==='demolitionist'){P._aoeB=(P._aoeB||0)+15+jlv*3;}
+    if(equippedJob==='god'){P.maxHp+=Math.floor(jlv*20*jmult);P.hp+=Math.floor(jlv*20*jmult);P.spd+=jlv*.05*jmult;}
+    if(equippedJob==='demolitionist'){P._aoeB=(P._aoeB||0)+Math.floor((15+jlv*3)*jmult);}
     if(equippedJob==='elementalist'){P._fireAura=true;P._coldAura=true;P._thunderAura=true;}
     if(jlv>21)setMsg('✨ HYPER LEVEL '+equippedJob+'! 모든 스탯 대폭 강화!');
   }
@@ -1408,6 +1411,7 @@ function update(){
   if(P._infiniteAmmo)P.ammo=P.maxAmmo;
   const wsid=P.ws.id;
   let fr=wsid==='minigun'?3:wsid==='gatling'?2:wsid==='machinegun'?4:wsid==='smg'?4:wsid==='laser_gun'?4:wsid==='flamer'?5:P.ws.knife?1:wsid==='sniper'?45:wsid==='railgun'?60:wsid==='shotgun'?32:wsid==='autocannon'?30:P.ws.auto?6:14;
+  fr=Math.max(1,Math.round(fr/(P.ws.atkSpdMul||1)));
   if(P._fastFire)fr=Math.max(1,Math.floor(fr*0.5));
   // 발사 모드: manual(기존, 클릭 필요) / semi(클릭으로 발사 토글) / auto(계속 발사)
   const held=fireMode==='auto'?true:fireMode==='semi'?!!P._semiOn:P._mdown;
