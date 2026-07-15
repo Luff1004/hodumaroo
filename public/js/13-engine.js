@@ -217,6 +217,7 @@ function initGame(){
     if(jlv>21)setMsg('✨ HYPER LEVEL '+equippedJob+'! 모든 스탯 대폭 강화!');
   }
   if(typeof applyPetBonus==='function'&&!selMap.noJobs)applyPetBonus();
+  if(typeof initRelics==='function')initRelics();
   document.getElementById('bossBar').style.display='none';
   if(!selMap.noItems)spawnHpItems();
   itemCooldowns={};
@@ -510,6 +511,7 @@ function hitZ(z,dmg){
     if(P._armorLS)P.hp=Math.min(P.maxHp,P.hp+P._armorLS);
     if(window._petLifesteal)P.hp=Math.min(P.maxHp,P.hp+window._petLifesteal);
     if(selMap&&selMap.id==='tower'&&typeof towerRelics!=='undefined'&&towerRelics.vampiric)P.hp=Math.min(P.maxHp,P.hp+1);
+    if(typeof procRelicOnKill==='function')procRelicOnKill(z);
     // 분노 스택
     if(equippedJob==='berserker2')P._rageStack=(P._rageStack||0)+1;
     // 광부 패시브: 추가 코인
@@ -545,8 +547,11 @@ function takeDmg(d){
     const tgt2=zoms.filter(z=>!z.dead&&!z.isMinion).sort((a,b)=>d2(a.x,a.y,P.x,P.y)-d2(b.x,b.y,P.x,P.y))[0];
     if(tgt2)hitZ(tgt2,d*0.5);
   }
+  if(typeof procRelicGuard==='function'&&procRelicGuard(P.hp-d*arR))return;
   P.hp-=d*arR;
+  if(typeof procRelicOnHit==='function')procRelicOnHit();
   if(P.hp<=0&&running){
+    if(typeof procRelicDeathSave==='function'&&procRelicDeathSave())return;
     if(reviveReady){
       reviveReady=false;
       P.hp=Math.floor(P.maxHp*.5);
@@ -1433,6 +1438,7 @@ function update(){
   tickPerks();
   tickJob();
   tickItems();
+  if(typeof tickRelics==='function')tickRelics();
   if(selMap&&selMap.id==='tower'&&typeof tickTowerRelics==='function')tickTowerRelics();
   hpItems.forEach(it=>{if(it.collected)return;it.bob+=.05;if(d2(P.x,P.y,it.x,it.y)<(P.r+it.r+4)**2){it.collected=true;const heal=Math.ceil(P.maxHp*.1);P.hp=Math.min(P.maxHp,P.hp+heal);setMsg(`❤️ +${heal}HP!`);setTimeout(()=>{if(running)setMsg('');},1500);for(let i=0;i<10;i++)parts.push({x:it.x,y:it.y,vx:(Math.random()-.5)*4,vy:-2-Math.random()*3,l:22,ml:22,r:4,col:'#ef4444'});}});
   if(!betweenWave){

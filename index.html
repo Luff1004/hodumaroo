@@ -30,7 +30,7 @@
     <button class="lb" style="background:linear-gradient(135deg,#065f46,#047857);color:#d1fae5;border:1.5px solid #10b981;" onclick="go('sDailyQuest')">📅 일일퀘스트</button>
     <button id="btn-pet" class="lb" style="background:linear-gradient(135deg,#334155,#1e293b);color:#94a3b8;border:1.5px solid #475569;" onclick="openPetScreen()">🔒 ???</button>
     <button class="lb" style="background:linear-gradient(135deg,#db2777,#7c3aed,#0891b2);color:#fff;border:1.5px solid #f0abfc;" onclick="go('sEvent')">🎉 이벤트</button>
-    <button id="btn-records" class="lb" style="background:linear-gradient(135deg,#78350f,#451a03);color:#fef3c7;border:1.5px solid #d97706;" onclick="go('sRecords')">🎖️ 명예의 전당</button>
+    <button id="btn-relics" class="lb" style="background:linear-gradient(135deg,#581c87,#1e1b4b);color:#f3e8ff;border:1.5px solid #a855f7;" onclick="go('sRelics')">🏺 유물</button>
   </div>
   <div class="ver">호두마루 v1.0</div>
   <div style="position:fixed;bottom:10px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;z-index:25;background:rgba(255,255,255,0.85);padding:4px 14px;border-radius:20px;border:1px solid #e5e7eb;">
@@ -102,6 +102,7 @@
     <div style="display:flex;gap:8px;justify-content:center;margin-top:10px;">
       <button class="stab on" data-tab="ach" onclick="setAchTab('ach',this)">🏆 업적</button>
       <button class="stab" data-tab="title" onclick="setAchTab('title',this)">👑 칭호</button>
+      <button class="stab" onclick="go('sRecords')">🎖️ 기록</button>
     </div>
     <div id="achProgress" style="font-size:11px;color:#6b7280;margin-top:4px;"></div>
     <div id="titleProgress" style="font-size:11px;color:#6b7280;margin-top:4px;"></div>
@@ -426,6 +427,22 @@
   </div>
 </div>
 
+<!-- ══ 유물 화면 ══ -->
+<div id="sRelics" class="screen" style="background:radial-gradient(circle at 50% 15%,#3b0764,#0a0212 75%);padding:12px;overflow-y:auto;align-items:stretch;justify-content:flex-start;">
+  <button class="back" style="border-color:#d8b4fe;color:#e9d5ff;" onclick="go('sLobby')">← 뒤로</button>
+  <div style="text-align:center;margin-bottom:12px;margin-top:6px;">
+    <div style="font-size:22px;font-weight:900;color:#e9d5ff;letter-spacing:2px;text-shadow:0 0 12px #a855f7;">🏺 유물</div>
+    <div style="font-size:11px;color:#c4b5fd;margin-top:4px;">유물을 모으고 장착하면 전투 중 특수 효과가 발동합니다</div>
+    <div style="font-size:12px;color:#fef3c7;margin-top:8px;">보유 코인: <span id="relicCoinDisp" style="font-weight:800;color:#fbbf24;">0</span></div>
+  </div>
+  <div style="display:flex;justify-content:center;gap:10px;margin-bottom:6px;">
+    <div id="relicSlots" style="display:flex;gap:8px;"></div>
+  </div>
+  <div id="relicResult" style="text-align:center;font-size:12px;font-weight:800;min-height:16px;margin-bottom:10px;opacity:0;transition:opacity .3s;"></div>
+  <div id="relicBoxList" class="sgrid" style="max-width:700px;margin:0 auto 18px;background:transparent;"></div>
+  <div id="relicList" style="display:flex;flex-direction:column;gap:8px;max-width:700px;margin:0 auto;padding-bottom:40px;"></div>
+</div>
+
 <!-- ══ 명예의 전당 화면 ══ -->
 <div id="sRecords" class="screen" style="background:linear-gradient(160deg,#0a0014,#000);padding:12px;overflow-y:auto;align-items:stretch;justify-content:flex-start;">
   <button class="back" onclick="go('sLobby')">← 뒤로</button>
@@ -595,6 +612,7 @@
 <script src="/js/26-tower-content.js"></script>
 <script src="/js/27-records.js"></script>
 <script src="/js/28-eastereggs.js"></script>
+<script src="/js/29-relics.js"></script>
 
 <!-- ══ 설정 모달 ══ -->
 <div id="settingsModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;">

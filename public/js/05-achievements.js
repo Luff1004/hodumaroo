@@ -292,7 +292,7 @@ setInterval(()=>{
   }
 },1000);
 
-const SCREENS=['sLobby','sMap','sWeapon','sShop','sJob','sUpg','sEquip','sParty','sSeason','sDream','sDreamMap','sAch','sEnchant','sPotionShop','sDailyQuest','sPets','sEvent','sRecords'];
+const SCREENS=['sLobby','sMap','sWeapon','sShop','sJob','sUpg','sEquip','sParty','sSeason','sDream','sDreamMap','sAch','sEnchant','sPotionShop','sDailyQuest','sPets','sEvent','sRecords','sRelics'];
 function go(id){
   SCREENS.forEach(s=>{const el=document.getElementById(s);if(el)el.classList.toggle('on',s===id);});
   document.getElementById('gameCanvas').style.display='none';
@@ -311,6 +311,7 @@ function go(id){
   if(id==='sPets'){curPetTab='collection';renderPetScreen();}
   if(id==='sEvent')setEventTab(curEventTab,document.querySelector('#sEvent .stab[data-tab="'+curEventTab+'"]'));
   if(id==='sRecords')renderRecordsScreen();
+  if(id==='sRelics')renderRelicScreen();
   if(id==='sDream'){
     document.getElementById('dlc').textContent=coins.toLocaleString();
     document.getElementById('dle').textContent=energy.toLocaleString();
