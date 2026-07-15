@@ -28,6 +28,13 @@ const RELICS=[
    desc:'치명적인 피해를 판당 1회 막고 체력 일부로 되살아납니다.', type:'immortal', base:10, inc:1, price:25000000},
   {id:'relic_storm',    name:'폭풍의 심장',       icon:'🌪️', rarity:'mythic',
    desc:'공격력·최대체력·이동속도가 모두 영구적으로 증가합니다.', type:'allBoost', base:5, inc:0.8, price:25000000},
+  // ── 유물함 전용 (직접 구매 불가, 뽑기로만 획득) ──
+  {id:'relic_root',     name:'재생의 뿌리',       icon:'🌱', rarity:'rare',
+   desc:'처치 시 일정 확률로 최대체력의 일부를 즉시 회복합니다.', type:'lifeburst', base:5, inc:1, boxOnly:true},
+  {id:'relic_stormeye',   name:'폭풍의 눈',         icon:'🌀', rarity:'epic',
+   desc:'처치 시 일정 확률로 화면의 모든 적을 짧게 얼립니다.', type:'novafreeze', base:3, inc:0.5, boxOnly:true},
+  {id:'relic_judgment', name:'최후의 심판',       icon:'⚖️', rarity:'mythic',
+   desc:'처치 시 일정 확률로 체력이 낮은 적을 즉시 처형합니다.', type:'execute', base:2, inc:0.3, boxOnly:true},
 ];
 const RELIC_RARITY_LABEL={common:'커먼',rare:'레어',epic:'에픽',legendary:'레전더리',mythic:'신화'};
 const RELIC_RARITY_COLOR={common:'#9ca3af',rare:'#3b82f6',epic:'#a855f7',legendary:'#f59e0b',mythic:'#ec4899'};
@@ -37,6 +44,37 @@ const RELIC_BOXES=[
   {id:'relic_box_epic',  name:'신비한 유물함', icon:'✨',price:800000, weights:{common:5, rare:20,epic:40,legendary:28,mythic:7}},
 ];
 const RELIC_MAX_SLOTS=3;
+
+function isRelicUnlocked(){
+  if(typeof devModeUnlocked!=='undefined'&&devModeUnlocked)return true;
+  return !!achData['enchant_1000'];
+}
+function updateRelicButton(){
+  const btn=document.getElementById('btn-relics');if(!btn)return;
+  if(isRelicUnlocked()){
+    btn.textContent='🏺 유물';
+    btn.style.background='linear-gradient(135deg,#581c87,#1e1b4b)';
+    btn.style.color='#f3e8ff';
+    btn.style.border='1.5px solid #a855f7';
+  } else {
+    btn.textContent='🔒 ???';
+    btn.style.background='linear-gradient(135deg,#334155,#1e293b)';
+    btn.style.color='#94a3b8';
+    btn.style.border='1.5px solid #475569';
+  }
+}
+function openRelicScreen(){
+  if(!isRelicUnlocked()){
+    const btn=document.getElementById('btn-relics');
+    if(btn&&!btn._relicMsgT){
+      const prev=btn.textContent;
+      btn.textContent='업적 "운명의 도박사" 달성 시 해금!';
+      btn._relicMsgT=setTimeout(()=>{btn.textContent=prev;btn._relicMsgT=null;},1800);
+    }
+    return;
+  }
+  go('sRelics');
+}
 
 let ownedRelics=lJ('hd_relics',{});          // {relicId:{count,level}}
 let equippedRelicIds=lJ('hd_eq_relics',[]);  // up to RELIC_MAX_SLOTS ids
@@ -80,7 +118,7 @@ function showRelicResult(relic){
 
 function buyRelic(id){
   const relic=RELICS.find(r=>r.id===id);
-  if(!relic||coins<relic.price) return;
+  if(!relic||relic.boxOnly||coins<relic.price) return;
   coins-=relic.price; sv('hd_c',coins); updRes();
   if(!ownedRelics[id]) ownedRelics[id]={count:0,level:0};
   ownedRelics[id].count++;
@@ -172,6 +210,9 @@ function renderRelicScreen(){
       else if(relic.type==='coinBoost') valTxt='코인 보상 +'+vv+'%';
       else if(relic.type==='frost') valTxt='확률 '+vv+'%';
       else if(relic.type==='allBoost') valTxt='공격력/체력 +'+vv+'% · 이동속도 +'+(vv*0.06).toFixed(2);
+      else if(relic.type==='lifeburst') valTxt='확률 '+vv+'%';
+      else if(relic.type==='novafreeze') valTxt='확률 '+vv+'%';
+      else if(relic.type==='execute') valTxt='확률 '+vv+'%';
       card.innerHTML='<div class="ach-ico">'+relic.icon+'</div>'+
         '<div class="ach-info">'+
           '<div class="ach-name" style="color:'+RELIC_RARITY_COLOR[relic.rarity]+';">'+relic.name+' <span style="font-size:9px;color:#6b7280;">['+RELIC_RARITY_LABEL[relic.rarity]+']</span></div>'+
@@ -188,6 +229,11 @@ function renderRelicScreen(){
         lvBtn.disabled=lv>=10||coins<cost;
         lvBtn.onclick=()=>levelUpRelic(relic.id);
         btnCol.appendChild(lvBtn);
+      } else if(relic.boxOnly){
+        const tag=document.createElement('div');
+        tag.style.cssText='font-size:10px;font-weight:700;color:#c4b5fd;padding:6px 8px;border:1px dashed #7c3aed;border-radius:8px;text-align:center;';
+        tag.textContent='🎁 유물함 전용';
+        btnCol.appendChild(tag);
       } else {
         const buyBtn=document.createElement('button'); buyBtn.className='bybtn';
         buyBtn.textContent='구매(🪙'+relic.price.toLocaleString()+')';
@@ -252,6 +298,36 @@ function procRelicOnKill(z){
       zoms.forEach(zz=>{ if(!zz.dead&&!zz.isBoss&&d2(zz.x,zz.y,z.x,z.y)<90**2) zz._frz=Math.max(zz._frz||0,90); });
     }
   }
+  if(equippedRelicIds.includes('relic_root')){
+    const relic=RELICS.find(r=>r.id==='relic_root');
+    if(Math.random()*100<relicVal(relic)){
+      const heal=Math.ceil(P.maxHp*(3+relicLevel('relic_root')*0.3)/100);
+      P.hp=Math.min(P.maxHp,P.hp+heal);
+      for(let i=0;i<6;i++)parts.push({x:P.x,y:P.y,vx:(Math.random()-.5)*3,vy:-1-Math.random()*2,l:16,ml:16,r:3,col:'#4ade80'});
+    }
+  }
+  if(equippedRelicIds.includes('relic_stormeye')){
+    const relic=RELICS.find(r=>r.id==='relic_stormeye');
+    if(Math.random()*100<relicVal(relic)){
+      const dur=30+relicLevel('relic_stormeye')*6;
+      zoms.forEach(zz=>{ if(!zz.dead&&!zz.isBoss) zz._frz=Math.max(zz._frz||0,dur); });
+      setMsg('🌀 폭풍의 눈 발동!');
+      setTimeout(()=>{if(running)setMsg('');},900);
+    }
+  }
+  if(equippedRelicIds.includes('relic_judgment')&&!_relicState.chaining){
+    const relic=RELICS.find(r=>r.id==='relic_judgment');
+    if(Math.random()*100<relicVal(relic)){
+      const tgt=zoms.find(zz=>!zz.dead&&zz!==z&&!zz.isBoss&&zz.hp>0&&zz.hp<=zz.maxHp*0.15);
+      if(tgt){
+        _relicState.chaining=true;
+        hitZ(tgt,tgt.hp);
+        _relicState.chaining=false;
+        setMsg('⚖️ 최후의 심판 발동!');
+        setTimeout(()=>{if(running)setMsg('');},900);
+      }
+    }
+  }
 }
 
 // ── 패시브 스탯형 유물 (게임 시작 시 1회 적용, 펫 보너스와 동일한 방식) ──
@@ -306,3 +382,4 @@ function procRelicDeathSave(){
   setTimeout(()=>{if(running)setMsg('');},2000);
   return true;
 }
+updateRelicButton();

@@ -164,6 +164,7 @@ function checkAchievements(){
   });
   if(newUnlock) saveAch();
   checkTitles();
+  if(newUnlock&&typeof updateRelicButton==='function')updateRelicButton();
 }
 
 // 업적 보상 지급

@@ -3023,6 +3023,7 @@ function submitCode(){
     if(typeof devModeUnlocked!=='undefined')devModeUnlocked=true;
     if(typeof renderEventGameScreen==='function')renderEventGameScreen();
     if(typeof updatePetButton==='function')updatePetButton();
+    if(typeof updateRelicButton==='function')updateRelicButton();
     coins=999999999999;energy=999999999999;
     Object.values(WEPS).forEach(w=>owned[w.id]=true);
     ARMORS.forEach(a=>owned['ar_'+a.id]=true);

@@ -307,6 +307,7 @@ function doEnchant(){
   if(!key||coins<ENCHANT_COST) return;
   coins-=ENCHANT_COST; sv('hd_c',coins); updRes();
   achStats.enchantAttempts=(achStats.enchantAttempts||0)+1; saveAch();
+  if(typeof checkAchievements==='function')checkAchievements();
   const resultTier=rollEnchantTier();
   if(typeof trackEnchantStreak==='function')trackEnchantStreak(resultTier);
   if(resultTier>=ENCHANT_TIERS.length-5&&typeof unlockEgg==='function')unlockEgg('egg_void','secret_38');
