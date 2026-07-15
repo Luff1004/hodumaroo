@@ -1,17 +1,17 @@
 // ══════════════ 유물(Relics) — 수집 + 실전 발동 효과 ══════════════
 const RELICS=[
   {id:'relic_greed',    name:'탐욕의 인장',       icon:'💰', rarity:'common',
-   desc:'처치 시 일정 확률로 코인을 2배로 획득합니다.', type:'greed', base:5, inc:1},
+   desc:'처치 시 일정 확률로 코인을 2배로 획득합니다.', type:'greed', base:5, inc:1, price:40000},
   {id:'relic_phoenix',  name:'불사조의 깃털',     icon:'🪶', rarity:'rare',
-   desc:'8초마다 최대체력의 일정 %를 자동 회복합니다.', type:'regen', base:4, inc:0.4},
+   desc:'8초마다 최대체력의 일정 %를 자동 회복합니다.', type:'regen', base:4, inc:0.4, price:250000},
   {id:'relic_guard',    name:'수호의 방패',       icon:'🛡️', rarity:'epic',
-   desc:'체력이 25% 이하로 떨어지면(쿨타임 20초) 잠시 무적이 됩니다.', type:'guard', base:2, inc:0.1},
+   desc:'체력이 25% 이하로 떨어지면(쿨타임 20초) 잠시 무적이 됩니다.', type:'guard', base:2, inc:0.1, price:1200000},
   {id:'relic_thunder',  name:'번개의 파편',       icon:'⚡', rarity:'epic',
-   desc:'피격 시 일정 확률로 가장 가까운 적에게 번개 반격을 가합니다.', type:'thunder', base:4, inc:0.8},
+   desc:'피격 시 일정 확률로 가장 가까운 적에게 번개 반격을 가합니다.', type:'thunder', base:4, inc:0.8, price:1200000},
   {id:'relic_chain',    name:'연쇄 폭발의 유물',  icon:'💥', rarity:'legendary',
-   desc:'처치 시 일정 확률로 주변 적들에게 연쇄 피해를 입힙니다.', type:'chain', base:2, inc:0.3},
+   desc:'처치 시 일정 확률로 주변 적들에게 연쇄 피해를 입힙니다.', type:'chain', base:2, inc:0.3, price:5000000},
   {id:'relic_immortal', name:'불멸의 심장',       icon:'❤️‍🔥', rarity:'mythic',
-   desc:'치명적인 피해를 판당 1회 막고 체력 일부로 되살아납니다.', type:'immortal', base:10, inc:1},
+   desc:'치명적인 피해를 판당 1회 막고 체력 일부로 되살아납니다.', type:'immortal', base:10, inc:1, price:25000000},
 ];
 const RELIC_RARITY_LABEL={common:'커먼',rare:'레어',epic:'에픽',legendary:'레전더리',mythic:'신화'};
 const RELIC_RARITY_COLOR={common:'#9ca3af',rare:'#3b82f6',epic:'#a855f7',legendary:'#f59e0b',mythic:'#ec4899'};
@@ -60,6 +60,17 @@ function showRelicResult(relic){
   el.style.opacity='1';
   clearTimeout(el._hideT);
   el._hideT=setTimeout(()=>{el.style.opacity='0';},2500);
+}
+
+function buyRelic(id){
+  const relic=RELICS.find(r=>r.id===id);
+  if(!relic||coins<relic.price) return;
+  coins-=relic.price; sv('hd_c',coins); updRes();
+  if(!ownedRelics[id]) ownedRelics[id]={count:0,level:0};
+  ownedRelics[id].count++;
+  saveRelicData();
+  showRelicResult(relic);
+  renderRelicScreen();
 }
 
 function levelUpRelic(id){
@@ -126,26 +137,24 @@ function renderRelicScreen(){
       const owned=ownedRelics[relic.id];
       const isEq=equippedRelicIds.includes(relic.id);
       const card=document.createElement('div');
-      card.className='ach-card'+(isEq?' done':'')+(owned?'':' hidden');
+      card.className='ach-card'+(isEq?' done':'');
       const lv=relicLevel(relic.id);
       const cost=relicLevelCost(relic.id);
       let valTxt='';
-      if(owned){
-        if(relic.type==='greed') valTxt='확률 '+relicVal(relic).toFixed(1)+'%';
-        else if(relic.type==='regen') valTxt='8초마다 '+relicVal(relic).toFixed(1)+'% 회복';
-        else if(relic.type==='guard') valTxt='무적 '+relicVal(relic).toFixed(1)+'초 (쿨타임 20초)';
-        else if(relic.type==='thunder') valTxt='확률 '+relicVal(relic).toFixed(1)+'%';
-        else if(relic.type==='chain') valTxt='확률 '+relicVal(relic).toFixed(1)+'%';
-        else if(relic.type==='immortal') valTxt='체력 '+relicVal(relic).toFixed(1)+'%로 부활';
-      }
-      card.innerHTML='<div class="ach-ico">'+(owned?relic.icon:'❔')+'</div>'+
+      if(relic.type==='greed') valTxt='확률 '+relicVal(relic).toFixed(1)+'%';
+      else if(relic.type==='regen') valTxt='8초마다 '+relicVal(relic).toFixed(1)+'% 회복';
+      else if(relic.type==='guard') valTxt='무적 '+relicVal(relic).toFixed(1)+'초 (쿨타임 20초)';
+      else if(relic.type==='thunder') valTxt='확률 '+relicVal(relic).toFixed(1)+'%';
+      else if(relic.type==='chain') valTxt='확률 '+relicVal(relic).toFixed(1)+'%';
+      else if(relic.type==='immortal') valTxt='체력 '+relicVal(relic).toFixed(1)+'%로 부활';
+      card.innerHTML='<div class="ach-ico">'+relic.icon+'</div>'+
         '<div class="ach-info">'+
-          '<div class="ach-name">'+(owned?relic.name:'???')+'</div>'+
-          '<div class="ach-desc">'+(owned?relic.desc:'유물함에서 획득할 수 있습니다')+'</div>'+
+          '<div class="ach-name" style="color:'+RELIC_RARITY_COLOR[relic.rarity]+';">'+relic.name+' <span style="font-size:9px;color:#6b7280;">['+RELIC_RARITY_LABEL[relic.rarity]+']</span></div>'+
+          '<div class="ach-desc">'+relic.desc+'</div>'+
           (owned?'<div class="ach-reward">Lv.'+lv+' · '+valTxt+' (보유 '+owned.count+'개)</div>':'')+
         '</div>';
+      const btnCol=document.createElement('div'); btnCol.style.cssText='display:flex;flex-direction:column;gap:4px;';
       if(owned){
-        const btnCol=document.createElement('div'); btnCol.style.cssText='display:flex;flex-direction:column;gap:4px;';
         const eqBtn=document.createElement('button'); eqBtn.className='bybtn'; eqBtn.textContent=isEq?'해제':'장착';
         eqBtn.onclick=()=>toggleRelicEquip(relic.id);
         btnCol.appendChild(eqBtn);
@@ -154,8 +163,14 @@ function renderRelicScreen(){
         lvBtn.disabled=lv>=10||coins<cost;
         lvBtn.onclick=()=>levelUpRelic(relic.id);
         btnCol.appendChild(lvBtn);
-        card.appendChild(btnCol);
+      } else {
+        const buyBtn=document.createElement('button'); buyBtn.className='bybtn';
+        buyBtn.textContent='구매(🪙'+relic.price.toLocaleString()+')';
+        buyBtn.disabled=coins<relic.price;
+        buyBtn.onclick=()=>buyRelic(relic.id);
+        btnCol.appendChild(buyBtn);
       }
+      card.appendChild(btnCol);
       listEl.appendChild(card);
     });
   }
