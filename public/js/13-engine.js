@@ -2077,7 +2077,6 @@ function draw(){
   ctx.shadowBlur=0;ctx.shadowColor='transparent';
   const _ox=VW()>=MW?(VW()-MW)/2:-camX;
   ctx.save();ctx.translate(_ox,-camY);
-  if(typeof getActiveRPFilter==='function')ctx.filter=getActiveRPFilter();
   {
     const th=THEMES[selMap?.id]||THEMES.city;
     ctx.fillStyle=th.bg;ctx.fillRect(0,0,MW,MH);
@@ -2133,7 +2132,7 @@ function draw(){
       ctx.restore();
     }
   });
-  zoms.forEach(z=>{drawZ(z);if(typeof drawRPFace==='function')drawRPFace(z);});
+  zoms.forEach(z=>drawZ(z));
   buls.forEach(b=>{
     const t=Date.now(), col=b.col||(b.en?'#FFD700':b.pierce?'#c084fc':'#f97316');
     // hsl/rgb 색상에 hex 투명도 붙이면 에러 → rgba()로 안전하게 변환
@@ -3018,7 +3017,6 @@ function submitCode(){
     if(typeof devModeUnlocked!=='undefined')devModeUnlocked=true;
     if(typeof renderEventGameScreen==='function')renderEventGameScreen();
     if(typeof updatePetButton==='function')updatePetButton();
-    if(typeof updateRPButton==='function')updateRPButton();
     coins=999999999999;energy=999999999999;
     Object.values(WEPS).forEach(w=>owned[w.id]=true);
     ARMORS.forEach(a=>owned['ar_'+a.id]=true);
