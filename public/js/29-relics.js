@@ -1,17 +1,33 @@
 // ══════════════ 유물(Relics) — 수집 + 실전 발동 효과 ══════════════
 const RELICS=[
   {id:'relic_greed',    name:'탐욕의 인장',       icon:'💰', rarity:'common',
-   desc:'처치 시 일정 확률로 코인을 2배로 획득합니다.', type:'greed', base:5, inc:1, price:40000},
+   desc:'처치 시 일정 확률로 소량의 코인을 추가로 획득합니다.', type:'greed', base:5, inc:1, price:40000},
+  {id:'relic_claw',     name:'사냥꾼의 발톱',     icon:'🐾', rarity:'common',
+   desc:'공격력이 영구적으로 증가합니다.', type:'dmgBoost', base:3, inc:0.6, price:40000},
+  {id:'relic_wind',     name:'바람의 날개',       icon:'🪽', rarity:'common',
+   desc:'이동속도가 영구적으로 증가합니다.', type:'spdBoost', base:0.3, inc:0.05, price:40000},
   {id:'relic_phoenix',  name:'불사조의 깃털',     icon:'🪶', rarity:'rare',
    desc:'8초마다 최대체력의 일정 %를 자동 회복합니다.', type:'regen', base:4, inc:0.4, price:250000},
+  {id:'relic_turtle',   name:'거북의 등껍질',     icon:'🐢', rarity:'rare',
+   desc:'최대체력이 영구적으로 증가합니다.', type:'hpBoost', base:6, inc:1, price:250000},
+  {id:'relic_hawk',     name:'매의 눈',           icon:'🦅', rarity:'rare',
+   desc:'치명타 확률이 영구적으로 증가합니다.', type:'critBoost', base:3, inc:0.6, price:250000},
   {id:'relic_guard',    name:'수호의 방패',       icon:'🛡️', rarity:'epic',
    desc:'체력이 25% 이하로 떨어지면(쿨타임 20초) 잠시 무적이 됩니다.', type:'guard', base:2, inc:0.1, price:1200000},
   {id:'relic_thunder',  name:'번개의 파편',       icon:'⚡', rarity:'epic',
    desc:'피격 시 일정 확률로 가장 가까운 적에게 번개 반격을 가합니다.', type:'thunder', base:4, inc:0.8, price:1200000},
+  {id:'relic_sage',     name:'현자의 돌',         icon:'📘', rarity:'epic',
+   desc:'시즌 경험치 획득량이 영구적으로 증가합니다.', type:'xpBoost', base:8, inc:1.5, price:1200000},
+  {id:'relic_fortune',  name:'재화의 축복',       icon:'🧿', rarity:'epic',
+   desc:'웨이브 클리어 및 보스 처치 코인 보상이 영구적으로 증가합니다.', type:'coinBoost', base:8, inc:1.5, price:1200000},
   {id:'relic_chain',    name:'연쇄 폭발의 유물',  icon:'💥', rarity:'legendary',
    desc:'처치 시 일정 확률로 주변 적들에게 연쇄 피해를 입힙니다.', type:'chain', base:2, inc:0.3, price:5000000},
+  {id:'relic_frost',    name:'서리의 파편',       icon:'❄️', rarity:'legendary',
+   desc:'처치 시 일정 확률로 주변 적들을 잠시 얼립니다.', type:'frost', base:6, inc:0.6, price:5000000},
   {id:'relic_immortal', name:'불멸의 심장',       icon:'❤️‍🔥', rarity:'mythic',
    desc:'치명적인 피해를 판당 1회 막고 체력 일부로 되살아납니다.', type:'immortal', base:10, inc:1, price:25000000},
+  {id:'relic_storm',    name:'폭풍의 심장',       icon:'🌪️', rarity:'mythic',
+   desc:'공격력·최대체력·이동속도가 모두 영구적으로 증가합니다.', type:'allBoost', base:5, inc:0.8, price:25000000},
 ];
 const RELIC_RARITY_LABEL={common:'커먼',rare:'레어',epic:'에픽',legendary:'레전더리',mythic:'신화'};
 const RELIC_RARITY_COLOR={common:'#9ca3af',rare:'#3b82f6',epic:'#a855f7',legendary:'#f59e0b',mythic:'#ec4899'};
@@ -141,12 +157,21 @@ function renderRelicScreen(){
       const lv=relicLevel(relic.id);
       const cost=relicLevelCost(relic.id);
       let valTxt='';
-      if(relic.type==='greed') valTxt='확률 '+relicVal(relic).toFixed(1)+'%';
-      else if(relic.type==='regen') valTxt='8초마다 '+relicVal(relic).toFixed(1)+'% 회복';
-      else if(relic.type==='guard') valTxt='무적 '+relicVal(relic).toFixed(1)+'초 (쿨타임 20초)';
-      else if(relic.type==='thunder') valTxt='확률 '+relicVal(relic).toFixed(1)+'%';
-      else if(relic.type==='chain') valTxt='확률 '+relicVal(relic).toFixed(1)+'%';
-      else if(relic.type==='immortal') valTxt='체력 '+relicVal(relic).toFixed(1)+'%로 부활';
+      const vv=relicVal(relic).toFixed(1);
+      if(relic.type==='greed') valTxt='확률 '+vv+'%';
+      else if(relic.type==='regen') valTxt='8초마다 '+vv+'% 회복';
+      else if(relic.type==='guard') valTxt='무적 '+vv+'초 (쿨타임 20초)';
+      else if(relic.type==='thunder') valTxt='확률 '+vv+'%';
+      else if(relic.type==='chain') valTxt='확률 '+vv+'%';
+      else if(relic.type==='immortal') valTxt='체력 '+vv+'%로 부활';
+      else if(relic.type==='dmgBoost') valTxt='공격력 +'+vv+'%';
+      else if(relic.type==='spdBoost') valTxt='이동속도 +'+vv;
+      else if(relic.type==='hpBoost') valTxt='최대체력 +'+vv+'%';
+      else if(relic.type==='critBoost') valTxt='치명타 확률 +'+vv+'%';
+      else if(relic.type==='xpBoost') valTxt='시즌 경험치 +'+vv+'%';
+      else if(relic.type==='coinBoost') valTxt='코인 보상 +'+vv+'%';
+      else if(relic.type==='frost') valTxt='확률 '+vv+'%';
+      else if(relic.type==='allBoost') valTxt='공격력/체력 +'+vv+'% · 이동속도 +'+(vv*0.06).toFixed(2);
       card.innerHTML='<div class="ach-ico">'+relic.icon+'</div>'+
         '<div class="ach-info">'+
           '<div class="ach-name" style="color:'+RELIC_RARITY_COLOR[relic.rarity]+';">'+relic.name+' <span style="font-size:9px;color:#6b7280;">['+RELIC_RARITY_LABEL[relic.rarity]+']</span></div>'+
@@ -181,6 +206,7 @@ let _relicState={ guardCd:0, immortalReady:false, regenT:0, chaining:false };
 
 function initRelics(){
   _relicState={ guardCd:0, immortalReady:equippedRelicIds.includes('relic_immortal'), regenT:0, chaining:false };
+  applyRelicPassives();
 }
 
 function tickRelics(){
@@ -207,7 +233,7 @@ function procRelicOnKill(z){
     if(Math.random()*100<relicVal(relic)){
       const bonus=Math.floor((z.isBoss?z.bd.reward.c:(ZT[z.type]?.sc||10)));
       coins+=bonus;
-      setMsg('💰 탐욕의 인장 발동! +'+bonus.toLocaleString());
+      setMsg('💰 탐욕의 인장 발동! +'+bonus.toLocaleString()+' 코인');
       setTimeout(()=>{if(running)setMsg('');},900);
     }
   }
@@ -220,6 +246,33 @@ function procRelicOnKill(z){
       _relicState.chaining=false;
     }
   }
+  if(equippedRelicIds.includes('relic_frost')){
+    const relic=RELICS.find(r=>r.id==='relic_frost');
+    if(Math.random()*100<relicVal(relic)){
+      zoms.forEach(zz=>{ if(!zz.dead&&!zz.isBoss&&d2(zz.x,zz.y,z.x,z.y)<90**2) zz._frz=Math.max(zz._frz||0,90); });
+    }
+  }
+}
+
+// ── 패시브 스탯형 유물 (게임 시작 시 1회 적용, 펫 보너스와 동일한 방식) ──
+function applyRelicPassives(){
+  window._relicXpMult=1; window._relicCoinMult=1;
+  equippedRelicIds.forEach(id=>{
+    const relic=RELICS.find(r=>r.id===id);
+    if(!relic) return;
+    const v=relicVal(relic);
+    if(relic.type==='dmgBoost') P.dmgB=(P.dmgB||0)+Math.ceil(v/2);
+    else if(relic.type==='spdBoost') P.spd+=v;
+    else if(relic.type==='hpBoost'){ const bonus=Math.floor(P.maxHp*v/100); P.maxHp+=bonus; P.hp+=bonus; }
+    else if(relic.type==='critBoost') P._wepCrit=(P._wepCrit||0)+v/100;
+    else if(relic.type==='xpBoost') window._relicXpMult=(window._relicXpMult||1)+v/100;
+    else if(relic.type==='coinBoost') window._relicCoinMult=(window._relicCoinMult||1)+v/100;
+    else if(relic.type==='allBoost'){
+      P.dmgB=(P.dmgB||0)+Math.ceil(v/2);
+      const bonus=Math.floor(P.maxHp*v/100); P.maxHp+=bonus; P.hp+=bonus;
+      P.spd+=v*0.06;
+    }
+  });
 }
 
 function procRelicGuard(nextHp){

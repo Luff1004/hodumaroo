@@ -109,7 +109,7 @@ function showUpgOv(){
   if(selMap.boss)return; // 보스맵: 클리어 보상 별도
   stopLoop();
   const coinMult=1+(pUpgLv['pc']||0)*.05,enMult=1+(pUpgLv['pe']||0)*.05;
-  const ec=Math.floor((100+(shopLv['sh_coin']||0)*20)*coinMult*(partyBonus||1)*(window._petCoinMult||1));
+  const ec=Math.floor((100+(shopLv['sh_coin']||0)*20)*coinMult*(partyBonus||1)*(window._petCoinMult||1)*(window._relicCoinMult||1));
   const ee=Math.floor((100+(shopLv['sh_energy']||0)*30)*enMult*(partyBonus||1)*(window._petEnergyMult||1));
   coins+=ec;energy+=ee;saveAll();
   document.getElementById('uvw').textContent=(selMap&&selMap.id==='tower')?`${wave}층 완료 → ${wave+1}층`:`웨이브 ${wave} 완료 → 웨이브 ${wave+1}`;

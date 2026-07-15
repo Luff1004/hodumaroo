@@ -595,8 +595,8 @@ function updBossBar(){
   if(b.bd.phases){let ph='';for(const p of b.bd.phases)if(pct<=p.t){ph=p.m;break;}document.getElementById('bPhase').textContent=ph;}
 }
 function onBossDie(z){
-  coins+=Math.floor(z.bd.reward.c*(window._petCoinMult||1));energy+=Math.floor(z.bd.reward.e*(window._petEnergyMult||1));saveAll();updHUD();
-  addSeasonXP(Math.floor(z.bd.reward.c*0.5*(window._petXpMult||1))); // 보스 XP
+  coins+=Math.floor(z.bd.reward.c*(window._petCoinMult||1)*(window._relicCoinMult||1));energy+=Math.floor(z.bd.reward.e*(window._petEnergyMult||1));saveAll();updHUD();
+  addSeasonXP(Math.floor(z.bd.reward.c*0.5*(window._petXpMult||1)*(window._relicXpMult||1))); // 보스 XP
   // 보스 킬 기록
   if(z.bossMapId){ achStats.bossKills=achStats.bossKills||{}; achStats.bossKills[z.bossMapId]=(achStats.bossKills[z.bossMapId]||0)+1; }
   if(z.bd&&z.bd.id&&z.bd.id.startsWith('dream_')){ achStats.bossKills=achStats.bossKills||{}; const dk=z.bd.id.replace('_boss',''); achStats.bossKills[dk]=(achStats.bossKills[dk]||0)+1; }
@@ -1447,7 +1447,7 @@ function update(){
     if(!selMap.boss&&spawnedCnt>=totalSpawn&&zoms.filter(z=>!z.dead&&!z.isMinion).length===0){betweenWave=true;setMsg(selMap.id==='tower'?`✨ ${wave}층 클리어!`:`✨ 웨이브 ${wave} 클리어!`);if(wave>(achStats.maxWave||0))achStats.maxWave=wave;achStats.mapWave=achStats.mapWave||{};const prevBest=achStats.mapWave[selMap?.id]||0;if(wave>prevBest)achStats.mapWave[selMap.id]=wave;if(waveDmgTaken===0){achStats.noDmgWave=(achStats.noDmgWave||0)+1;}waveDmgTaken=0;if(!achStats.clearedMaps)achStats.clearedMaps=[];if(wave>=10&&!achStats.clearedMaps.includes(selMap.id))achStats.clearedMaps.push(selMap.id);achStats.waveClearsTotal=(achStats.waveClearsTotal||0)+1;checkAchievements();saveAch();if(typeof eventData!=='undefined'){eventData.points=(eventData.points||0)+10;saveEventData();}
     if(typeof _eggWaveKills!=='undefined'&&_eggWaveKills===0&&wave>=1&&typeof unlockEgg==='function')unlockEgg('egg_pacifist','secret_32');
     if(selMap.id==='tower'&&wave===99&&typeof unlockEgg==='function')unlockEgg('egg_mirror99','secret_37');
-    const xpGain=100*(wave+(selMap.diff||1))*((pUpgLv['pxp']||0)*.1+1)*(window._petXpMult||1);
+    const xpGain=100*(wave+(selMap.diff||1))*((pUpgLv['pxp']||0)*.1+1)*(window._petXpMult||1)*(window._relicXpMult||1);
     addSeasonXP(Math.floor(xpGain));
     // 폐허도시 클리어 기록
     if(selMap.id==='city'){
