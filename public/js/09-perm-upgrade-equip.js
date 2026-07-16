@@ -20,7 +20,7 @@ const PUGR=[
   {id:'pcp',name:'코인 보호',icon:'🛡️',d:lv=>`사망 시 코인 ${lv*20}% 보존`,b:500,i:400,m:5},
   {id:'pmg',name:'마그넷 범위',icon:'🧲',d:lv=>`수집 범위 +${lv*40}px`,b:300,i:250,m:8},
 ];
-function gpC(u){return u.b+(pUpgLv[u.id]||0)*u.i;}
+function gpC(u){const lv=pUpgLv[u.id]||0;return Math.round((u.b+lv*u.i)*(1+lv*0.22));}
 function renderUpg(){
   updRes();const g=document.getElementById('uGrid');g.innerHTML='';
   PUGR.forEach(u=>{
