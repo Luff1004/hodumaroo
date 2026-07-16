@@ -293,7 +293,7 @@ setInterval(()=>{
   }
 },1000);
 
-const SCREENS=['sLobby','sMap','sWeapon','sShop','sJob','sUpg','sEquip','sParty','sSeason','sDream','sDreamMap','sAch','sEnchant','sPotionShop','sDailyQuest','sPets','sEvent','sRecords','sRelics'];
+const SCREENS=['sLobby','sMap','sWeapon','sShop','sJob','sUpg','sEquip','sParty','sSeason','sDream','sDreamMap','sAch','sEnchant','sPotionShop','sDailyQuest','sPets','sEvent','sRecords','sRelics','sStarDrop'];
 function go(id){
   SCREENS.forEach(s=>{const el=document.getElementById(s);if(el)el.classList.toggle('on',s===id);});
   document.getElementById('gameCanvas').style.display='none';
@@ -332,10 +332,19 @@ function showGame(){
   document.getElementById('gameCanvas').style.display='block';
   document.getElementById('gameUI').style.display='block';
 }
+let _resPrevCoins=coins,_resPrevEnergy=energy;
+function _resPopFx(el){
+  if(!el)return;
+  el.classList.remove('res-pop');
+  void el.offsetWidth;
+  el.classList.add('res-pop');
+}
 function updRes(){
-  ['lc','sc','jc'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=coins;});
-  ['le','se','ue','je'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=energy;});
-  
+  const coinsUp=coins>_resPrevCoins, energyUp=energy>_resPrevEnergy;
+  ['lc','sc','jc'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent=coins;if(coinsUp)_resPopFx(el.parentElement||el);}});
+  ['le','se','ue','je'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent=energy;if(energyUp)_resPopFx(el.parentElement||el);}});
+  _resPrevCoins=coins;_resPrevEnergy=energy;
+  if(typeof renderPlayerLevelBar==='function')renderPlayerLevelBar();
 }
 updRes();
 updateTitleDisp();

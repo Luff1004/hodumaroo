@@ -108,6 +108,11 @@ const ITEMS = [
   {id:'ev_gr_item1', name:'폭죽 선물상자', icon:'🎁', price:0, type:'active', cd:500, rarity:'rare', desc:'산타의 선물배달 이벤트 보상. 반경 190 폭발 55 데미지', achievement:true},
   {id:'ev_gr_item2', name:'따뜻한 코코아', icon:'☕', price:0, type:'active', cd:700, rarity:'rare', desc:'산타의 선물배달 이벤트 보상. HP 40% 회복 + 10초 재생', achievement:true},
   {id:'ev_gr_item3', name:'루돌프 소환', icon:'🦌', price:0, type:'active', cd:900, rarity:'epic', desc:'산타의 선물배달 이벤트 보상. 빠른 루돌프 소환수 25초', achievement:true},
+  // ── 차원의 별(스타드롭) 전용 아이템 4종 (신화 등급 이상 전용 보상) ──
+  {id:'sd_item_mythic',  name:'신화의 파편',   icon:'🔮', price:0, type:'active', cd:1300, rarity:'mythic',  desc:'차원의 별【신화】보상. 반경 240 폭발 130 데미지 + HP 30% 회복', sdOnly:true},
+  {id:'sd_item_ancient', name:'태초의 모래시계', icon:'⏳', price:0, type:'active', cd:1500, rarity:'ancient', desc:'차원의 별【전설】보상. 화면 내 모든 적 4초 동결', sdOnly:true},
+  {id:'sd_item_divine',  name:'초월의 성배',   icon:'🏆', price:0, type:'active', cd:1600, rarity:'divine',  desc:'차원의 별【초월】보상. HP 완전 회복 + 6초 무적', sdOnly:true},
+  {id:'sd_item_absolute',name:'차원의 핵',     icon:'🌌', price:0, type:'active', cd:1800, rarity:'absolute',desc:'차원의 별【차원】최종 보상. 화면 내 모든 적에게 200 데미지', sdOnly:true},
 ];
 
 // 플레이어 보유 아이템

@@ -266,7 +266,7 @@ function renderEnchantList(){
     const d=document.createElement('div');
     d.className='ei'+(isSel?' eq':'');
     d.style.cursor='pointer';
-    d.innerHTML=`<div class="eico">${it.icon}</div><div><div class="enm" style="color:#e9d5ff;">${it.name}</div><div class="elv" style="color:#c4b5fd;">${tier!=null?'✨ '+ENCHANT_TIERS[tier].name:'미인챈트'}</div>${enchantStatText(key,enchantCat)}</div>`;
+    d.innerHTML=`<div class="eico">${it.icon}</div><div><div class="enm">${it.name}</div><div class="elv" style="color:#7c3aed;font-weight:700;">${tier!=null?'✨ '+ENCHANT_TIERS[tier].name:'미인챈트'}</div>${enchantStatText(key,enchantCat)}</div>`;
     d.onclick=()=>{enchantSelId=it.id;renderEnchantList();renderEnchantDetail();};
     list.appendChild(d);
   });

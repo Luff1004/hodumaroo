@@ -147,6 +147,37 @@ const SEASON_NUM = 1;
 function getSeasonMonth(){ return new Date().getMonth()+1; }
 function isOddMonth(){ return getSeasonMonth()%2===1; }
 
+// ── 시즌패스 잠금 해제 (25만 코인) ──
+const SP_UNLOCK_COST = 250000;
+function isSeasonUnlocked(){
+  if(typeof devModeUnlocked!=='undefined'&&devModeUnlocked)return true;
+  return !!lS('hd_sp_unlocked');
+}
+function updateSeasonButton(){
+  const txt=document.getElementById('seasonTabTxt');if(!txt)return;
+  if(isSeasonUnlocked()){
+    txt.textContent='시즌패스';
+  } else {
+    txt.innerHTML='시즌패스<br><span style="font-size:8px;opacity:.85;">🪙'+SP_UNLOCK_COST.toLocaleString()+'</span>';
+  }
+}
+function openSeasonPass(){
+  if(isSeasonUnlocked()){ go('sSeason'); return; }
+  const txt=document.getElementById('seasonTabTxt');
+  if(coins<SP_UNLOCK_COST){
+    if(txt&&!txt._spMsgT){
+      const prev=txt.innerHTML;
+      txt.innerHTML='🪙'+SP_UNLOCK_COST.toLocaleString()+' 필요!';
+      txt._spMsgT=setTimeout(()=>{txt.innerHTML=prev;txt._spMsgT=null;},1500);
+    }
+    return;
+  }
+  coins-=SP_UNLOCK_COST; sv('hd_c',coins); updRes();
+  sv('hd_sp_unlocked',true);
+  updateSeasonButton();
+  go('sSeason');
+}
+
 // SP_REWARDS는 아래 배열 기준, Lv25/50은 월에 따라 동적 변환
 const SP_REWARDS_BASE = [
   {lv:1,  ico:'🪙', rwd:'코인 +500',           type:'coins',    val:500},
@@ -416,6 +447,7 @@ setTimeout(()=>{
   updRes();
   initDreamBtn();
   checkDreamUnlock();
+  updateSeasonButton();
 },500);
 
 

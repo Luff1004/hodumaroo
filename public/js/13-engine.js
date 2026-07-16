@@ -496,6 +496,7 @@ function hitZ(z,dmg){
     }
     z.dead=true;z.dT=z.isBoss?80:35;z._justDied=true;
     score+=Math.floor((z.isBoss?z.bd.reward.c:(ZT[z.type]?.sc||10))*(1+(pUpgLv['pxp']||0)*.1));kills++;
+    if(!z.isBoss&&typeof addPlayerXP==='function')addPlayerXP(2);
     achStats.kills=(achStats.kills||0)+1;
     if(coins===0&&typeof unlockEgg==='function')unlockEgg('egg_broke','secret_18');
     if(z._cursedVisitor&&typeof unlockEgg==='function')unlockEgg('egg_friday13','secret_22');
@@ -597,6 +598,7 @@ function updBossBar(){
 function onBossDie(z){
   coins+=Math.floor(z.bd.reward.c*(window._petCoinMult||1)*(window._relicCoinMult||1));energy+=Math.floor(z.bd.reward.e*(window._petEnergyMult||1));saveAll();updHUD();
   addSeasonXP(Math.floor(z.bd.reward.c*0.5*(window._petXpMult||1)*(window._relicXpMult||1))); // 보스 XP
+  if(typeof addPlayerXP==='function')addPlayerXP(Math.floor(z.bd.reward.c*0.5*(window._petXpMult||1)*(window._relicXpMult||1)));
   // 보스 킬 기록
   if(z.bossMapId){ achStats.bossKills=achStats.bossKills||{}; achStats.bossKills[z.bossMapId]=(achStats.bossKills[z.bossMapId]||0)+1; }
   if(z.bd&&z.bd.id&&z.bd.id.startsWith('dream_')){ achStats.bossKills=achStats.bossKills||{}; const dk=z.bd.id.replace('_boss',''); achStats.bossKills[dk]=(achStats.bossKills[dk]||0)+1; }
@@ -1449,6 +1451,7 @@ function update(){
     if(selMap.id==='tower'&&wave===99&&typeof unlockEgg==='function')unlockEgg('egg_mirror99','secret_37');
     const xpGain=100*(wave+(selMap.diff||1))*((pUpgLv['pxp']||0)*.1+1)*(window._petXpMult||1)*(window._relicXpMult||1);
     addSeasonXP(Math.floor(xpGain));
+    if(typeof addPlayerXP==='function')addPlayerXP(Math.floor(xpGain));
     // 폐허도시 클리어 기록
     if(selMap.id==='city'){
       const prev=parseInt(localStorage.getItem('hd_city_clear')||'0');
@@ -3024,6 +3027,7 @@ function submitCode(){
     if(typeof renderEventGameScreen==='function')renderEventGameScreen();
     if(typeof updatePetButton==='function')updatePetButton();
     if(typeof updateRelicButton==='function')updateRelicButton();
+    if(typeof updateSeasonButton==='function')updateSeasonButton();
     coins=999999999999;energy=999999999999;
     Object.values(WEPS).forEach(w=>owned[w.id]=true);
     ARMORS.forEach(a=>owned['ar_'+a.id]=true);

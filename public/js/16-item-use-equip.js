@@ -96,6 +96,23 @@ function useItem(itemId){
     case 'sp_item_jan': zoms.forEach(z=>{if(!z.dead)z._frz=Math.max(z._frz||0,300);}); addExp(MW/2,camY+300,350,'#bae6fd'); break;
     case 'sp_item_jun': for(let i=-2;i<=2;i++)for(let j=0;j<8;j++){const a=j/8*Math.PI*2;buls.push({x:P.x+i*60,y:P.y,vx:Math.cos(a)*9,vy:Math.sin(a)*9,r:7,l:130,en:false,dmg:35,col:'#38bdf8',_freezeAtk:true,_explosive:true});} break;
     case 'sp_item_dec': for(let i=0;i<50;i++){gTimeout(()=>{if(!running)return;const rx=Math.random()*MW,ry=camY-10;buls.push({x:rx,y:ry,vx:0,vy:8,r:6,l:100,en:false,dmg:25,col:'#fbbf24'});},i*60);} P.hp=P.maxHp; break;
+    case 'sd_item_mythic':
+      addExp(P.x,P.y,240,'#ec4899');
+      zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,P.x,P.y)<240**2)hitZ(z,130);});
+      P.hp=Math.min(P.maxHp,P.hp+Math.ceil(P.maxHp*.3));
+      break;
+    case 'sd_item_ancient':
+      zoms.forEach(z=>{if(!z.dead)z._frz=Math.max(z._frz||0,240);});
+      addExp(MW/2,camY+300,400,'#d97706');
+      break;
+    case 'sd_item_divine':
+      P.hp=P.maxHp;
+      P._invincible=Math.max(P._invincible||0,360);
+      break;
+    case 'sd_item_absolute':
+      zoms.forEach(z=>{if(!z.dead)hitZ(z,200);});
+      addExp(MW/2,camY+300,450,'#f472b6');
+      break;
     case 'ev_charm':
       addExp(P.x,P.y,220,'#ec4899');
       zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,P.x,P.y)<220**2)hitZ(z,90);});

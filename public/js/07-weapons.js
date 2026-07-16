@@ -85,6 +85,13 @@ const WEPS={
 
   // ── 이스터에그 전용 무기 (secret:true → 이름/등급 항상 ???/SECRET 표기) ──
   egg_letter_wep:{id:'egg_letter_wep',name:'마지막 인사',icon:'📜',price:0,ammo:999,max:999,rel:0,spd:0,dmg:40,r:0,life:0,knife:true,sg:false,chain:true,pierce:true,secret:true,desc:'모든 이스터에그를 찾아낸 자에게만 전해지는, 만든 이의 마지막 무기'},
+
+  // ── 차원의 별(스타드롭) 전용 무기 5종 (영웅 등급 이상 전용 보상) ──
+  sd_wep_legend:{id:'sd_wep_legend',name:'영웅왕의 검',icon:'🗡️',price:0,ammo:999,max:999,rel:0,spd:0,dmg:50,r:0,life:0,knife:true,sg:false,chain:true,sdOnly:true,rarity:'legendary',desc:'차원의 별【영웅】보상. 데미지100, 광역 참격 연쇄'},
+  sd_wep_mythic:{id:'sd_wep_mythic',name:'신화의 대지팡이',icon:'🪄',price:0,ammo:14,max:14,rel:110,spd:15,dmg:35,r:8,life:190,knife:false,sg:false,energy:true,explosive:true,pierce:true,sdOnly:true,rarity:'mythic',desc:'차원의 별【신화】보상. 관통+폭발 에너지탄'},
+  sd_wep_ancient:{id:'sd_wep_ancient',name:'태초의 창',icon:'🔱',price:0,ammo:999,max:999,rel:0,spd:0,dmg:70,r:0,life:0,knife:true,sg:false,chain:true,pierce:true,sdOnly:true,rarity:'ancient',desc:'차원의 별【전설】보상. 데미지140, 관통+연쇄 참격'},
+  sd_wep_divine:{id:'sd_wep_divine',name:'초월의 성스러운 활',icon:'🏹',price:0,ammo:10,max:10,rel:95,spd:22,dmg:60,r:7,life:260,knife:false,sg:false,energy:true,pierce:true,explosive:true,sdOnly:true,rarity:'divine',desc:'차원의 별【초월】보상. 관통+폭발 신성 화살'},
+  sd_wep_absolute:{id:'sd_wep_absolute',name:'차원 종결자',icon:'🌌',price:0,ammo:999,max:999,rel:0,spd:0,dmg:100,r:0,life:0,knife:true,sg:false,chain:true,pierce:true,freeze:true,sdOnly:true,rarity:'absolute',desc:'차원의 별【차원】최종 보상. 데미지200, 관통+연쇄+동결'},
 };
 const DFLT=['pistol','shotgun','knife'];
 let selWepId='pistol';

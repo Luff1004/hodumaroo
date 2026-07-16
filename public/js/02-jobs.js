@@ -401,6 +401,26 @@ const JOBS = [
    desc:'로비에 오래 머문 어느 순간, 구석의 그림자가 분명히 움직이는 걸 본 자.',
    color:'#3f3f46',skinBg:'linear-gradient(135deg,#09090b,#27272a)',
    skills:[{key:'E',name:'그림자 걸음',icon:'🌚',desc:'2초간 은신 + 이동속도+2',cd:780,fn:'jobSkillE'}]},
+  // ── 차원의 별(스타드롭) 전용 직업 4종 (신화 등급 이상 전용 보상) ──
+  {id:'sd_job_mythic',name:'신화의 용기사',icon:'🐲',price:0,sdOnly:true,rarity:'mythic',
+   desc:'차원의 별【신화】보상. 용의 숨결로 전방을 불태우는 용기사.',
+   color:'#ec4899',skinBg:'linear-gradient(135deg,#4c0519,#831843)',
+   skills:[{key:'E',name:'용의 숨결',icon:'🐲',desc:'전방 부채꼴 화염 브레스, 큰 피해+화상',cd:660,fn:'jobSkillE'}]},
+  {id:'sd_job_ancient',name:'태초의 현자',icon:'📜',price:0,sdOnly:true,rarity:'ancient',
+   desc:'차원의 별【전설】보상. 태초의 시간을 다루는 현자.',
+   color:'#d97706',skinBg:'linear-gradient(135deg,#451a03,#92400e)',
+   skills:[{key:'E',name:'시간 왜곡',icon:'⏳',desc:'반경 300 모든 적 3초간 동결',cd:720,fn:'jobSkillE'},
+           {key:'Q',name:'태초의 지혜',icon:'📜',desc:'HP 50% 회복 + 6초간 데미지+10',cd:1200,fn:'jobSkillQ'}]},
+  {id:'sd_job_divine',name:'초월자',icon:'😇',price:0,sdOnly:true,rarity:'divine',
+   desc:'차원의 별【초월】보상. 인간을 초월한 신성한 존재.',
+   color:'#0ea5e9',skinBg:'linear-gradient(135deg,#0c4a6e,#0369a1)',
+   skills:[{key:'E',name:'신성 폭발',icon:'✨',desc:'반경 350 모든 적에게 180 데미지 + 동결 2초',cd:720,fn:'jobSkillE'},
+           {key:'Q',name:'축복',icon:'😇',desc:'HP 완전 회복 + 8초간 무적',cd:1500,fn:'jobSkillQ'}]},
+  {id:'sd_job_absolute',name:'차원 지배자',icon:'🌌',price:0,sdOnly:true,rarity:'absolute',
+   desc:'차원의 별【차원】최종 보상. 모든 차원을 지배하는 궁극의 존재.',
+   color:'#f472b6',skinBg:'linear-gradient(135deg,#0f0020,#4c1d95)',
+   skills:[{key:'E',name:'차원 붕괴',icon:'🌌',desc:'맵 전체 모든 적에게 250 데미지',cd:900,fn:'jobSkillE'},
+           {key:'Q',name:'차원의 힘',icon:'💫',desc:'HP 완전 회복 + 10초 무적 + 10초간 데미지+20',cd:1800,fn:'jobSkillQ'}]},
 ];
 
 let ownedJobs = lJ('hd_jobs', {});
@@ -466,6 +486,11 @@ function renderJob() {
       const mStr2=job.eventOnly?'이벤트 전용':job.spMonth?job.spMonth+'월 Lv.'+job.spLv+' 보상':'시즌패스 전용';
       sbtn.textContent=(job.eventOnly?'🎉 ':'🌟 ')+mStr2;
       bw.appendChild(sbtn);
+    } else if(job.sdOnly&&!isOwned){
+      const sdbtn=document.createElement('button');
+      sdbtn.style.cssText='padding:5px 8px;border:none;border-radius:7px;font-size:9px;font-weight:700;width:100%;background:linear-gradient(90deg,#0a0a1a,#4c1d95);color:#e9d5ff;cursor:default;';
+      sdbtn.textContent='🌠 차원의 별 전용';
+      bw.appendChild(sdbtn);
     } else if(isOwned){
       // 장착/해제 버튼
       const btn=document.createElement('button');

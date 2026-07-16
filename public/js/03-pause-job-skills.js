@@ -653,6 +653,46 @@ function execJobSkill(jobId, key) {
         setMsg('🌚 그림자 걸음.');
       }
       break;
+    // ── 차원의 별(스타드롭) 전용 직업 스킬 ──
+    case 'sd_job_mythic':
+      if(key==='E'){
+        for(let i=0;i<24;i++){const a=i/24*Math.PI*2;buls.push({x:P.x,y:P.y,vx:Math.cos(a)*10,vy:Math.sin(a)*10,r:8,l:110,en:false,dmg:25+(P.dmgB||0),col:'#ec4899',fire:true});}
+        setMsg('🐲 용의 숨결!');
+      }
+      break;
+    case 'sd_job_ancient':
+      if(key==='E'){
+        zoms.forEach(z=>{if(!z.dead&&!z.isMinion&&d2(z.x,z.y,P.x,P.y)<300**2)z._frz=Math.max(z._frz||0,180);});
+        setMsg('⏳ 시간 왜곡!');
+      } else if(key==='Q'){
+        P.hp=Math.min(P.maxHp,P.hp+Math.ceil(P.maxHp*.5));
+        P.dmgB=(P.dmgB||0)+10;
+        setTimeout(()=>{P.dmgB=(P.dmgB||0)-10;},6000);
+        setMsg('📜 태초의 지혜!');
+      }
+      break;
+    case 'sd_job_divine':
+      if(key==='E'){
+        zoms.forEach(z=>{if(!z.dead&&!z.isMinion&&d2(z.x,z.y,P.x,P.y)<350**2){hitZ(z,180);z._frz=Math.max(z._frz||0,120);}});
+        setMsg('✨ 신성 폭발!');
+      } else if(key==='Q'){
+        P.hp=P.maxHp;
+        P._invincible=(P._invincible||0)+480;
+        setMsg('😇 축복!');
+      }
+      break;
+    case 'sd_job_absolute':
+      if(key==='E'){
+        zoms.forEach(z=>{if(!z.dead&&!z.isMinion)hitZ(z,250);});
+        setMsg('🌌 차원 붕괴!');
+      } else if(key==='Q'){
+        P.hp=P.maxHp;
+        P._invincible=(P._invincible||0)+600;
+        P.dmgB=(P.dmgB||0)+20;
+        setTimeout(()=>{P.dmgB=(P.dmgB||0)-20;},10000);
+        setMsg('💫 차원의 힘!');
+      }
+      break;
   }
   setTimeout(()=>{if(running)setMsg('');},2500);
 }

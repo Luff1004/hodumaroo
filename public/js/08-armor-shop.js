@@ -58,6 +58,14 @@ const ARMORS=[
   {id:'ev_wm_armor',name:'여름 축제 반다나',icon:'🍉',price:0,def:56,bc:'#22c55e',ac:'#16a34a',desc:'여름 수박격파 대회 이벤트 보상. 방어+56%, 이동속도+1, HP+180',bonus:{spd:1,hp:180},rarity:'legendary',eventOnly:true},
   {id:'ev_as_armor',name:'사과농장 조끼',icon:'🍎',price:0,def:50,bc:'#dc2626',ac:'#991b1b',desc:'가을 사과 슬링샷 대회 이벤트 보상. 방어+50%, 데미지+7, HP+150',bonus:{dmg:7,hp:150},rarity:'legendary',eventOnly:true},
   {id:'ev_gr_armor',name:'산타 코트',icon:'🎅',price:0,def:48,bc:'#ef4444',ac:'#b91c1c',desc:'산타의 선물배달 이벤트 보상. 방어+48%, 냉기오라, HP+150',bonus:{coldAura:true,hp:150},rarity:'legendary',eventOnly:true},
+  // ── 차원의 별(스타드롭) 전용 갑옷 7종 (등급별 1종씩) ──
+  {id:'sd_ar_rare',name:'여명의 가죽갑옷',icon:'🥋',price:0,def:28,bc:'#818cf8',ac:'#6366f1',desc:'차원의 별【희귀】보상. 방어+28%, HP+60',bonus:{hp:60},sdOnly:true,rarity:'rare'},
+  {id:'sd_ar_epic',name:'만월의 사슬갑옷',icon:'🌕',price:0,def:42,bc:'#c084fc',ac:'#a855f7',desc:'차원의 별【초희귀】보상. 방어+42%, HP+100, 데미지+4',bonus:{hp:100,dmg:4},sdOnly:true,rarity:'epic'},
+  {id:'sd_ar_legend',name:'영웅왕의 판금갑옷',icon:'🛡️',price:0,def:58,bc:'#fbbf24',ac:'#f59e0b',desc:'차원의 별【영웅】보상. 방어+58%, HP+150, 데미지+7, 치명타+12%',bonus:{hp:150,dmg:7,crit:12},sdOnly:true,rarity:'legendary'},
+  {id:'sd_ar_mythic',name:'신화의 용비늘 갑주',icon:'🐲',price:0,def:72,bc:'#f472b6',ac:'#ec4899',desc:'차원의 별【신화】보상. 방어+72%, HP+220, 데미지+10, 치명타+18%, 재생+6',bonus:{hp:220,dmg:10,crit:18,regen:6},sdOnly:true,rarity:'mythic'},
+  {id:'sd_ar_ancient',name:'태초의 성흔 갑옷',icon:'🌠',price:0,def:85,bc:'#d97706',ac:'#92400e',desc:'차원의 별【전설】보상. 방어+85%, HP+320, 데미지+14, 치명타+25%, 재생+10, 회피+15%',bonus:{hp:320,dmg:14,crit:25,regen:10,dodge:15},sdOnly:true,rarity:'ancient'},
+  {id:'sd_ar_divine',name:'초월자의 신성갑주',icon:'😇',price:0,def:95,bc:'#38bdf8',ac:'#0ea5e9',desc:'차원의 별【초월】보상. 방어+95%, HP+450, 데미지+18, 치명타+32%, 재생+14, 회피+22%, 흡혈+10',bonus:{hp:450,dmg:18,crit:32,regen:14,dodge:22,lifesteal:10},sdOnly:true,rarity:'divine'},
+  {id:'sd_ar_absolute',name:'차원 지배자의 갑주',icon:'👑',price:0,def:120,bc:'#ffffff',ac:'#f472b6',desc:'차원의 별【차원】최종 보상. 방어+120%, HP+700, 데미지+25, 치명타+45%, 재생+20, 회피+30%, 흡혈+18, 이동속도+1.5',bonus:{hp:700,dmg:25,crit:45,regen:20,dodge:30,lifesteal:18,spd:1.5},sdOnly:true,rarity:'absolute'},
 ];
 
 // ══════════════ 상점 ══════════════
@@ -97,7 +105,7 @@ function renderShop(){
       g.appendChild(d);
     });
   } else if(curShopTab==='armor'){
-    ARMORS.filter(ar=>!ar.spOnly&&!ar.eventOnly).forEach(ar=>{
+    ARMORS.filter(ar=>!ar.spOnly&&!ar.eventOnly&&!ar.sdOnly).forEach(ar=>{
       const ow=owned['ar_'+ar.id]||false,eq=eqArmor===ar.id,cb=!ow&&coins>=ar.price;
       const d=document.createElement('div');const arRarCls=ar.rarity?' rar-'+ar.rarity:'';d.className='si'+(eq?' own':cb?' cb2':ow?' own':'')+arRarCls;
       const ico=document.createElement('div');ico.className='sico';ico.textContent=ar.icon;d.appendChild(ico);
@@ -135,11 +143,32 @@ function renderShop(){
       }
       g.appendChild(d);
     });
+    // ── 차원의 별(스타드롭) 전용 갑옷 섹션 ──
+    const _sdaHdr=document.createElement('div');
+    _sdaHdr.style.cssText='grid-column:1/-1;padding:6px 10px;background:linear-gradient(90deg,#0a0a1a,#4c1d95,#0a0a1a);color:#e9d5ff;border-radius:8px;font-size:11px;font-weight:800;text-align:center;margin-top:8px;border:1px solid #a855f7;';
+    _sdaHdr.textContent='🌠 차원의 별 전용 갑옷';g.appendChild(_sdaHdr);
+    ARMORS.filter(ar=>ar.sdOnly).forEach(ar=>{
+      const ow=owned['ar_'+ar.id]||false;
+      const rarCls=ar.rarity?' rar-'+ar.rarity:'';
+      const d=document.createElement('div');
+      d.className='si'+(ow?' own':'')+rarCls;
+      if(!ow)d.style.cssText+='opacity:0.75;';
+      const ico=document.createElement('div');ico.className='sico';ico.textContent=ar.icon;d.appendChild(ico);
+      const nm=document.createElement('div');nm.className='snm';nm.textContent=ar.name;d.appendChild(nm);
+      const ds=document.createElement('div');ds.className='sds';ds.textContent=ar.desc;d.appendChild(ds);
+      if(ow){
+        const done=document.createElement('div');done.style.cssText='font-size:9px;color:#e9d5ff;font-weight:700;margin-top:3px;';done.textContent='✅ 보유 (장비탭에서 장착)';d.appendChild(done);
+      } else {
+        const lock=document.createElement('div');lock.style.cssText='font-size:9px;background:#1a0a3e;color:#c084fc;padding:3px 6px;border-radius:6px;border:1px solid #7c3aed;margin-top:3px;';
+        lock.textContent='🌠 차원의 별 뽑기 전용';d.appendChild(lock);
+      }
+      g.appendChild(d);
+    });
   } else if(curShopTab==='gameitem'){
     // 게임 아이템 상점
     const glitch=['ITEMS','아이템','SHOP'];
     const hdr=document.createElement('div');hdr.style.cssText='grid-column:1/-1;font-size:11px;color:#6b7280;margin-bottom:4px;';hdr.textContent='✨ 사용 가능 아이템 (장비탭에서 슬롯에 장착)';g.appendChild(hdr);
-    ITEMS.filter(it=>!it.spOnly&&!it.achievement).forEach(it=>{
+    ITEMS.filter(it=>!it.spOnly&&!it.achievement&&!it.sdOnly).forEach(it=>{
       const ow=ownedItems[it.id]||false;
       const cb=!ow&&coins>=it.price&&it.price>0;
       const rarCls=it.rarity?' rar-'+it.rarity:'';
@@ -174,8 +203,21 @@ function renderShop(){
       else{const lock=document.createElement('div');lock.style.cssText='font-size:9px;background:#1a0a3e;color:#c084fc;padding:3px 6px;border-radius:6px;border:1px solid #7c3aed;margin-top:3px;';lock.textContent='🌟 '+(it.spMonth||'?')+'월 시즌 Lv.'+( it.spLv||15)+' 보상';d.appendChild(lock);}
       g.appendChild(d);
     });
+    // 차원의 별(스타드롭) 전용 아이템 섹션
+    const sdiHdr=document.createElement('div');sdiHdr.style.cssText='grid-column:1/-1;padding:6px 10px;background:linear-gradient(90deg,#0a0a1a,#4c1d95,#0a0a1a);color:#e9d5ff;border-radius:8px;font-size:11px;font-weight:800;text-align:center;margin-top:8px;border:1px solid #a855f7;';sdiHdr.textContent='🌠 차원의 별 전용 아이템';g.appendChild(sdiHdr);
+    ITEMS.filter(it=>it.sdOnly).forEach(it=>{
+      const ow=ownedItems[it.id]||false;
+      const d=document.createElement('div');d.className='si'+(ow?' own':'')+(it.rarity?' rar-'+it.rarity:'');
+      if(!ow)d.style.cssText+='opacity:0.75;';
+      const ico=document.createElement('div');ico.className='sico';ico.textContent=it.icon;d.appendChild(ico);
+      const nm=document.createElement('div');nm.className='snm';nm.textContent=it.name;d.appendChild(nm);
+      const ds=document.createElement('div');ds.className='sds';ds.textContent=it.desc;d.appendChild(ds);
+      if(ow){const done=document.createElement('div');done.style.cssText='font-size:9px;color:#e9d5ff;font-weight:700;margin-top:3px;';done.textContent='✅ 보유';d.appendChild(done);}
+      else{const lock=document.createElement('div');lock.style.cssText='font-size:9px;background:#1a0a3e;color:#c084fc;padding:3px 6px;border-radius:6px;border:1px solid #7c3aed;margin-top:3px;';lock.textContent='🌠 차원의 별 뽑기 전용';d.appendChild(lock);}
+      g.appendChild(d);
+    });
   } else {
-    Object.values(WEPS).filter(w=>!DFLT.includes(w.id)&&!w.spOnly&&!w.bossReward).forEach(w=>{
+    Object.values(WEPS).filter(w=>!DFLT.includes(w.id)&&!w.spOnly&&!w.bossReward&&!w.sdOnly).forEach(w=>{
       const isBossWep=!!w.bossReward;
       const ow=owned[w.id]||false;
       const cb=!ow&&!isBossWep&&coins>=w.price;
@@ -214,7 +256,7 @@ function renderShop(){
       const rarCls=w.rarity?' rar-'+w.rarity:'';
       const d=document.createElement('div');
       d.className='si'+(ow?' own':'')+rarCls;
-      if(!ow)d.style.cssText+='background:#0f0020;';
+      if(!ow&&!w.rarity)d.style.cssText+='background:#0f0020;';
       const ico=document.createElement('div');ico.className='sico';ico.textContent=w.icon;d.appendChild(ico);
       const nm=document.createElement('div');nm.className='snm';
       nm.innerHTML=w.name+(_rBdg[w.rarity]||'');d.appendChild(nm);
@@ -279,6 +321,28 @@ function renderShop(){
       } else {
         const lock=document.createElement('div');lock.style.cssText='font-size:9px;background:#1a0a24;color:#a78bfa;padding:3px 6px;border-radius:6px;border:1px solid #4c1d95;margin-top:3px;';
         lock.textContent='🔒 알 수 없는 방법으로 획득';d.appendChild(lock);
+      }
+      g.appendChild(d);
+    });
+
+    // ── 차원의 별(스타드롭) 전용 무기 섹션 ──
+    const _sdHdr=document.createElement('div');
+    _sdHdr.style.cssText='grid-column:1/-1;padding:6px 10px;background:linear-gradient(90deg,#0a0a1a,#4c1d95,#0a0a1a);color:#e9d5ff;border-radius:8px;font-size:11px;font-weight:800;text-align:center;margin-top:8px;border:1px solid #a855f7;';
+    _sdHdr.textContent='🌠 차원의 별 전용 무기';g.appendChild(_sdHdr);
+    Object.values(WEPS).filter(w=>w.sdOnly).forEach(w=>{
+      const ow=owned[w.id]||false;
+      const rarCls=w.rarity?' rar-'+w.rarity:'';
+      const d=document.createElement('div');
+      d.className='si'+(ow?' own':'')+rarCls;
+      if(!ow)d.style.cssText+='opacity:0.75;';
+      const ico=document.createElement('div');ico.className='sico';ico.textContent=w.icon;d.appendChild(ico);
+      const nm=document.createElement('div');nm.className='snm';nm.textContent=w.name;d.appendChild(nm);
+      const ds=document.createElement('div');ds.className='sds';ds.textContent=w.desc;d.appendChild(ds);
+      if(ow){
+        const done=document.createElement('div');done.style.cssText='font-size:9px;color:#e9d5ff;font-weight:700;margin-top:3px;';done.textContent='✅ 보유 (장비탭에서 장착)';d.appendChild(done);
+      } else {
+        const lock=document.createElement('div');lock.style.cssText='font-size:9px;background:#1a0a3e;color:#c084fc;padding:3px 6px;border-radius:6px;border:1px solid #7c3aed;margin-top:3px;';
+        lock.textContent='🌠 차원의 별 뽑기 전용';d.appendChild(lock);
       }
       g.appendChild(d);
     });

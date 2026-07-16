@@ -43,7 +43,7 @@ function byUpg(id){const u=PUGR.find(x=>x.id===id);if(!u)return;const lv=pUpgLv[
 // ══════════════ 장비 탭 ══════════════
 let selEqId=null;
 const WLC=[300,600,1000,1500,2000],ALC=[200,500,900,1400,2000];
-const WEP_RARITY_RANK={mythic:0,legendary:1,epic:2,rare:3,common:4};
+const WEP_RARITY_RANK={absolute:-3,divine:-2,ancient:-1,mythic:0,legendary:1,epic:2,rare:3,common:4};
 function renderEquip(){
   if(isDreamMode){renderDreamEquip();return;}
   if(curEquipTab==='item'){renderEquipItemTab();return;}
@@ -55,7 +55,7 @@ function renderEquip(){
       const _rar=ar.rarity||'';
       const _rarCls=_rar?(' rarity-'+_rar):'';
       const d=document.createElement('div');d.className='ei'+(isEq?' eq':'')+(selEqId===eid?' sel':'')+_rarCls;
-      const _rarBadge={'rare':'<span class="rbadge rare">RARE</span>','epic':'<span class="rbadge epic">EPIC</span>','legendary':'<span class="rbadge legendary">✨ LEGEND</span>','mythic':'<span class="rbadge mythic">🌈 MYTHIC</span>'};
+      const _rarBadge={'rare':'<span class="rbadge rare">RARE</span>','epic':'<span class="rbadge epic">EPIC</span>','legendary':'<span class="rbadge legendary">✨ LEGEND</span>','mythic':'<span class="rbadge mythic">🌈 MYTHIC</span>','ancient':'<span class="rbadge ancient">🏛️ 전설</span>','divine':'<span class="rbadge divine">😇 초월</span>','absolute':'<span class="rbadge absolute">🌌 차원</span>'};
       d.innerHTML=`<div class="eico">${ar.icon}</div><div><div class="enm">${ar.name}갑옷 ${_rarBadge[_rar]||''}</div><div class="elv">${lv>0?'Lv.'+lv:''} ${isEq?'<span style="font-size:8px;background:#14532d;color:#4ade80;padding:1px 5px;border-radius:5px">장착중</span>':''}</div>${enchantStatText('ar_'+ar.id,'armor')}</div>`;
       d.onclick=()=>{selEqId=eid;renderEquip();showED('ar',ar.id);};list.appendChild(d);
     });
@@ -73,7 +73,7 @@ function renderEquip(){
       const _rar=w.secret?'secret':(w.rarity||'');
       const _rarCls=_rar?(' rarity-'+_rar):'';
       const d=document.createElement('div');d.className='ei'+(isEq?' eq':'')+(selEqId===eid?' sel':'')+_rarCls;
-      const _rarBadge2={'rare':'<span class="rbadge rare">RARE</span>','epic':'<span class="rbadge epic">EPIC</span>','legendary':'<span class="rbadge legendary">✨ LEGEND</span>','mythic':'<span class="rbadge mythic">🌈 MYTHIC</span>','secret':'<span class="rbadge secret">❓ SECRET</span>'};
+      const _rarBadge2={'rare':'<span class="rbadge rare">RARE</span>','epic':'<span class="rbadge epic">EPIC</span>','legendary':'<span class="rbadge legendary">✨ LEGEND</span>','mythic':'<span class="rbadge mythic">🌈 MYTHIC</span>','ancient':'<span class="rbadge ancient">🏛️ 전설</span>','divine':'<span class="rbadge divine">😇 초월</span>','absolute':'<span class="rbadge absolute">🌌 차원</span>','secret':'<span class="rbadge secret">❓ SECRET</span>'};
       const _dispName=w.secret?'???':w.name;
       d.innerHTML=`<div class="eico">${w.secret?'❓':w.icon}</div><div><div class="enm">${_dispName} ${_rarBadge2[_rar]||''}</div><div class="elv">${lv>0?'Lv.'+lv:''} ${isEq?'<span style="font-size:8px;background:#14532d;color:#4ade80;padding:1px 5px;border-radius:5px">장착중</span>':''}</div>${enchantStatText(id,'wep')}</div>`;
       d.onclick=()=>{selEqId=eid;renderEquip();showED('wep',id);};list.appendChild(d);
