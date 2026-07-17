@@ -135,6 +135,10 @@
   <div id="extremeGlow" class="extreme-glow"></div>
   <button class="back" onclick="go('sLobby')">← 뒤로</button>
   <div class="stitle">🗺 맵 선택</div>
+  <div class="stabs" style="margin-bottom:8px;">
+    <button id="world1Btn" class="stab wtab on" onclick="setWorld(1)">🌍 월드1</button>
+    <button id="world2Btn" class="stab wtab" onclick="setWorld(2)">🌐 월드2 🔒</button>
+  </div>
   <div class="stabs">
     <button class="stab on" onclick="mapTab('wave',this)">🌊 웨이브맵</button>
     <button class="stab" onclick="mapTab('boss',this)">👹 보스맵</button>
@@ -468,6 +472,7 @@
   <button class="back" style="border-color:#818cf8;color:#e0e7ff;" onclick="closeStarDrop()">← 뒤로</button>
   <div id="sdStage" class="sd-stage">
     <div id="sdStarWrap" class="sd-star-wrap">
+      <div id="sdCrackGlow" class="sd-crack-glow"></div>
       <div class="sd-ring sd-ring1"></div>
       <div class="sd-ring sd-ring2"></div>
       <div class="sd-ring sd-ring3"></div>
@@ -477,7 +482,7 @@
       </div>
       <div id="sdSparkLayer" class="sd-spark-layer"></div>
     </div>
-    <div class="sd-clicks">남은 클릭 기회: <span id="sdClicksLeft">4</span></div>
+    <div id="sdClicksBox" class="sd-clicks">남은 클릭 기회: 4</div>
     <div id="sdInfo" class="sd-info">별을 클릭해 차원의 별을 깨워보세요!</div>
   </div>
   <div id="sdResult" class="sd-result"></div>

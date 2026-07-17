@@ -149,6 +149,13 @@ button:active{transform:scale(.95);}
   100%{transform:translate(-50%,-50%) translate(0,0) scale(0);opacity:0;}
 }
 
+/* 울트라 진화: 전설/초월/차원에서 극악 확률로 별이 깨져 초록빛으로 폭주 */
+.sd-crack-glow{position:absolute;inset:-20px;border-radius:50%;pointer-events:none;opacity:0;background:radial-gradient(circle,rgba(74,222,128,.55),transparent 70%);transition:opacity .3s;z-index:1;}
+.sd-star-wrap.sd-ultra-crack{--sd-crack-progress:0;}
+.sd-star-wrap.sd-ultra-crack .sd-crack-glow{opacity:calc(0.25 + var(--sd-crack-progress) * 0.65);animation:sdCrackPulse 1.1s ease-in-out infinite;}
+@keyframes sdCrackPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.14);}}
+.sd-star-wrap.sd-ultra-crack .sd-star{filter:drop-shadow(0 0 34px var(--sd-glow)) drop-shadow(0 0 70px var(--sd-glow)) drop-shadow(0 0 26px #4ade80);}
+
 .sd-clicks{margin-top:8px;font-size:13px;font-weight:800;color:#fbbf24;}
 .sd-info{margin-top:10px;font-size:14px;font-weight:800;text-align:center;min-height:20px;color:#e5e7eb;max-width:80vw;}
 
@@ -259,6 +266,9 @@ button:active{transform:scale(.95);}
 .stabs{display:flex;gap:8px;margin-bottom:12px;}
 .stab{padding:6px 18px;border:1.5px solid #e5e7eb;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;background:#fff;color:#6b7280;transition:all .15s;}
 .stab.on{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-color:transparent;}
+.wtab{border-color:#c4b5fd;}
+.wtab.on{background:linear-gradient(135deg,#7c3aed,#4c1d95);}
+.wtab.locked{opacity:.55;color:#9ca3af;}
 .sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:min(660px,92vw);max-height:65vh;overflow-y:auto;padding:2px 2px 28px;}
 .si{background:#fff;border:2px solid #e5e7eb;border-radius:12px;padding:12px 10px;text-align:center;transition:all .15s;}
 .rar-rare{border-color:#6366f1!important;background:linear-gradient(135deg,#eef2ff,#fff)!important;box-shadow:0 0 8px #6366f130;}
@@ -335,6 +345,15 @@ button:active{transform:scale(.95);}
 .rarity-ancient{border-color:#78350f!important;border-width:2px!important;background:linear-gradient(135deg,#fff7ed,#fff)!important;box-shadow:0 0 16px #78350f60;animation:glow-gold 1.4s infinite;}
 .rarity-divine{border-color:#0ea5e9!important;border-width:2px!important;background:linear-gradient(135deg,#f0f9ff,#fff)!important;box-shadow:0 0 18px #0ea5e970;animation:glow-epic 1.2s infinite;}
 .rarity-absolute{border-image:linear-gradient(135deg,#fff,#f472b6,#67e8f9,#fff) 1!important;border-width:2px!important;background:linear-gradient(135deg,#fffdf5,#fff)!important;box-shadow:0 0 28px #ffffffb0;animation:glow-rainbow .8s infinite;}
+.rarity-ancient_ultra{border-color:#4ade80!important;border-width:2px!important;background:linear-gradient(135deg,#f0fdf4,#fff)!important;box-shadow:0 0 16px #4ade8070;animation:glow-gold 1.3s infinite;}
+.rarity-ancient_hyper{border-color:#22c55e!important;border-width:2px!important;background:linear-gradient(135deg,#ecfdf5,#fff)!important;box-shadow:0 0 20px #22c55e80;animation:glow-epic 1.1s infinite;}
+.rarity-ancient_shyper{border-image:linear-gradient(135deg,#bef264,#4ade80,#fff) 1!important;border-width:2px!important;background:linear-gradient(135deg,#f7fee7,#fff)!important;box-shadow:0 0 26px #bef26490;animation:glow-rainbow 1s infinite;}
+.rarity-divine_ultra{border-color:#4ade80!important;border-width:2px!important;background:linear-gradient(135deg,#f0fdf4,#fff)!important;box-shadow:0 0 18px #4ade8070;animation:glow-gold 1.2s infinite;}
+.rarity-divine_hyper{border-color:#22c55e!important;border-width:2px!important;background:linear-gradient(135deg,#ecfdf5,#fff)!important;box-shadow:0 0 22px #22c55e85;animation:glow-epic 1s infinite;}
+.rarity-divine_shyper{border-image:linear-gradient(135deg,#bef264,#22c55e,#fff) 1!important;border-width:2px!important;background:linear-gradient(135deg,#f7fee7,#fff)!important;box-shadow:0 0 30px #bef26495;animation:glow-rainbow .9s infinite;}
+.rarity-absolute_ultra{border-color:#4ade80!important;border-width:2px!important;background:linear-gradient(135deg,#f0fdf4,#fff)!important;box-shadow:0 0 22px #4ade8080;animation:glow-gold 1.1s infinite;}
+.rarity-absolute_hyper{border-color:#22c55e!important;border-width:2px!important;background:linear-gradient(135deg,#ecfdf5,#fff)!important;box-shadow:0 0 28px #22c55e90;animation:glow-epic .9s infinite;}
+.rarity-absolute_shyper{border-image:linear-gradient(135deg,#fff,#bef264,#4ade80,#fff) 1!important;border-width:2px!important;background:linear-gradient(135deg,#f7fee7,#fff)!important;box-shadow:0 0 36px #bef264b0;animation:glow-rainbow .7s infinite;}
 .rbadge{display:inline-block;font-size:7px;padding:1px 5px;border-radius:5px;font-weight:800;vertical-align:middle;margin-left:3px;}
 .rbadge.rare{background:#6366f1;color:#fff;}
 .rbadge.epic{background:#a855f7;color:#fff;}

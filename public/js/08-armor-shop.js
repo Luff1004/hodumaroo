@@ -66,6 +66,16 @@ const ARMORS=[
   {id:'sd_ar_ancient',name:'태초의 성흔 갑옷',icon:'🌠',price:0,def:85,bc:'#d97706',ac:'#92400e',desc:'차원의 별【전설】보상. 방어+85%, HP+320, 데미지+14, 치명타+25%, 재생+10, 회피+15%',bonus:{hp:320,dmg:14,crit:25,regen:10,dodge:15},sdOnly:true,rarity:'ancient'},
   {id:'sd_ar_divine',name:'초월자의 신성갑주',icon:'😇',price:0,def:95,bc:'#38bdf8',ac:'#0ea5e9',desc:'차원의 별【초월】보상. 방어+95%, HP+450, 데미지+18, 치명타+32%, 재생+14, 회피+22%, 흡혈+10',bonus:{hp:450,dmg:18,crit:32,regen:14,dodge:22,lifesteal:10},sdOnly:true,rarity:'divine'},
   {id:'sd_ar_absolute',name:'차원 지배자의 갑주',icon:'👑',price:0,def:120,bc:'#ffffff',ac:'#f472b6',desc:'차원의 별【차원】최종 보상. 방어+120%, HP+700, 데미지+25, 치명타+45%, 재생+20, 회피+30%, 흡혈+18, 이동속도+1.5',bonus:{hp:700,dmg:25,crit:45,regen:20,dodge:30,lifesteal:18,spd:1.5},sdOnly:true,rarity:'absolute'},
+  // ── 울트라 진화 전용 갑옷 9종 (전설/초월/차원 등급 확정 시 극악 확률로 별이 깨지며 지급) ──
+  {id:'sd_u_ar_ancient_ultra',name:'울트라 태초의 성흔 갑옷',icon:'🌠',price:0,def:95,bc:'#4ade80',ac:'#16a34a',desc:'별이 깨져 초록빛을 내며 진화한 갑옷. 방어+95%, HP+420, 데미지+18, 치명타+30%, 재생+13, 회피+18%',bonus:{hp:420,dmg:18,crit:30,regen:13,dodge:18},sdOnly:true,ultra:true,rarity:'ancient_ultra'},
+  {id:'sd_u_ar_ancient_hyper',name:'하이퍼 태초의 성흔 갑옷',icon:'🌠',price:0,def:105,bc:'#22c55e',ac:'#15803d',desc:'더욱 폭주한 갑옷. 방어+105%, HP+520, 데미지+22, 치명타+36%, 재생+16, 회피+21%',bonus:{hp:520,dmg:22,crit:36,regen:16,dodge:21},sdOnly:true,ultra:true,rarity:'ancient_hyper'},
+  {id:'sd_u_ar_ancient_shyper',name:'슈퍼 하이퍼 태초의 성흔 갑옷',icon:'🌠',price:0,def:118,bc:'#bef264',ac:'#4d7c0f',desc:'극한까지 폭주한 갑옷. 방어+118%, HP+650, 데미지+27, 치명타+42%, 재생+20, 회피+25%',bonus:{hp:650,dmg:27,crit:42,regen:20,dodge:25},sdOnly:true,ultra:true,rarity:'ancient_shyper'},
+  {id:'sd_u_ar_divine_ultra',name:'울트라 초월자의 신성갑주',icon:'😇',price:0,def:105,bc:'#4ade80',ac:'#16a34a',desc:'별이 깨져 초록빛을 내며 진화한 신성갑주. 방어+105%, HP+580, 데미지+23, 치명타+38%, 재생+18, 회피+26%, 흡혈+14',bonus:{hp:580,dmg:23,crit:38,regen:18,dodge:26,lifesteal:14},sdOnly:true,ultra:true,rarity:'divine_ultra'},
+  {id:'sd_u_ar_divine_hyper',name:'하이퍼 초월자의 신성갑주',icon:'😇',price:0,def:115,bc:'#22c55e',ac:'#15803d',desc:'더욱 폭주한 신성갑주. 방어+115%, HP+720, 데미지+28, 치명타+44%, 재생+22, 회피+30%, 흡혈+18',bonus:{hp:720,dmg:28,crit:44,regen:22,dodge:30,lifesteal:18},sdOnly:true,ultra:true,rarity:'divine_hyper'},
+  {id:'sd_u_ar_divine_shyper',name:'슈퍼 하이퍼 초월자의 신성갑주',icon:'😇',price:0,def:128,bc:'#bef264',ac:'#4d7c0f',desc:'극한까지 폭주한 신성갑주. 방어+128%, HP+900, 데미지+34, 치명타+50%, 재생+27, 회피+35%, 흡혈+24',bonus:{hp:900,dmg:34,crit:50,regen:27,dodge:35,lifesteal:24},sdOnly:true,ultra:true,rarity:'divine_shyper'},
+  {id:'sd_u_ar_absolute_ultra',name:'울트라 차원 지배자의 갑주',icon:'👑',price:0,def:135,bc:'#4ade80',ac:'#16a34a',desc:'별이 깨져 초록빛을 내며 진화한 궁극 갑주. 방어+135%, HP+900, 데미지+32, 치명타+52%, 재생+26, 회피+35%, 흡혈+24, 이동속도+2',bonus:{hp:900,dmg:32,crit:52,regen:26,dodge:35,lifesteal:24,spd:2},sdOnly:true,ultra:true,rarity:'absolute_ultra'},
+  {id:'sd_u_ar_absolute_hyper',name:'하이퍼 차원 지배자의 갑주',icon:'👑',price:0,def:150,bc:'#22c55e',ac:'#15803d',desc:'더욱 폭주한 궁극 갑주. 방어+150%, HP+1150, 데미지+40, 치명타+60%, 재생+32, 회피+40%, 흡혈+30, 이동속도+2.5',bonus:{hp:1150,dmg:40,crit:60,regen:32,dodge:40,lifesteal:30,spd:2.5},sdOnly:true,ultra:true,rarity:'absolute_hyper'},
+  {id:'sd_u_ar_absolute_shyper',name:'슈퍼 하이퍼 차원 지배자의 갑주',icon:'👑',price:0,def:170,bc:'#ffffff',ac:'#bef264',desc:'모든 차원을 초월한 궁극의 갑주. 방어+170%, HP+1500, 데미지+50, 치명타+70%, 재생+40, 회피+48%, 흡혈+38, 이동속도+3.2',bonus:{hp:1500,dmg:50,crit:70,regen:40,dodge:48,lifesteal:38,spd:3.2},sdOnly:true,ultra:true,rarity:'absolute_shyper'},
 ];
 
 // ══════════════ 상점 ══════════════
@@ -234,7 +244,9 @@ function renderShop(){
       if(!ow){
         if(isBossWep){
           // 보스 클리어 잠금 표시
-          const bossNames={sun:'THE SUN',machine:'MACHINE',bacteria:'BACTERIA',skeleton:'SKELETON',clock:'CLOCK',reanimation:'REANIMATION',kraken:'KRAKEN',symphony:'SYMPHONY',volcano:'VOLCANO',frost:'FROST EMPRESS',void:'VOID REAPER',event:'이벤트 상점',ev_cookwar:'요리전쟁',ev_garden:'봄맞이 텃밭 가꾸기',ev_treasure:'보물찾기 대회',ev_watermelon:'여름 수박격파 대회',ev_slingshot:'가을 사과 슬링샷 대회',ev_giftrhythm:'산타의 선물배달'};
+          const bossNames={sun:'THE SUN',machine:'MACHINE',bacteria:'BACTERIA',skeleton:'SKELETON',clock:'CLOCK',reanimation:'REANIMATION',kraken:'KRAKEN',symphony:'SYMPHONY',volcano:'VOLCANO',frost:'FROST EMPRESS',void:'VOID REAPER',
+            toxic_queen:'TOXIC QUEEN',iron_warden:'IRON WARDEN',plague_mother:'PLAGUE MOTHER',storm_reaver:'STORM REAVER',neon_specter:'NEON SPECTER',blood_colossus:'BLOOD COLOSSUS',abyss_leviathan:'ABYSS LEVIATHAN',gravity_rend:'GRAVITY REND',omega_zero:'OMEGA ZERO',
+            event:'이벤트 상점',ev_cookwar:'요리전쟁',ev_garden:'봄맞이 텃밭 가꾸기',ev_treasure:'보물찾기 대회',ev_watermelon:'여름 수박격파 대회',ev_slingshot:'가을 사과 슬링샷 대회',ev_giftrhythm:'산타의 선물배달'};
           const lockDiv=document.createElement('div');lockDiv.style.cssText='font-size:9px;background:#1e1b4b;color:#a78bfa;padding:4px 6px;border-radius:6px;border:1px solid #4c1d95;text-align:center;margin-top:3px;';
           lockDiv.textContent='🔒 '+( bossNames[w.bossReward]||w.bossReward)+' 처치 보상';d.appendChild(lockDiv);
         } else {
@@ -249,7 +261,9 @@ function renderShop(){
     });
     // 보스 클리어 보상과 시즌 이벤트 보상은 같은 bossReward 필드를 공유하므로, 이벤트 id 목록으로 구분
     const EVENT_WEP_KEYS=['event','ev_cookwar','ev_garden','ev_treasure','ev_watermelon','ev_slingshot','ev_giftrhythm'];
-    const bossNames={sun:'THE SUN',machine:'MACHINE',bacteria:'BACTERIA',skeleton:'SKELETON',clock:'CLOCK',reanimation:'REANIMATION',kraken:'KRAKEN',symphony:'SYMPHONY',volcano:'VOLCANO',frost:'FROST EMPRESS',void:'VOID REAPER',event:'이벤트 상점',ev_cookwar:'요리전쟁',ev_garden:'봄맞이 텃밭 가꾸기',ev_treasure:'보물찾기 대회',ev_watermelon:'여름 수박격파 대회',ev_slingshot:'가을 사과 슬링샷 대회',ev_giftrhythm:'산타의 선물배달'};
+    const bossNames={sun:'THE SUN',machine:'MACHINE',bacteria:'BACTERIA',skeleton:'SKELETON',clock:'CLOCK',reanimation:'REANIMATION',kraken:'KRAKEN',symphony:'SYMPHONY',volcano:'VOLCANO',frost:'FROST EMPRESS',void:'VOID REAPER',
+            toxic_queen:'TOXIC QUEEN',iron_warden:'IRON WARDEN',plague_mother:'PLAGUE MOTHER',storm_reaver:'STORM REAVER',neon_specter:'NEON SPECTER',blood_colossus:'BLOOD COLOSSUS',abyss_leviathan:'ABYSS LEVIATHAN',gravity_rend:'GRAVITY REND',omega_zero:'OMEGA ZERO',
+            event:'이벤트 상점',ev_cookwar:'요리전쟁',ev_garden:'봄맞이 텃밭 가꾸기',ev_treasure:'보물찾기 대회',ev_watermelon:'여름 수박격파 대회',ev_slingshot:'가을 사과 슬링샷 대회',ev_giftrhythm:'산타의 선물배달'};
     const _rBdg={'rare':'<span style="font-size:7px;padding:1px 4px;border-radius:4px;background:#6366f1;color:#fff">RARE</span>','epic':'<span style="font-size:7px;padding:1px 4px;border-radius:4px;background:#a855f7;color:#fff">EPIC</span>','legendary':'<span style="font-size:7px;padding:1px 4px;border-radius:4px;background:#f59e0b;color:#fff">✨LEGEND</span>','mythic':'<span style="font-size:7px;padding:1px 4px;border-radius:4px;background:linear-gradient(90deg,#ec4899,#8b5cf6);color:#fff">🌈MYTHIC</span>'};
     function _renderBossStyleWep(w,lockSuffix){
       const ow=owned[w.id]||false;

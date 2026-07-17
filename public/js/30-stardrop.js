@@ -59,7 +59,25 @@ const SD_WEP_IDS      = ['sd_wep_legend','sd_wep_mythic','sd_wep_ancient','sd_we
 const SD_JOB_IDS       = ['sd_job_mythic','sd_job_ancient','sd_job_divine','sd_job_absolute'];
 const SD_ITEM_IDS      = ['sd_item_mythic','sd_item_ancient','sd_item_divine','sd_item_absolute'];
 
-let sdGame = { running:false, tier:-1, clicksLeft:4, finishing:false };
+// ── 울트라 진화: 전설/초월/차원 등급 확정 시 극악 확률(3%)로 별이 깨지며 초록빛으로 폭주 ──
+const SD_ULTRA_BASE_IDX     = [4, 5, 6]; // ancient(전설), divine(초월), absolute(차원)
+const SD_ULTRA_CRACK_PROB   = 3;         // %
+const SD_ULTRA_STAGE_LABELS = ['울트라', '하이퍼', '슈퍼 하이퍼'];
+const SD_ULTRA_STAGE_UPPROB = [45, 25];  // 0→1단계, 1→2단계로 오를 터치 성공확률(%)
+const SD_ULTRA_STAGE_COLORS = ['#4ade80', '#22c55e', '#bef264'];
+const SD_ULTRA_STAGE_MULT   = [4, 7, 12]; // 코인/에너지 배율
+const SD_ULTRA_WEP_IDS = {
+  ancient:  ['sd_u_wep_ancient_ultra',  'sd_u_wep_ancient_hyper',  'sd_u_wep_ancient_shyper'],
+  divine:   ['sd_u_wep_divine_ultra',   'sd_u_wep_divine_hyper',   'sd_u_wep_divine_shyper'],
+  absolute: ['sd_u_wep_absolute_ultra', 'sd_u_wep_absolute_hyper', 'sd_u_wep_absolute_shyper'],
+};
+const SD_ULTRA_ARMOR_IDS = {
+  ancient:  ['sd_u_ar_ancient_ultra',  'sd_u_ar_ancient_hyper',  'sd_u_ar_ancient_shyper'],
+  divine:   ['sd_u_ar_divine_ultra',   'sd_u_ar_divine_hyper',   'sd_u_ar_divine_shyper'],
+  absolute: ['sd_u_ar_absolute_ultra', 'sd_u_ar_absolute_hyper', 'sd_u_ar_absolute_shyper'],
+};
+
+let sdGame = { running:false, tier:-1, clicksLeft:4, finishing:false, ultra:null };
 
 function isStardropUnlocked(){ return true; }
 
@@ -76,13 +94,13 @@ function openStarDrop(){
     }
     return;
   }
-  sdGame = { running:true, tier:-1, clicksLeft:4, finishing:false };
+  sdGame = { running:true, tier:-1, clicksLeft:4, finishing:false, ultra:null };
   go('sStarDrop');
   const stage=document.getElementById('sdStage');
   const wrap=document.getElementById('sdStarWrap');
   const resultEl=document.getElementById('sdResult');
   if(stage) stage.classList.remove('sd-stage-hide');
-  if(wrap){ wrap.classList.remove('sd-final-burst'); wrap.querySelectorAll('.sd-spark').forEach(s=>s.remove()); }
+  if(wrap){ wrap.classList.remove('sd-final-burst','sd-ultra-crack'); wrap.style.setProperty('--sd-crack-progress','0'); wrap.querySelectorAll('.sd-spark').forEach(s=>s.remove()); }
   if(resultEl) resultEl.classList.remove('show');
   const starEl=document.getElementById('sdStar');
   if(starEl) starEl.style.display='flex';
@@ -97,8 +115,8 @@ function renderStarDropScreen(){
   const wrapEl=document.getElementById('sdStarWrap');
   const labelEl=document.getElementById('sdStarTierLabel');
   const infoEl=document.getElementById('sdInfo');
-  const clicksEl=document.getElementById('sdClicksLeft');
-  if(clicksEl) clicksEl.textContent=sdGame.clicksLeft;
+  const clicksBox=document.getElementById('sdClicksBox');
+  if(clicksBox) clicksBox.textContent='남은 클릭 기회: '+sdGame.clicksLeft;
   const curColor=sdGame.tier>=0?SD_TIERS[sdGame.tier].color:'#fbbf24';
   if(wrapEl) wrapEl.style.setProperty('--sd-glow', curColor);
   if(labelEl){
@@ -123,6 +141,7 @@ function renderStarDropScreen(){
 
 function clickStarDrop(){
   if(!sdGame.running || sdGame.finishing) return;
+  if(sdGame.ultra && sdGame.ultra.active){ clickUltraStar(); return; }
   sdGame.clicksLeft--;
   const prob = sdGame.tier===-1 ? 100 : SD_TIERS[sdGame.tier].upProb;
   const success = sdGame.tier>=6 ? false : Math.random()*100<prob;
@@ -135,10 +154,68 @@ function clickStarDrop(){
   }
   if(sdGame.tier>=6 || sdGame.clicksLeft<=0){
     sdGame.finishing=true;
-    setTimeout(()=>finishStarDrop(), 260);
+    const canCrack = SD_ULTRA_BASE_IDX.includes(sdGame.tier) && Math.random()*100<SD_ULTRA_CRACK_PROB;
+    if(canCrack){
+      setTimeout(()=>startUltraCrack(sdGame.tier), 260);
+    } else {
+      setTimeout(()=>finishStarDrop(), 260);
+    }
     return;
   }
   renderStarDropScreen();
+}
+
+// ── 별이 깨지며 초록빛으로 폭주하는 울트라 진화 모드 ──
+function startUltraCrack(tierIdx){
+  sdGame.finishing=false;
+  sdGame.ultra = { active:true, baseTier:tierIdx, stage:0, touchesLeft:5 };
+  const wrap=document.getElementById('sdStarWrap');
+  if(wrap){
+    wrap.classList.add('sd-ultra-crack');
+    wrap.style.setProperty('--sd-crack-progress','0');
+  }
+  spawnStarDropSparks();
+  renderUltraScreen();
+}
+
+function renderUltraScreen(){
+  const u=sdGame.ultra; if(!u) return;
+  const wrap=document.getElementById('sdStarWrap');
+  const labelEl=document.getElementById('sdStarTierLabel');
+  const infoEl=document.getElementById('sdInfo');
+  const clicksBox=document.getElementById('sdClicksBox');
+  const baseLabel=SD_TIERS[u.baseTier].label;
+  const stageLabel=SD_ULTRA_STAGE_LABELS[u.stage];
+  const color=SD_ULTRA_STAGE_COLORS[u.stage];
+  if(wrap) wrap.style.setProperty('--sd-glow', color);
+  if(labelEl){ labelEl.textContent='💚 '+stageLabel+' '+baseLabel; labelEl.classList.add('show'); }
+  if(clicksBox) clicksBox.textContent='별이 깨어나는 중! 터치 '+u.touchesLeft+'회 남음';
+  if(infoEl){ infoEl.textContent='초록빛이 폭주합니다! 계속 터치해서 등급을 더 끌어올리세요'; infoEl.style.color=color; }
+}
+
+function clickUltraStar(){
+  const u=sdGame.ultra; if(!u || !u.active) return;
+  u.touchesLeft--;
+  const wrap=document.getElementById('sdStarWrap');
+  const crackProgress=Math.min(1,(5-u.touchesLeft)/5);
+  if(wrap) wrap.style.setProperty('--sd-crack-progress', crackProgress.toFixed(2));
+  let success=false;
+  if(u.stage<2){
+    success=Math.random()*100<SD_ULTRA_STAGE_UPPROB[u.stage];
+    if(success) u.stage++;
+  }
+  const starEl=document.getElementById('sdStar');
+  if(starEl){
+    starEl.classList.remove('sd-flash-ok','sd-flash-fail');
+    void starEl.offsetWidth;
+    starEl.classList.add(success?'sd-flash-ok':'sd-flash-fail');
+  }
+  spawnStarDropSparks();
+  renderUltraScreen();
+  if(u.touchesLeft<=0 || u.stage>=2){
+    sdGame.finishing=true;
+    setTimeout(()=>finishUltraStarDrop(), 260);
+  }
 }
 
 function flashStarDrop(success){
@@ -200,6 +277,69 @@ function finishStarDrop(){
       resultEl.classList.add('show');
     }
   }, 900);
+}
+
+function finishUltraStarDrop(){
+  sdGame.running=false;
+  const u=sdGame.ultra;
+  const baseLabel=SD_TIERS[u.baseTier].label;
+  const stageLabel=SD_ULTRA_STAGE_LABELS[u.stage];
+  const color=SD_ULTRA_STAGE_COLORS[u.stage];
+  const wrap=document.getElementById('sdStarWrap');
+  if(wrap){
+    wrap.style.setProperty('--sd-glow', color);
+    wrap.classList.add('sd-final-burst');
+  }
+  spawnStarDropSparks();
+
+  setTimeout(()=>{
+    plData.stardrops=Math.max(0,(plData.stardrops||0)-1);
+    sv('hd_pl', plData);
+    renderPlayerLevelBar();
+    const rewards=claimUltraStardropReward(u.baseTier, u.stage);
+
+    const stage=document.getElementById('sdStage');
+    if(stage) stage.classList.add('sd-stage-hide');
+    const resultEl=document.getElementById('sdResult');
+    if(resultEl){
+      resultEl.style.setProperty('--sd-glow', color+'55');
+      resultEl.innerHTML=
+        '<div class="sd-result-tier" style="color:'+color+'">💚 별이 깨어났습니다! '+stageLabel+' '+baseLabel+' 확정! 💚</div>'+
+        '<div class="sd-result-list">'+rewards.map(r=>'<div class="sd-reward-line">'+r+'</div>').join('')+'</div>'+
+        '<div class="sd-result-btns">'+
+          ((plData.stardrops||0)>0?'<button class="sd-again-btn" onclick="openStarDrop()">🌠 다시 뽑기 ('+plData.stardrops+')</button>':'')+
+          '<button class="sd-close-btn" onclick="closeStarDrop()">확인</button>'+
+        '</div>';
+      resultEl.classList.add('show');
+    }
+  }, 900);
+}
+
+function claimUltraStardropReward(baseTierIdx, stage){
+  const t=SD_TIERS[baseTierIdx];
+  const familyKey=t.key; // ancient / divine / absolute
+  const mult=SD_ULTRA_STAGE_MULT[stage];
+  const msgs=[];
+  const coinGain=t.coin*mult, energyGain=t.energy*mult;
+  coins+=coinGain; energy+=energyGain;
+  msgs.push('🪙 코인 +'+coinGain.toLocaleString());
+  msgs.push('⚡ 에너지 +'+energyGain.toLocaleString());
+
+  const wId=(SD_ULTRA_WEP_IDS[familyKey]||[])[stage];
+  if(wId){
+    const w=WEPS[wId];
+    if(owned[wId]){ coins+=coinGain; msgs.push('⚔️ ['+(w?w.name:wId)+'] (이미 보유, 대신 코인 +'+coinGain.toLocaleString()+')'); }
+    else { owned[wId]=true; msgs.push('⚔️ ['+(w?w.name:wId)+'] 획득!'); }
+  }
+  const arId=(SD_ULTRA_ARMOR_IDS[familyKey]||[])[stage];
+  if(arId){
+    const ar=ARMORS.find(a=>a.id===arId);
+    if(owned['ar_'+arId]){ coins+=coinGain; msgs.push('🛡️ ['+(ar?ar.name:arId)+'] (이미 보유, 대신 코인 +'+coinGain.toLocaleString()+')'); }
+    else { owned['ar_'+arId]=true; msgs.push('🛡️ ['+(ar?ar.name:arId)+'] 획득!'); }
+  }
+  saveAll();
+  updRes();
+  return msgs;
 }
 
 function claimStardropReward(tierIdx){

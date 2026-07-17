@@ -45,6 +45,34 @@ const BOSSES={
   void_boss:{id:'void_boss',name:'VOID REAPER',icon:'🌌',hp:21000,r:70,col:'#7c3aed',ol:'#1e1b4b',
     phases:[{t:.65,m:'🌌 2페이즈: 차원 균열!'},{t:.35,m:'⚫ 3페이즈: 소멸장!'},{t:.1,m:'💀 완전한 공허'}],
     atk:['voidRift','poisonCloud','lightning','summonAll','blink','voidRift','lightning'],reward:{c:10000,e:4500}},
+  // ── 월드2(2) 전용 보스맵 9종: 기본 난이도가 SYMPHONY(월드1 최종보스, hp 50000)급 이상 ──
+  toxic_queen_boss:{id:'toxic_queen_boss',name:'TOXIC QUEEN',icon:'🐍',hp:50000,r:68,col:'#84cc16',ol:'#3f6212',
+    phases:[{t:.75,m:'🐍 2페이즈: 맹독 확산!'},{t:.5,m:'☠️ 3페이즈: 세포 폭증!'},{t:.25,m:'🧬 4페이즈: 여왕의 분노!'},{t:.1,m:'💀 여왕의 최후 발작'}],
+    atk:['poisonCloud','acidRain','poisonRing','cellDivide','spiderSwarm','acidRain','poisonCloud','splitShot','cellDivide','poisonRing'],reward:{c:30000,e:15000}},
+  iron_warden_boss:{id:'iron_warden_boss',name:'IRON WARDEN',icon:'⚙️',hp:58000,r:66,col:'#94a3b8',ol:'#334155',
+    phases:[{t:.75,m:'⚙️ 2페이즈: 전방위 미사일!'},{t:.5,m:'🔩 3페이즈: 초과부하!'},{t:.25,m:'🛰️ 4페이즈: 전 무장 가동!'},{t:.1,m:'💀 시스템 붕괴'}],
+    atk:['machineGrid','overdrive','laserAim','missileLock','horiBeam','vertBeam','overdrive','bombDrop','machineGrid','missileLock'],reward:{c:34000,e:17500}},
+  plague_mother_boss:{id:'plague_mother_boss',name:'PLAGUE MOTHER',icon:'🦠',hp:66000,r:70,col:'#65a30d',ol:'#365314',
+    phases:[{t:.75,m:'🦠 2페이즈: 세포 분열!'},{t:.5,m:'☠️ 3페이즈: 역병 창궐!'},{t:.25,m:'🧫 4페이즈: 대발생!'},{t:.1,m:'💀 최후의 숙주'}],
+    atk:['cellDivide','acidRain','undead','deathWave','spiderSwarm','poisonCloud','undead','acidRain','cellDivide','deathWave'],reward:{c:38000,e:19500}},
+  storm_reaver_boss:{id:'storm_reaver_boss',name:'STORM REAVER',icon:'⚡',hp:74000,r:68,col:'#facc15',ol:'#78350f',
+    phases:[{t:.75,m:'⚡ 2페이즈: 뇌격 폭풍!'},{t:.5,m:'🌩️ 3페이즈: 중력 붕괴!'},{t:.25,m:'🌪️ 4페이즈: 초강력 폭풍!'},{t:.1,m:'💀 종말의 뇌전'}],
+    atk:['lightning','burst16','gravityPull','timeLaser','lightning','burst16','deathWave','lightning','gravityPull'],reward:{c:43000,e:22000}},
+  neon_specter_boss:{id:'neon_specter_boss',name:'NEON SPECTER',icon:'👾',hp:82000,r:68,col:'#ec4899',ol:'#831843',
+    phases:[{t:.75,m:'👾 2페이즈: 광속 점멸!'},{t:.5,m:'🎯 3페이즈: 유도 폭격!'},{t:.25,m:'💾 4페이즈: 시스템 폭주!'},{t:.1,m:'💀 데이터 붕괴'}],
+    atk:['blink','splitShot','laserBeam','homingMissile','noteBurst','blink','laserBeam','homingMissile','blink','splitShot'],reward:{c:47000,e:24500}},
+  blood_colossus_boss:{id:'blood_colossus_boss',name:'BLOOD COLOSSUS',icon:'🩸',hp:90000,r:74,col:'#991b1b',ol:'#450a0a',
+    phases:[{t:.75,m:'🩸 2페이즈: 뼈의 군세!'},{t:.5,m:'💥 3페이즈: 광란의 돌진!'},{t:.25,m:'🔥 4페이즈: 최후의 광기!'},{t:.1,m:'💀 최후의 포효'}],
+    atk:['boneRain','boneArmy','charge','burst16','gravityPull','boneCross','charge','burst16','boneArmy','charge'],reward:{c:52000,e:27000}},
+  abyss_leviathan_boss:{id:'abyss_leviathan_boss',name:'ABYSS LEVIATHAN',icon:'🐋',hp:100000,r:76,col:'#0e7490',ol:'#083344',
+    phases:[{t:.75,m:'🐋 2페이즈: 촉수 격자!'},{t:.5,m:'🌊 3페이즈: 심연의 흡입!'},{t:.25,m:'🌀 4페이즈: 해구의 격노!'},{t:.1,m:'💀 절대 심해'}],
+    atk:['tentacle','tentacleGrid','deepPull','inkExplosion','waveRing','tentacleGrid','deepPull','homingMissile','tentacle','deepPull'],reward:{c:58000,e:30000}},
+  gravity_rend_boss:{id:'gravity_rend_boss',name:'GRAVITY REND',icon:'🕳️',hp:115000,r:74,col:'#7c3aed',ol:'#1e1b4b',
+    phases:[{t:.75,m:'🕳️ 2페이즈: 중력 붕괴!'},{t:.5,m:'⏳ 3페이즈: 시간 정지!'},{t:.25,m:'🌌 4페이즈: 특이점 붕괴!'},{t:.1,m:'💀 특이점 폭주'}],
+    atk:['voidRift','gravityPull','timeStop','deathWave','burst16','voidRift','gravityPull','summonAll','voidRift','timeStop'],reward:{c:66000,e:34000}},
+  omega_zero_boss:{id:'omega_zero_boss',name:'OMEGA ZERO',icon:'♾️',hp:140000,r:80,col:'#f8fafc',ol:'#0f172a',
+    phases:[{t:.8,m:'♾️ 1페이즈: 각성...'},{t:.6,m:'⚡ 2페이즈: 에너지 폭주!'},{t:.4,m:'🌀 3페이즈: 차원 파괴!'},{t:.2,m:'💀 4페이즈: 최종 형태!!!'},{t:.05,m:'☠️ 오메가 피날레 — 살아남아라!'}],
+    atk:['omegaFinale','symphonyGrid','crescendo','noteStorm','voidRift','deathWave','burst16','summonAll','omegaFinale','crescendo'],reward:{c:80000,e:40000}},
 };
 
 // ══════════════ 지형 그리기 ══════════════
@@ -256,14 +284,20 @@ function drawBossArena(ctx,m){
     sun:'rgba(251,191,36,',machine:'rgba(59,130,246,',bacteria:'rgba(34,197,94,',
     clock:'rgba(139,92,246,',skeleton:'rgba(156,163,175,',reanimation:'rgba(239,68,68,',
     kraken:'rgba(8,145,178,',symphony:'rgba(251,191,36,',
-    volcano:'rgba(249,115,22,',frost:'rgba(125,211,252,',void:'rgba(124,58,237,'
+    volcano:'rgba(249,115,22,',frost:'rgba(125,211,252,',void:'rgba(124,58,237,',
+    toxic_queen:'rgba(132,204,22,',iron_warden:'rgba(148,163,184,',plague_mother:'rgba(101,163,13,',
+    storm_reaver:'rgba(250,204,21,',neon_specter:'rgba(236,72,153,',blood_colossus:'rgba(153,27,27,',
+    abyss_leviathan:'rgba(14,116,144,',gravity_rend:'rgba(124,58,237,',omega_zero:'rgba(248,250,252,'
   };
   const col=colors[t]||'rgba(255,255,255,';
   const fills={
     sun:'rgba(80,40,0,0.12)',machine:'rgba(0,20,60,0.15)',bacteria:'rgba(0,40,10,0.12)',
     clock:'rgba(30,0,60,0.15)',skeleton:'rgba(10,10,10,0.2)',reanimation:'rgba(60,0,0,0.18)',
     kraken:'rgba(0,30,50,0.2)',symphony:'rgba(20,0,40,0.15)',
-    volcano:'rgba(80,20,0,0.15)',frost:'rgba(0,40,60,0.15)',void:'rgba(20,0,50,0.2)'
+    volcano:'rgba(80,20,0,0.15)',frost:'rgba(0,40,60,0.15)',void:'rgba(20,0,50,0.2)',
+    toxic_queen:'rgba(20,40,0,0.15)',iron_warden:'rgba(10,15,25,0.18)',plague_mother:'rgba(15,35,0,0.15)',
+    storm_reaver:'rgba(40,30,0,0.15)',neon_specter:'rgba(40,0,25,0.18)',blood_colossus:'rgba(40,0,0,0.2)',
+    abyss_leviathan:'rgba(0,25,35,0.2)',gravity_rend:'rgba(20,0,40,0.2)',omega_zero:'rgba(20,20,25,0.22)'
   };
 
   for(let sec=0;sec<4;sec++){

@@ -81,13 +81,95 @@ const MAPS=[
    tags:[{t:'🗼 TOWER',c:'#c4b5fd',bg:'#1e1b4b'},{t:'무한 로그라이크',c:'#fde68a',bg:'#422006'}],
    type:'tower',diff:1,boss:null,category:'tower'},
 ];
+// ── 월드2 (보스맵 전부 클리어 시 해금, 월드1보다 훨씬 강력한 전용 콘텐츠) ──
+const MAPS2=[
+  // ── 웨이브맵 4종 ──
+  {id:'ruin_metro',name:'붕괴한 메트로',desc:'무너진 지하철 터널. 변이체들이 어둠 속에서 쏟아진다.',
+   tags:[{t:'☣️ 월드2 입문',c:'#a3e635',bg:'#1a2e05'},{t:'변이체 8종',c:'#fca5a5',bg:'#450a0a'}],
+   type:'ruin_metro',diff:1,boss:null,category:'wave'},
+  {id:'toxic_swamp',name:'독소 늪지대',desc:'독으로 가득한 늪. 거대 벌레와 독 안개가 시야를 가린다.',
+   tags:[{t:'☣️ 월드2',c:'#84cc16',bg:'#1a2e05'},{t:'독 지속 피해 주의',c:'#bef264',bg:'#365314'}],
+   type:'toxic_swamp',diff:2,boss:null,category:'wave'},
+  {id:'neon_ruins',name:'네온 폐허',desc:'전력이 끊긴 사이버시티. 해킹당한 기계들이 빛을 뿜으며 달려든다.',
+   tags:[{t:'☣️ 월드2',c:'#ec4899',bg:'#500724'},{t:'원거리 저격 주의',c:'#f472b6',bg:'#831843'}],
+   type:'neon_ruins',diff:3,boss:null,category:'wave'},
+  {id:'blood_moon',name:'핏빛 월식',desc:'달이 핏빛으로 물든 벌판. 광기에 빠진 존재들이 울부짖는다.',
+   tags:[{t:'☣️ 월드2 최상급',c:'#f87171',bg:'#450a0a'},{t:'월드1 종반보다 강력',c:'#fff',bg:'#7f1d1d'}],
+   type:'blood_moon',diff:4,boss:null,category:'wave'},
+  // ── 챌린지맵 2종 (전용 몹, 웨이브당 100마리 고정 소환, 10웨이브 완주, 특성 선택 없음) ──
+  {id:'quarantine_infinite',name:'무한 격리구역',desc:'끝없이 밀려오는 격리 실험체들. 특성 선택 없이 웨이브당 100마리씩, 10웨이브를 버텨라.',
+   tags:[{t:'☣️ CHALLENGE',c:'#a3e635',bg:'#1a2e05'},{t:'10웨이브·100마리',c:'#fff',bg:'#365314'}],
+   type:'quarantine_infinite',diff:5,boss:null,category:'challenge',challenge:true,waveLimit:10},
+  {id:'abyss_experiment',name:'심연의 실험체',desc:'심연에서 태어난 실험체들이 특성 선택 없이 웨이브당 100마리씩 몰려온다. 월드2 최고 난이도 챌린지.',
+   tags:[{t:'☣️ CHALLENGE',c:'#a78bfa',bg:'#2e1065'},{t:'10웨이브·100마리',c:'#fff',bg:'#4c1d95'}],
+   type:'abyss_experiment',diff:6,boss:null,category:'challenge',challenge:true,waveLimit:10},
+  // ── 보스맵 9종 (난이도 순, 전부 클리어해야 다음 월드/콘텐츠 해금과 연동될 수 있음) ──
+  {id:'toxic_queen',name:'TOXIC QUEEN',desc:'늪지의 여왕. 맹독과 세포 폭증으로 맵을 뒤덮는다.',
+   tags:[{t:'🐍 HELL+',c:'#bef264',bg:'#365314'},{t:'보스전',c:'#fff',bg:'#3f6212'}],
+   type:'toxic_queen',diff:7,boss:'toxic_queen',category:'boss'},
+  {id:'iron_warden',name:'IRON WARDEN',desc:'강철 파수관. 격자 지뢰와 미사일이 전방위를 뒤덮는다.',
+   tags:[{t:'⚙️ HELL+',c:'#cbd5e1',bg:'#1e293b'},{t:'보스전',c:'#fff',bg:'#334155'}],
+   type:'iron_warden',diff:7.5,boss:'iron_warden',category:'boss'},
+  {id:'plague_mother',name:'PLAGUE MOTHER',desc:'역병의 어머니. 세포 분열과 부활한 숙주들이 끝없이 밀려온다.',
+   tags:[{t:'🦠 SUPER HELL+',c:'#a3e635',bg:'#1a2e05'},{t:'보스전',c:'#fff',bg:'#3f6212'}],
+   type:'plague_mother',diff:8,boss:'plague_mother',category:'boss'},
+  {id:'storm_reaver',name:'STORM REAVER',desc:'폭풍의 파괴자. 뇌격과 중력 붕괴가 동시에 몰아친다.',
+   tags:[{t:'⚡ EXTREME+',c:'#fde047',bg:'#78350f'},{t:'보스전',c:'#fff',bg:'#92400e'}],
+   type:'storm_reaver',diff:8.5,boss:'storm_reaver',category:'boss'},
+  {id:'neon_specter',name:'NEON SPECTER',desc:'네온 유령. 광속 점멸과 유도 폭격으로 정신없이 몰아붙인다.',
+   tags:[{t:'👾 EXTREME+',c:'#f9a8d4',bg:'#500724'},{t:'보스전',c:'#fff',bg:'#831843'}],
+   type:'neon_specter',diff:9,boss:'neon_specter',category:'boss'},
+  {id:'blood_colossus',name:'BLOOD COLOSSUS',desc:'피의 거신. 뼈의 군세와 광란의 돌진이 끝없이 이어진다.',
+   tags:[{t:'🩸 EXTREME+',c:'#fca5a5',bg:'#450a0a'},{t:'보스전',c:'#fff',bg:'#7f1d1d'}],
+   type:'blood_colossus',diff:9.5,boss:'blood_colossus',category:'boss'},
+  {id:'abyss_leviathan',name:'ABYSS LEVIATHAN',desc:'심연의 리바이어던. 촉수 격자와 흡입 소용돌이가 바다 전체를 삼킨다.',
+   tags:[{t:'🐋 SSSSS EXTREME',c:'#67e8f9',bg:'#083344'},{t:'보스전',c:'#fff',bg:'#155e75'}],
+   type:'abyss_leviathan',diff:10,boss:'abyss_leviathan',category:'boss'},
+  {id:'gravity_rend',name:'GRAVITY REND',desc:'중력 파쇄자. 시간 정지와 특이점 폭주로 공간 자체를 찢는다.',
+   tags:[{t:'🕳️ SSSSS EXTREME',c:'#c4b5fd',bg:'#1e1b4b'},{t:'보스전',c:'#fff',bg:'#4c1d95'}],
+   type:'gravity_rend',diff:10.5,boss:'gravity_rend',category:'boss'},
+  {id:'omega_zero',name:'OMEGA ZERO',desc:'월드2 최종 보스. 오메가 피날레 앞에서는 그 무엇도 안전하지 않다.',
+   tags:[{t:'♾️ SSSSSSS EXTREME DEMON',c:'#f8fafc',bg:'#020617'},{t:'월드2 최종 보스',c:'#fff',bg:'#000'}],
+   type:'omega_zero',diff:11,boss:'omega_zero',category:'boss'},
+];
+let curWorld=1;
 let mapCategory='wave',mapIdx=0,selMap=MAPS[0];
 let extremeMode=false;
-function catMaps(){return MAPS.filter(m=>m.category===mapCategory).sort((a,b)=>(a.diff||0)-(b.diff||0));}
+function isWorld2Unlocked(){
+  if(typeof devModeUnlocked!=='undefined'&&devModeUnlocked)return true;
+  const bossIds=MAPS.filter(m=>m.category==='boss').map(m=>m.id);
+  const bk=achStats.bossKills||{};
+  return bossIds.every(id=>(bk[id]||0)>=1);
+}
+function curWorldMaps(){return curWorld===2?MAPS2:MAPS;}
+function catMaps(){return curWorldMaps().filter(m=>m.category===mapCategory).sort((a,b)=>(a.diff||0)-(b.diff||0));}
+function updWorld2Btn(){
+  const btn=document.getElementById('world2Btn');
+  if(!btn)return;
+  const unlocked=isWorld2Unlocked();
+  btn.innerHTML=unlocked?'🌐 월드2':'🌐 월드2 🔒';
+  btn.classList.toggle('locked',!unlocked);
+}
+function setWorld(w){
+  if(w===2&&!isWorld2Unlocked()){
+    setMapMsg('🔒 보스맵을 모두 클리어해야 월드2가 열립니다');
+    return;
+  }
+  curWorld=w;mapCategory='wave';mapIdx=0;
+  document.querySelectorAll('#sMap .wtab').forEach(b=>b.classList.remove('on'));
+  const btn=document.getElementById(w===2?'world2Btn':'world1Btn');if(btn)btn.classList.add('on');
+  document.querySelectorAll('#sMap .stab').forEach(b=>b.classList.remove('on'));
+  const firstTab=document.querySelector('#sMap .stab');if(firstTab)firstTab.classList.add('on');
+  selMap=catMaps()[0];
+  drawMP();
+}
 function openMapSelect(){
-  mapCategory='wave';mapIdx=0;
+  curWorld=1;mapCategory='wave';mapIdx=0;
   extremeMode=false;updExtremeBtn();
+  updWorld2Btn();
   go('sMap');
+  document.querySelectorAll('#sMap .wtab').forEach(b=>b.classList.remove('on'));
+  const firstWtab=document.getElementById('world1Btn');if(firstWtab)firstWtab.classList.add('on');
   document.querySelectorAll('#sMap .stab').forEach(b=>b.classList.remove('on'));
   const firstTab=document.querySelector('#sMap .stab');if(firstTab)firstTab.classList.add('on');
   selMap=catMaps()[0];
@@ -127,13 +209,40 @@ function updExtremeBtn(){
   if(glow)glow.classList.toggle('on',extremeMode);
 }
 function confirmMapSelect(){
-  if(selMap&&selMap.noWeapons){startGame();return;}
+  if(!selMap)return;
+  if(selMap.noWeapons){startGame();return;}
   go('sWeapon');
 }
+// 월드2 신규 맵 15종 미리보기 테마 (bg=배경, glow=중심광, line=장식선, core1/2=중앙원 그라디언트, icon=중앙 아이콘)
+const W2_THEMES={
+  ruin_metro:      {bg:'#1a2e05',glow:'rgba(163,230,53,0.18)',line:'rgba(163,230,53,0.4)',core1:'#3f6212',core2:'#1a2e05',icon:'☣️'},
+  toxic_swamp:      {bg:'#132b0a',glow:'rgba(132,204,22,0.2)', line:'rgba(132,204,22,0.4)',core1:'#4d7c0f',core2:'#132b0a',icon:'🧪'},
+  neon_ruins:       {bg:'#2a0a1e',glow:'rgba(236,72,153,0.22)',line:'rgba(236,72,153,0.45)',core1:'#831843',core2:'#2a0a1e',icon:'📡'},
+  blood_moon:       {bg:'#2a0505',glow:'rgba(248,113,113,0.22)',line:'rgba(248,113,113,0.45)',core1:'#7f1d1d',core2:'#1a0000',icon:'🌑'},
+  quarantine_infinite:{bg:'#0f1a08',glow:'rgba(163,230,53,0.2)',line:'rgba(163,230,53,0.45)',core1:'#365314',core2:'#0f1a08',icon:'☣️'},
+  abyss_experiment: {bg:'#180a2a',glow:'rgba(167,139,250,0.22)',line:'rgba(167,139,250,0.45)',core1:'#4c1d95',core2:'#180a2a',icon:'🧬'},
+  toxic_queen:      {bg:'#1a2e05',glow:'rgba(190,242,100,0.25)',line:'rgba(190,242,100,0.5)',core1:'#4d7c0f',core2:'#0f1a08',icon:'🐍'},
+  iron_warden:      {bg:'#0f172a',glow:'rgba(148,163,184,0.25)',line:'rgba(148,163,184,0.5)',core1:'#334155',core2:'#0f172a',icon:'⚙️'},
+  plague_mother:    {bg:'#0d1a05',glow:'rgba(101,163,13,0.25)',line:'rgba(101,163,13,0.5)',core1:'#3f6212',core2:'#0d1a05',icon:'🦠'},
+  storm_reaver:     {bg:'#241a02',glow:'rgba(250,204,21,0.28)',line:'rgba(250,204,21,0.5)',core1:'#78350f',core2:'#241a02',icon:'⚡'},
+  neon_specter:     {bg:'#2a0520',glow:'rgba(236,72,153,0.28)',line:'rgba(236,72,153,0.5)',core1:'#831843',core2:'#2a0520',icon:'👾'},
+  blood_colossus:   {bg:'#280505',glow:'rgba(239,68,68,0.28)',line:'rgba(239,68,68,0.5)',core1:'#7f1d1d',core2:'#280505',icon:'🩸'},
+  abyss_leviathan:  {bg:'#031c26',glow:'rgba(34,211,238,0.25)',line:'rgba(34,211,238,0.5)',core1:'#0e7490',core2:'#031c26',icon:'🐋'},
+  gravity_rend:     {bg:'#170a2a',glow:'rgba(167,139,250,0.28)',line:'rgba(167,139,250,0.5)',core1:'#4c1d95',core2:'#170a2a',icon:'🕳️'},
+  omega_zero:       {bg:'#050508',glow:'rgba(248,250,252,0.3)',line:'rgba(248,250,252,0.55)',core1:'#f8fafc',core2:'#0f172a',icon:'♾️'},
+};
 function drawMP(){
   const list=catMaps();
   const m=list[mapIdx]||list[0];
-  if(!m)return;
+  if(!m){
+    document.getElementById('mn').textContent='🌐 월드2';
+    document.getElementById('md').textContent='준비 중입니다. 조금만 기다려주세요!';
+    document.getElementById('mt').innerHTML='';
+    const c=document.getElementById('mpC'),x=c.getContext('2d');
+    x.fillStyle='#12102a';x.fillRect(0,0,400,210);
+    x.fillStyle='rgba(255,255,255,0.6)';x.font='bold 18px sans-serif';x.textAlign='center';x.fillText('COMING SOON',200,110);
+    return;
+  }
   document.getElementById('mn').textContent=m.name;
   document.getElementById('md').textContent=m.desc;
   document.getElementById('mt').innerHTML=m.tags.map(t=>`<span class="mtag" style="color:${t.c};background:${t.bg}">${t.t}</span>`).join('');
@@ -369,6 +478,16 @@ function drawMP(){
     x.beginPath();x.arc(200,105,38,0,Math.PI*2);const vg4=x.createRadialGradient(200,105,3,200,105,38);vg4.addColorStop(0,'#c4b5fd');vg4.addColorStop(.6,'#7c3aed');vg4.addColorStop(1,'#1e1b4b');x.fillStyle=vg4;x.fill();
     x.fillStyle='#000';x.beginPath();x.arc(200,105,14,0,Math.PI*2);x.fill();
     x.fillStyle='rgba(255,255,255,0.15)';x.font='bold 14px sans-serif';x.textAlign='center';x.fillText('VOID REAPER',200,195);
+  } else if(W2_THEMES[m.type]){
+    // 월드2 신규 맵 공통 미리보기: 테마 색상 + 방사형 글로우 + 아이콘
+    const th=W2_THEMES[m.type];
+    x.fillStyle=th.bg;x.fillRect(0,0,400,210);
+    const wg=x.createRadialGradient(200,105,10,200,105,160);wg.addColorStop(0,th.glow);wg.addColorStop(1,'transparent');x.fillStyle=wg;x.fillRect(0,0,400,210);
+    for(let i=0;i<10;i++){const a=i/10*Math.PI*2;x.strokeStyle=th.line;x.lineWidth=2;x.beginPath();x.moveTo(200+Math.cos(a)*40,105+Math.sin(a)*40);x.lineTo(200+Math.cos(a)*120,105+Math.sin(a)*120);x.stroke();}
+    x.beginPath();x.arc(200,105,42,0,Math.PI*2);const cg=x.createRadialGradient(200,105,4,200,105,42);cg.addColorStop(0,th.core1);cg.addColorStop(1,th.core2);x.fillStyle=cg;x.fill();
+    x.strokeStyle=th.line;x.lineWidth=3;x.stroke();
+    x.font='32px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(th.icon,200,105);x.textBaseline='alphabetic';
+    x.fillStyle='rgba(255,255,255,0.18)';x.font='bold 13px sans-serif';x.textAlign='center';x.fillText(m.name,200,195);
   }
   // 플레이어 점
   x.fillStyle='#1D9E75';x.beginPath();x.arc(200,195,7,0,Math.PI*2);x.fill();

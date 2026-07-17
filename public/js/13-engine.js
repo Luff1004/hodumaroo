@@ -97,12 +97,70 @@ const ZT={
   wolf_ally:  {name:'늑대',   col:'#78716c',ol:'#44403c',bHp:40,  spd:3.2, r:14,sc:0},
   drone_ally: {name:'드론',   col:'#60a5fa',ol:'#1d4ed8',bHp:60,  spd:2.6, r:14,sc:0},
   golem_ally: {name:'골렘',   col:'#6b7280',ol:'#374151',bHp:400, spd:1.2, r:26,sc:0},
+  // ══ 월드2 전용 몹 50종 ══
+  // ── 붕괴한 메트로 ──
+  mut_crawler:{name:'변이 기어다니는 것',col:'#556b2f',ol:'#33420f',bHp:18,spd:1.6,r:13,sc:60},
+  mut_leaper: {name:'변이 도약자',       col:'#8b0000',ol:'#4d0000',bHp:15,spd:2.8,r:12,sc:70},
+  mut_brute:  {name:'변이 거한',         col:'#4b3621',ol:'#2a1e12',bHp:60,spd:.6, r:22,sc:150},
+  mut_spitter:{name:'변이 침사출자',     col:'#6b8e23',ol:'#3a4d13',bHp:20,spd:1.0,r:14,sc:90,isRanged:true},
+  mut_wailer: {name:'변이 울부짖는 자',  col:'#8a2be2',ol:'#4b0082',bHp:22,spd:1.3,r:13,sc:100},
+  mut_stalker:{name:'변이 추적자',       col:'#2f2f2f',ol:'#0f0f0f',bHp:16,spd:2.4,r:12,sc:80},
+  mut_shaman: {name:'변이 주술사',       col:'#9932cc',ol:'#4b0082',bHp:24,spd:.8, r:14,sc:120,isRegen:true},
+  mut_colossus:{name:'변이 콜로서스',    col:'#3b3b3b',ol:'#1a1a1a',bHp:95,spd:.4, r:26,sc:220},
+  // ── 독소 늪지대 ──
+  swp_leech:   {name:'늪 흡혈충',     col:'#556b2f',ol:'#2f3d17',bHp:22, spd:2.0,r:11,sc:90},
+  swp_toad:    {name:'독두꺼비',       col:'#6b8e23',ol:'#374d0f',bHp:30, spd:1.1,r:16,sc:110},
+  swp_widow:   {name:'늪거미 위도우', col:'#1a1a2e',ol:'#0d0d1a',bHp:26, spd:2.2,r:12,sc:120},
+  swp_bloat:   {name:'부패한 팽창체', col:'#7a9a3a',ol:'#465c1f',bHp:34, spd:1.0,r:17,sc:130,isSplitter:true},
+  swp_reed:    {name:'갈대 저격수',   col:'#4d6b1f',ol:'#2b3d10',bHp:24, spd:.9, r:13,sc:120,isRanged:true},
+  swp_matriarch:{name:'늪지의 모체', col:'#3e5c1a',ol:'#243710',bHp:80, spd:.5, r:22,sc:200},
+  swp_wisp:    {name:'독의 정령',     col:'#66ff99',ol:'#1f7a4d',bHp:20, spd:1.8,r:11,sc:100,isRegen:true},
+  swp_behemoth:{name:'늪지 베헤모스', col:'#2e3d1a',ol:'#161f0d',bHp:130,spd:.4, r:28,sc:260},
+  // ── 네온 폐허 ──
+  neon_drifter:  {name:'네온 방랑자',   col:'#ec4899',ol:'#831843',bHp:28, spd:2.0,r:12,sc:120},
+  neon_slicer:   {name:'네온 슬라이서', col:'#06b6d4',ol:'#0e7490',bHp:26, spd:2.6,r:11,sc:130},
+  neon_juggernaut:{name:'네온 저거넛',  col:'#7c3aed',ol:'#4c1d95',bHp:110,spd:.5, r:25,sc:280},
+  neon_hacker:   {name:'네온 해커',     col:'#22d3ee',ol:'#0e7490',bHp:30, spd:.9, r:14,sc:150,isRanged:true},
+  neon_phantom:  {name:'네온 팬텀',     col:'#a78bfa',ol:'#5b21b6',bHp:24, spd:1.7,r:12,sc:140},
+  neon_gunner:   {name:'네온 거너',     col:'#f472b6',ol:'#831843',bHp:32, spd:1.0,r:14,sc:150,isRanged:true},
+  neon_swarm:    {name:'네온 스웜',     col:'#fbbf24',ol:'#92400e',bHp:20, spd:2.2,r:10,sc:110,auraR:60},
+  neon_warden:   {name:'네온 파수병',   col:'#3b82f6',ol:'#1e3a8a',bHp:70, spd:.6, r:20,sc:220},
+  neon_overlord: {name:'네온 오버로드', col:'#8b5cf6',ol:'#4c1d95',bHp:150,spd:.4, r:27,sc:340},
+  // ── 핏빛 월식 ──
+  bm_howler:  {name:'월식의 하울러',     col:'#7f1d1d',ol:'#450a0a',bHp:34, spd:2.1,r:13,sc:160},
+  bm_ripper:  {name:'월식의 리퍼',       col:'#991b1b',ol:'#450a0a',bHp:32, spd:2.5,r:12,sc:170},
+  bm_gorger:  {name:'월식의 고르거',     col:'#450a0a',ol:'#1a0000',bHp:140,spd:.5, r:26,sc:320},
+  bm_shrieker:{name:'월식의 쉬리커',     col:'#dc2626',ol:'#7f1d1d',bHp:28, spd:1.4,r:13,sc:150,auraR:70},
+  bm_warlord: {name:'월식의 전쟁군주',   col:'#7c2d12',ol:'#431407',bHp:100,spd:.7, r:22,sc:300},
+  bm_shade:   {name:'월식의 그림자',     col:'#1c1917',ol:'#000000',bHp:26, spd:1.8,r:12,sc:160},
+  bm_matron:  {name:'월식의 모후',       col:'#991b1b',ol:'#450a0a',bHp:90, spd:.6, r:20,sc:280,isRegen:true},
+  bm_reaper:  {name:'월식의 사신',       col:'#111827',ol:'#000000',bHp:60, spd:1.3,r:16,sc:260},
+  bm_devourer:{name:'월식의 포식자',     col:'#450a0a',ol:'#000000',bHp:190,spd:.4, r:29,sc:380,isSplitter:true},
+  // ── 무한 격리구역 (챌린지) ──
+  qz_subject:    {name:'격리 실험체',     col:'#65a30d',ol:'#365314',bHp:26, spd:1.8,r:12,sc:130},
+  qz_horror:     {name:'격리 호러',       col:'#7f1d1d',ol:'#450a0a',bHp:40, spd:1.2,r:16,sc:170},
+  qz_sentinel:   {name:'격리 감시자',     col:'#475569',ol:'#1e293b',bHp:80, spd:.6, r:20,sc:240},
+  qz_biomass:    {name:'격리 생물괴체',   col:'#4d7c0f',ol:'#365314',bHp:44, spd:.9, r:18,sc:190,isSplitter:true},
+  qz_screecher:  {name:'격리 스크리처',   col:'#be185d',ol:'#831843',bHp:24, spd:2.3,r:11,sc:150},
+  qz_titan:      {name:'격리 타이탄',     col:'#1e293b',ol:'#0f172a',bHp:160,spd:.4, r:27,sc:360},
+  qz_parasite2:  {name:'격리 기생체',     col:'#84cc16',ol:'#3f6212',bHp:22, spd:2.0,r:11,sc:140},
+  qz_abomination:{name:'격리 어보미네이션',col:'#3f6212',ol:'#1a2e05',bHp:220,spd:.3, r:30,sc:420},
+  // ── 심연의 실험체 (챌린지) ──
+  ae_larva:    {name:'심연의 유충',   col:'#166534',ol:'#052e16',bHp:30, spd:1.6,r:12,sc:150,isSplitter:true},
+  ae_hunter:   {name:'심연의 사냥꾼', col:'#0e7490',ol:'#083344',bHp:46, spd:2.0,r:15,sc:200},
+  ae_colossus: {name:'심연의 거상',   col:'#1e1b4b',ol:'#0f0a24',bHp:220,spd:.4, r:29,sc:440},
+  ae_siren:    {name:'심연의 세이렌', col:'#7e22ce',ol:'#3b0764',bHp:34, spd:1.0,r:14,sc:190,auraR:75},
+  ae_construct:{name:'심연의 구조체', col:'#334155',ol:'#0f172a',bHp:130,spd:.6, r:23,sc:320},
+  ae_wraith:   {name:'심연의 망령',   col:'#a78bfa',ol:'#4c1d95',bHp:36, spd:1.7,r:13,sc:210},
+  ae_matriarch2:{name:'심연의 여왕',  col:'#581c87',ol:'#2e1065',bHp:170,spd:.5, r:25,sc:380,isRegen:true},
+  ae_god:      {name:'심연의 신',     col:'#000000',ol:'#4c1d95',bHp:280,spd:.3, r:32,sc:520},
 };
 
 function d2(ax,ay,bx,by){return(ax-bx)**2+(ay-by)**2;}
 
 // 신규 웨이브맵 3종 EXTREME 난이도 배율 (아포칼립스 < 차원의 심장 < ETERNAL SPACE)
-const HARD_WAVE_MUL={apocalypse:1.5,dimension_heart:2.0,eternal_space:2.8};
+const HARD_WAVE_MUL={apocalypse:1.5,dimension_heart:2.0,eternal_space:2.8,
+  ruin_metro:4,toxic_swamp:5.5,neon_ruins:7,blood_moon:9,quarantine_infinite:7,abyss_experiment:9};
 
 function calcWZ(){if(selMap.boss)return 1;if(BOSSES[wave]&&!selMap.challenge)return 1;if(selMap.id==='tower'&&wave>100&&wave%10===0)return 1;if(selMap.challenge)return 100;const hwm=HARD_WAVE_MUL[selMap.id]||1;return Math.ceil((5+wave*4)*hwm);}
 
@@ -494,6 +552,20 @@ function hitZ(z,dmg){
       z._ex=true;addExp(z.x,z.y,80,'#f97316');
       if(d2(P.x,P.y,z.x,z.y)<100**2)takeDmg(14);
     }
+    // 월드2 분열형: 사망 시 절반 체력의 분신 2체 생성 (1회만)
+    if(ZT[z.type]?.isSplitter&&!z._split&&!z.isBoss){
+      z._split=true;
+      const T=ZT[z.type];
+      for(let i=0;i<2;i++){
+        const a=Math.random()*Math.PI*2,dist=20+Math.random()*20;
+        zoms.push({x:z.x+Math.cos(a)*dist,y:z.y+Math.sin(a)*dist,type:z.type,r:T.r*.65,
+          hp:Math.ceil(z.maxHp*.4),maxHp:Math.ceil(z.maxHp*.4),spd:z.spd*1.15,
+          angle:0,dead:false,dT:0,_dshC:180+Math.random()*60,_dsh:false,_dvx:0,_dvy:0,
+          _healT:0,_phT:Math.random()*120,_phased:false,_frz:0,wob:Math.random()*Math.PI*2,
+          _potT:0,_slamT:0,_spearT:0,_spearDash:false,_dashVx:0,_dashVy:0,_dashDur:0,
+          _zigT:0,_webT:0,_spellT:0,_split:true});
+      }
+    }
     z.dead=true;z.dT=z.isBoss?80:35;z._justDied=true;
     score+=Math.floor((z.isBoss?z.bd.reward.c:(ZT[z.type]?.sc||10))*(1+(pUpgLv['pxp']||0)*.1));kills++;
     if(!z.isBoss&&typeof addPlayerXP==='function')addPlayerXP(2);
@@ -600,7 +672,7 @@ function onBossDie(z){
   addSeasonXP(Math.floor(z.bd.reward.c*0.5*(window._petXpMult||1)*(window._relicXpMult||1))); // 보스 XP
   if(typeof addPlayerXP==='function')addPlayerXP(Math.floor(z.bd.reward.c*0.5*(window._petXpMult||1)*(window._relicXpMult||1)));
   // 보스 킬 기록
-  if(z.bossMapId){ achStats.bossKills=achStats.bossKills||{}; achStats.bossKills[z.bossMapId]=(achStats.bossKills[z.bossMapId]||0)+1; }
+  if(z.bossMapId){ achStats.bossKills=achStats.bossKills||{}; achStats.bossKills[z.bossMapId]=(achStats.bossKills[z.bossMapId]||0)+1; if(typeof updWorld2Btn==='function')updWorld2Btn(); }
   if(z.bd&&z.bd.id&&z.bd.id.startsWith('dream_')){ achStats.bossKills=achStats.bossKills||{}; const dk=z.bd.id.replace('_boss',''); achStats.bossKills[dk]=(achStats.bossKills[dk]||0)+1; }
   if(waveDmgTaken===0){achStats.noDmgBoss=(achStats.noDmgBoss||0)+1;}
   if(P.hp<=P.maxHp*0.1+1){achStats.dreamCloseKill=(achStats.dreamCloseKill||0)+1;}
@@ -1269,6 +1341,27 @@ function getZombiePool(){if(selMap.boss)return [];
     if(wave>=25)hp.push('the_thing','alien','tentacle_monster');
     return hp;
   }
+  // ── 월드2 챌린지맵: 전용 몹만 스폰 ──
+  if(selMap.id==='quarantine_infinite'){
+    const qp=['qz_subject','qz_subject','qz_screecher','qz_parasite2'];
+    if(wave>=2)qp.push('qz_horror','qz_biomass');
+    if(wave>=4)qp.push('qz_sentinel');
+    if(wave>=6)qp.push('qz_titan');
+    if(wave>=8)qp.push('qz_horror','qz_biomass','qz_sentinel');
+    if(wave>=15)qp.push('qz_titan','qz_sentinel');
+    if(wave>=25)qp.push('qz_abomination','qz_titan','qz_biomass');
+    return qp;
+  }
+  if(selMap.id==='abyss_experiment'){
+    const ap=['ae_larva','ae_larva','ae_hunter'];
+    if(wave>=2)ap.push('ae_wraith','ae_siren');
+    if(wave>=4)ap.push('ae_construct');
+    if(wave>=6)ap.push('ae_matriarch2');
+    if(wave>=8)ap.push('ae_hunter','ae_wraith','ae_construct');
+    if(wave>=15)ap.push('ae_colossus','ae_matriarch2');
+    if(wave>=25)ap.push('ae_god','ae_colossus','ae_construct');
+    return ap;
+  }
   const base=['normal'];
   if(wave>=2)base.push('runner');
   if(wave>=3)base.push('tanker');
@@ -1341,6 +1434,35 @@ function getZombiePool(){if(selMap.boss)return [];
     if(wave>=6)base.push('tower_tank');
     if(wave>=8)base.push('tower_tank','tower_phantom','tower_bomber');
     if(wave>=12)base.push('tower_tank','tower_tank','tower_phantom','tower_phantom','tower_bomber');
+  }
+  // ── 월드2 웨이브맵 ──
+  if(m.id==='ruin_metro'){
+    base.push('mut_crawler','mut_leaper','mut_stalker');
+    if(wave>=2)base.push('mut_spitter','mut_wailer');
+    if(wave>=4)base.push('mut_shaman');
+    if(wave>=6)base.push('mut_brute');
+    if(wave>=9)base.push('mut_colossus','mut_brute','mut_shaman');
+  }
+  if(m.id==='toxic_swamp'){
+    base.push('swp_leech','swp_toad','swp_widow');
+    if(wave>=2)base.push('swp_bloat','swp_reed');
+    if(wave>=4)base.push('swp_wisp');
+    if(wave>=6)base.push('swp_matriarch');
+    if(wave>=9)base.push('swp_behemoth','swp_matriarch','swp_bloat');
+  }
+  if(m.id==='neon_ruins'){
+    base.push('neon_drifter','neon_slicer','neon_swarm');
+    if(wave>=2)base.push('neon_hacker','neon_gunner');
+    if(wave>=4)base.push('neon_phantom','neon_warden');
+    if(wave>=6)base.push('neon_juggernaut');
+    if(wave>=9)base.push('neon_overlord','neon_juggernaut','neon_warden');
+  }
+  if(m.id==='blood_moon'){
+    base.push('bm_howler','bm_ripper','bm_shade');
+    if(wave>=2)base.push('bm_shrieker','bm_reaper');
+    if(wave>=4)base.push('bm_warlord','bm_matron');
+    if(wave>=6)base.push('bm_gorger');
+    if(wave>=9)base.push('bm_devourer','bm_gorger','bm_warlord');
   }
   return base;
 }
@@ -1687,11 +1809,22 @@ function update(){
       if(z._webT>=180){z._webT=0;z.x=P.x+(Math.random()-.5)*220;z.y=P.y+(Math.random()-.5)*220;for(let i=0;i<8;i++)parts.push({x:z.x,y:z.y,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6,l:18,ml:18,r:3,col:'#c4b5fd'});}
       else{z.x+=ddx/dl*spd;z.y+=ddy/dl*spd;}
     }
+    else if(ZT[z.type]?.isRanged){
+      // 월드2 원거리형: 거리 유지 + 저격
+      z._spellT=(z._spellT||0)+1;const keepDist=200;
+      if(dl>keepDist){z.x+=ddx/dl*spd*.6;z.y+=ddy/dl*spd*.6;}
+      else if(dl<130){z.x-=ddx/dl*spd;z.y-=ddy/dl*spd;}
+      if(z._spellT>=110){z._spellT=0;const ang=Math.atan2(ddy,ddx);buls.push({x:z.x,y:z.y,vx:Math.cos(ang)*7,vy:Math.sin(ang)*7,r:6,l:140,en:true,dmg:9,col:ZT[z.type].col});}
+    }
     else{z.x+=ddx/dl*spd+Math.cos(z.wob)*.2;z.y+=ddy/dl*spd+Math.sin(z.wob)*.2;}
+    // 월드2 재생형: 일정 시간 피격 없으면 서서히 회복
+    if(ZT[z.type]?.isRegen){z._regenT=(z._regenT||0)+1;if(z._regenT>=90){z._regenT=0;z.hp=Math.min(z.maxHp,z.hp+Math.ceil(z.maxHp*.03));}}
     z.x=Math.max(z.r,Math.min(MW-z.r,z.x));z.y=Math.max(z.r,Math.min(MH-z.r,z.y));
     if(dl<z.r+P.r&&!z.isMinion){let dps=z.isBoss?1.5:z.type==='tanker'?.8:z.type==='supertank'?2:z.type==='the_thing'?1.5:z.type==='starfish'?.6:z.type==='robot'?.7:z.type==='the_god'?2:z.type==='dim_rift'?1.2:z.type==='glitch_entity'?1.3:z.type==='super_zombie'?.9:.35;dps+=(ZT[z.type]?.dmgMult||1)*.05;if(z.type==='rob'&&!P._bobPlayerMode){running=false;return true;}
       const extDmgMul=(typeof extremeMode!=='undefined'&&extremeMode&&!selMap.boss&&!z.isBoss)?2.5:1;
       takeDmg(dps*extDmgMul);if((z.type==='poison'||z.type==='parasite'||z.type==='worm')&&poison<=0){poison=300;for(let i=0;i<6;i++)parts.push({x:P.x,y:P.y,vx:(Math.random()-.5)*4,vy:(Math.random()-.5)*4,l:20,ml:20,r:4,col:'#8DB800'});}if((z.type==='exploder'||z.type==='suicide_zombie')&&!z._ex){z._ex=true;z.dead=true;z.dT=30;addExp(z.x,z.y,z.type==='suicide_zombie'?95:70,'#FF6600');takeDmg((z.type==='suicide_zombie'?26:18)*extDmgMul);}}
+    // 월드2 가시장막형: 근접 접촉 없이도 오라 범위 내에서 지속 피해
+    else if(ZT[z.type]?.auraR&&dl<ZT[z.type].auraR+P.r&&!z.isMinion){const extDmgMul=(typeof extremeMode!=='undefined'&&extremeMode&&!selMap.boss)?2.5:1;takeDmg(0.12*extDmgMul);}
     return true;
   });
   buls=buls.filter(b=>{
@@ -1851,6 +1984,14 @@ function fireWep(){
       // 지휘봉: 360도 + 무지개 48발
       doMelee(80,Math.PI*2);
       for(let i=0;i<48;i++){const a=i/48*Math.PI*2;buls.push({x:P.x,y:P.y,vx:Math.cos(a)*9,vy:Math.sin(a)*9,r:6,l:150,en:false,dmg:ws.dmg*.4,col:`hsl(${i*7.5},90%,65%)`});}
+    } else if(wsid==='blood_colossus_drop'){
+      // 거신의 파편: 참격 + 피의 파편 8방향
+      doMelee(85,Math.PI*.8);
+      for(let i=0;i<8;i++){const a=i/8*Math.PI*2;buls.push({x:P.x,y:P.y,vx:Math.cos(a)*8,vy:Math.sin(a)*8,r:6,l:110,en:false,dmg:18,col:'#991b1b'});}
+    } else if(wsid==='omega_zero_drop'){
+      // 오메가 파동: 360도 + 전방위 파동 62발
+      doMelee(90,Math.PI*2);
+      for(let i=0;i<62;i++){const a=i/62*Math.PI*2;buls.push({x:P.x,y:P.y,vx:Math.cos(a)*10,vy:Math.sin(a)*10,r:6,l:160,en:false,dmg:ws.dmg*.42,col:i%2===0?'#f8fafc':'#0f172a'});}
     } else {
       doMelee(55,Math.PI*.5);
     }
@@ -2045,6 +2186,56 @@ function fireWep(){
   if(ws.id==='symphony_drop'){
     // 무지개 48발 자동 방사
     setTimeout(()=>{if(!running)return;for(let i=0;i<48;i++){const a=i/48*Math.PI*2;buls.push({x:P.x,y:P.y,vx:Math.cos(a)*9,vy:Math.sin(a)*9,r:6,l:150,en:false,dmg:30,col:`hsl(${i*7.5},90%,65%)`});}},80);
+  }
+  // ── 월드1 보스 클리어 전용 무기 보완 특수 효과 ──
+  if(ws.id==='volcano_drop'){
+    // 착탄 지점에 용암 웅덩이(지속 피해 구역) 생성
+    effs.push({type:'cloud',x:P.x+Math.cos(P.angle)*45,y:P.y+Math.sin(P.angle)*45,l:110,ml:110,r:36,dmgMult:1.3,dmgT:0});
+  }
+  if(ws.id==='frost_drop'){
+    // 주변 냉기 확산: 근처 적 동결
+    zoms.filter(z=>!z.dead&&d2(z.x,z.y,P.x,P.y)<160**2).forEach(z=>{z._frz=Math.max(z._frz||0,70);});
+  }
+  if(ws.id==='void_drop'){
+    // 착탄 지점에 차원 균열: 주변 적을 끌어당김
+    const vx=P.x+Math.cos(P.angle)*150,vy=P.y+Math.sin(P.angle)*150;
+    gTimeout(()=>{if(!running)return;
+      zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,vx,vy)<110**2){z.x+=(vx-z.x)*.12;z.y+=(vy-z.y)*.12;}});
+      addExp(vx,vy,45,'#7c3aed');
+    },220);
+  }
+  // ── 월드2 보스 클리어 전용 무기 특수 효과 ──
+  if(ws.id==='toxic_queen_drop'){
+    // 발사마다 소형 맹독 구름 생성
+    effs.push({type:'cloud',x:P.x+Math.cos(P.angle)*35,y:P.y+Math.sin(P.angle)*35,l:90,ml:90,r:32,dmgMult:1.2,dmgT:0});
+  }
+  if(ws.id==='iron_warden_drop'){
+    // 병렬 관통탄 2발 추가
+    for(let i=-1;i<=1;i+=2){const a=P.angle+i*.06;buls.push({x:P.x,y:P.y,vx:Math.cos(a)*(ws.spd||18),vy:Math.sin(a)*(ws.spd||18),r:4,l:130,en:false,dmg:8,pierce:true,col:'#94a3b8'});}
+  }
+  if(ws.id==='plague_mother_drop'){
+    // 폭발탄마다 독포자 구름 확산
+    effs.push({type:'cloud',x:P.x+Math.cos(P.angle)*40,y:P.y+Math.sin(P.angle)*40,l:100,ml:100,r:38,dmgMult:1,dmgT:0});
+  }
+  if(ws.id==='storm_reaver_drop'){
+    // 번개 파티클 플레어
+    for(let i=0;i<6;i++)parts.push({x:P.x,y:P.y,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6,l:14,ml:14,r:3,col:'#facc15'});
+  }
+  if(ws.id==='neon_specter_drop'){
+    // 글리치 잔상: 살짝 지연된 2연발
+    setTimeout(()=>{if(!running)return;fB(P.angle+(Math.random()-.5)*.08,(ws.dmg||26)*.6+(P.dmgB||0),ws);},70);
+  }
+  if(ws.id==='abyss_leviathan_drop'){
+    // 폭발+촉수 소환
+    const ang=P.angle;gTimeout(()=>{if(!running)return;for(let i=-2;i<=2;i++){buls.push({x:P.x,y:P.y,vx:Math.cos(ang+i*.15)*7,vy:Math.sin(ang+i*.15)*7,r:9,l:130,en:false,dmg:18,col:'#0e7490'});}},200);
+  }
+  if(ws.id==='gravity_rend_drop'){
+    // 착탄 지점 중력장: 주변 적 끌어당김
+    const gx=P.x+Math.cos(P.angle)*160,gy=P.y+Math.sin(P.angle)*160;
+    gTimeout(()=>{if(!running)return;
+      zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,gx,gy)<130**2){z.x+=(gx-z.x)*.15;z.y+=(gy-z.y)*.15;}});
+      addExp(gx,gy,50,'#7c3aed');
+    },260);
   }
   // 신규 무기 특수 효과
   if(ws.explosive){
@@ -2700,6 +2891,80 @@ function drawBossMapBoss(z,t,pct){
     const vg2=ctx.createRadialGradient(0,0,0,0,0,r);vg2.addColorStop(0,'#c4b5fd');vg2.addColorStop(.5,'#7c3aed');vg2.addColorStop(1,'#1e1b4b');
     ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fillStyle=vg2;ctx.fill();ctx.strokeStyle='#a78bfa';ctx.lineWidth=3;ctx.stroke();
     ctx.fillStyle='#000';ctx.beginPath();ctx.arc(0,0,r*.35,0,Math.PI*2);ctx.fill();
+  } else if(id==='toxic_queen'){
+    // 독의 여왕: 왕관 + 뒤엉킨 뱀 코일 + 독액 눈
+    for(let i=0;i<5;i++){const a=i/5*Math.PI*2-Math.PI/2;ctx.fillStyle='#a3e635';ctx.beginPath();ctx.moveTo(0,-r*.7);ctx.lineTo(Math.cos(a)*r*.9,Math.sin(a)*r*.9-r*.25);ctx.lineTo(Math.cos(a+.3)*r*.55,Math.sin(a+.3)*r*.55-r*.25);ctx.closePath();ctx.fill();}
+    for(let i=0;i<3;i++){const a=t/700+i/3*Math.PI*2;ctx.strokeStyle='rgba(132,204,22,0.5)';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*.5,Math.sin(a)*r*.5);ctx.quadraticCurveTo(Math.cos(a+1)*r*1.1,Math.sin(a+1)*r*1.1,Math.cos(a+2)*r*.8,Math.sin(a+2)*r*.8);ctx.stroke();}
+    const tqg=ctx.createRadialGradient(0,0,0,0,0,r);tqg.addColorStop(0,'#d9f99d');tqg.addColorStop(.55,'#65a30d');tqg.addColorStop(1,'#1a2e05');
+    ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fillStyle=tqg;ctx.fill();ctx.strokeStyle='#4d7c0f';ctx.lineWidth=3;ctx.stroke();
+    ctx.fillStyle='#052e16';ctx.beginPath();ctx.ellipse(-r*.22,-r*.05,r*.1,r*.16,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(r*.22,-r*.05,r*.1,r*.16,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#bef264';ctx.beginPath();ctx.ellipse(-r*.22,-r*.05,r*.04,r*.1,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(r*.22,-r*.05,r*.04,r*.1,0,0,Math.PI*2);ctx.fill();
+  } else if(id==='iron_warden'){
+    // 강철 파수관: 육각 장갑판 + 회전 링 + 단일 붉은 눈
+    ctx.rotate(t/2500);ctx.strokeStyle='#94a3b8';ctx.lineWidth=4;
+    for(let i=0;i<6;i++){const a=i/6*Math.PI*2;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*.5,Math.sin(a)*r*.5);ctx.lineTo(Math.cos(a)*(r+18),Math.sin(a)*(r+18));ctx.stroke();}
+    ctx.rotate(-t/1200);ctx.strokeStyle='rgba(148,163,184,0.5)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,r*.82,0,Math.PI*2);ctx.stroke();
+    ctx.rotate(t/1200);
+    const iwg=ctx.createRadialGradient(0,0,0,0,0,r);iwg.addColorStop(0,'#e2e8f0');iwg.addColorStop(.55,'#475569');iwg.addColorStop(1,'#0f172a');
+    ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fillStyle=iwg;ctx.fill();ctx.strokeStyle='#1e293b';ctx.lineWidth=3;ctx.stroke();
+    const eyePulse=.6+.4*Math.sin(t/200);ctx.fillStyle=`rgba(239,68,68,${eyePulse})`;ctx.beginPath();ctx.arc(0,0,r*.22,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#7f1d1d';ctx.lineWidth=2;ctx.stroke();
+  } else if(id==='plague_mother'){
+    // 역병의 어머니: 맥동하는 포자 덩어리 + 촉수
+    for(let i=0;i<10;i++){const a=i/10*Math.PI*2+t/1100;const len=r+22+Math.sin(t/300+i)*10;ctx.strokeStyle='rgba(101,163,13,0.5)';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*.5,Math.sin(a)*r*.5);ctx.quadraticCurveTo(Math.cos(a+.3)*len*.6,Math.sin(a+.3)*len*.6,Math.cos(a)*len,Math.sin(a)*len);ctx.stroke();}
+    const pulse=.85+.15*Math.sin(t/250);
+    const pmg=ctx.createRadialGradient(0,0,0,0,0,r*pulse);pmg.addColorStop(0,'#bef264');pmg.addColorStop(.5,'#65a30d');pmg.addColorStop(1,'#14290a');
+    ctx.beginPath();ctx.arc(0,0,r*pulse,0,Math.PI*2);ctx.fillStyle=pmg;ctx.fill();ctx.strokeStyle='#3f6212';ctx.lineWidth=3;ctx.stroke();
+    for(let i=0;i<6;i++){const a=i/6*Math.PI*2+t/900;ctx.fillStyle=`rgba(190,242,100,${.2+.1*Math.sin(t/200+i)})`;ctx.beginPath();ctx.arc(Math.cos(a)*r*.4,Math.sin(a)*r*.4,r*.18,0,Math.PI*2);ctx.fill();}
+    ctx.font=`${Math.floor(r*.55)}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🦠',0,0);ctx.textBaseline='alphabetic';
+  } else if(id==='storm_reaver'){
+    // 폭풍의 파괴자: 번개 코어 + 사방 방출 아크
+    for(let i=0;i<8;i++){const a=i/8*Math.PI*2+Math.random()*.1;const len=r+15+Math.random()*20;ctx.strokeStyle=`rgba(250,204,21,${.4+Math.random()*.3})`;ctx.lineWidth=2+Math.random()*2;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*.6,Math.sin(a)*r*.6);ctx.lineTo(Math.cos(a)*len,Math.sin(a)*len);ctx.stroke();}
+    const srg=ctx.createRadialGradient(0,0,0,0,0,r);srg.addColorStop(0,'#fef9c3');srg.addColorStop(.5,'#facc15');srg.addColorStop(1,'#78350f');
+    ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fillStyle=srg;ctx.fill();ctx.strokeStyle='#a16207';ctx.lineWidth=3;ctx.stroke();
+    ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-r*.15,-r*.4);ctx.lineTo(r*.1,-r*.05);ctx.lineTo(-r*.05,r*.05);ctx.lineTo(r*.15,r*.4);ctx.stroke();
+  } else if(id==='neon_specter'){
+    // 네온 유령: 글리치 스캔라인 + 반투명 유령 실루엣
+    ctx.globalAlpha=.85+.1*Math.sin(t/150);
+    const nsg=ctx.createRadialGradient(0,0,0,0,0,r);nsg.addColorStop(0,'#fbcfe8');nsg.addColorStop(.5,'#ec4899');nsg.addColorStop(1,'#500724');
+    ctx.beginPath();ctx.arc(0,-2,r,Math.PI,0);ctx.lineTo(r,r*.7);for(let i=0;i<3;i++){const cx=r*(1-i*.67);ctx.quadraticCurveTo(cx-r*.33+r*.1,r*1.3,cx-r*.67,r*.7);}ctx.lineTo(-r,r*.7);ctx.closePath();ctx.fillStyle=nsg;ctx.fill();ctx.strokeStyle='#f472b6';ctx.lineWidth=2;ctx.stroke();
+    for(let i=0;i<5;i++){if(Math.random()>.5){ctx.fillStyle='rgba(103,232,249,0.5)';ctx.fillRect(-r,-r+i*(r*2/5)+Math.random()*4,r*2,2);}}
+    ctx.fillStyle='#111827';ctx.beginPath();ctx.arc(-r*.22,-r*.1,r*.1,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(r*.22,-r*.1,r*.1,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=1;
+  } else if(id==='blood_colossus'){
+    // 피의 거신: 균열진 암석 거체 + 핏방울
+    const bcg=ctx.createRadialGradient(0,0,0,0,0,r);bcg.addColorStop(0,'#fca5a5');bcg.addColorStop(.5,'#991b1b');bcg.addColorStop(1,'#280505');
+    ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fillStyle=bcg;ctx.fill();ctx.strokeStyle='#450a0a';ctx.lineWidth=4;ctx.stroke();
+    ctx.strokeStyle='rgba(0,0,0,0.5)';ctx.lineWidth=2;for(let i=0;i<5;i++){const a=i/5*Math.PI*2;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*.2,Math.sin(a)*r*.2);ctx.lineTo(Math.cos(a)*r*.9,Math.sin(a)*r*.9);ctx.stroke();}
+    for(let i=0;i<4;i++){const dy=(t/12+i*40)%(r*1.6)-r*.3;ctx.fillStyle='rgba(220,38,38,0.7)';ctx.beginPath();ctx.arc(-r*.4+i*(r*.27),dy,3,0,Math.PI*2);ctx.fill();}
+    ctx.fillStyle='#450a0a';ctx.beginPath();ctx.arc(-r*.2,-r*.15,r*.13,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(r*.2,-r*.15,r*.13,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fca5a5';ctx.beginPath();ctx.arc(-r*.2,-r*.15,r*.05,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(r*.2,-r*.15,r*.05,0,Math.PI*2);ctx.fill();
+  } else if(id==='abyss_leviathan'){
+    // 심연의 리바이어던: 촉수 다발 + 심해 발광 몸체
+    for(let i=0;i<10;i++){const a=i/10*Math.PI*2+t/1300;const len=r+35+Math.sin(t/350+i)*18;ctx.strokeStyle=`rgba(14,116,144,${.4+.1*Math.sin(t/250+i)})`;ctx.lineWidth=9+Math.sin(t/180+i)*3;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(Math.cos(a)*r*.55,Math.sin(a)*r*.55);const mx=Math.cos(a+.35)*len,my=Math.sin(a+.35)*len;ctx.quadraticCurveTo(Math.cos(a)*len*.6,Math.sin(a)*len*.6,mx,my);ctx.stroke();}
+    const alg=ctx.createRadialGradient(0,0,0,0,0,r*.6);alg.addColorStop(0,'#a5f3fc');alg.addColorStop(.6,'#0e7490');alg.addColorStop(1,'#031c26');
+    ctx.beginPath();ctx.arc(0,0,r*.6,0,Math.PI*2);ctx.fillStyle=alg;ctx.fill();ctx.strokeStyle='#22d3ee';ctx.lineWidth=3;ctx.stroke();
+    ctx.fillStyle='#67e8f9';ctx.beginPath();ctx.arc(-r*.2,-r*.1,r*.13,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(r*.2,-r*.1,r*.13,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(0,0,0,.85)';ctx.beginPath();ctx.arc(-r*.2,-r*.1,r*.07,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(r*.2,-r*.1,r*.07,0,Math.PI*2);ctx.fill();
+  } else if(id==='gravity_rend'){
+    // 중력 파쇄자: 사건의 지평선 + 궤도를 도는 파편 링
+    for(let i=0;i<3;i++){const rr=r*.75+i*22;ctx.save();ctx.rotate(t/900*(i%2===0?1:-1)+i);ctx.strokeStyle=`rgba(167,139,250,${.35-i*.08})`;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,rr,rr*.35,0,0,Math.PI*2);ctx.stroke();ctx.restore();}
+    for(let i=0;i<6;i++){const a=t/700+i/6*Math.PI*2;ctx.fillStyle='#c4b5fd';ctx.beginPath();ctx.arc(Math.cos(a)*r*.95,Math.sin(a)*r*.3,4,0,Math.PI*2);ctx.fill();}
+    const grg=ctx.createRadialGradient(0,0,0,0,0,r*.55);grg.addColorStop(0,'#1e1b4b');grg.addColorStop(.6,'#4c1d95');grg.addColorStop(1,'#000000');
+    ctx.beginPath();ctx.arc(0,0,r*.55,0,Math.PI*2);ctx.fillStyle=grg;ctx.fill();ctx.strokeStyle='#7c3aed';ctx.lineWidth=3;ctx.stroke();
+  } else if(id==='omega_zero'){
+    // 오메가 제로: 흑백 무한 심볼 + 무지개 오라
+    for(let i=0;i<24;i++){const a=i/24*Math.PI*2+t/600;const rr=r+18+Math.sin(t/200+i)*6;ctx.strokeStyle=`hsla(${i*15+t/8},85%,65%,0.35)`;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*.8,Math.sin(a)*r*.8);ctx.lineTo(Math.cos(a)*rr,Math.sin(a)*rr);ctx.stroke();}
+    const ozg=ctx.createRadialGradient(0,0,0,0,0,r);ozg.addColorStop(0,'#ffffff');ozg.addColorStop(.5,'#94a3b8');ozg.addColorStop(1,'#0f172a');
+    ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fillStyle=ozg;ctx.fill();ctx.strokeStyle=`hsl(${t/4%360},80%,60%)`;ctx.lineWidth=4;ctx.stroke();
+    ctx.strokeStyle='#000';ctx.lineWidth=Math.max(3,r*.12);ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(-r*.4,0);ctx.bezierCurveTo(-r*.4,-r*.35,-r*.05,-r*.35,0,0);ctx.bezierCurveTo(r*.05,r*.35,r*.4,r*.35,r*.4,0);ctx.bezierCurveTo(r*.4,-r*.35,r*.05,-r*.35,0,0);ctx.bezierCurveTo(-r*.05,r*.35,-r*.4,r*.35,-r*.4,0);ctx.stroke();
+  } else {
+    // 월드2 신규 보스맵 공통 그리기: 회전 오라 + 그라디언트 원 + 아이콘
+    for(let i=0;i<10;i++){const a=i/10*Math.PI*2+t/900;const rr=r+10+Math.sin(t/250+i)*6;ctx.strokeStyle=(z.bd.ol||'#fff')+'88';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*.7,Math.sin(a)*r*.7);ctx.lineTo(Math.cos(a)*rr,Math.sin(a)*rr);ctx.stroke();}
+    const gg=ctx.createRadialGradient(0,0,0,0,0,r);gg.addColorStop(0,'#fff');gg.addColorStop(.55,z.bd.col);gg.addColorStop(1,z.bd.ol||'#000');
+    ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fillStyle=gg;ctx.fill();ctx.strokeStyle=z.bd.ol||'#000';ctx.lineWidth=3;ctx.stroke();
+    ctx.font=`${Math.floor(r*.6)}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(z.bd.icon||'👹',0,0);ctx.textBaseline='alphabetic';
   }
 
   ctx.restore();
