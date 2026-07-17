@@ -71,11 +71,11 @@ const PETS = [
 ];
 // ── 극악 확률 초레어 등급 50종 (신화보다 훨씬 희귀, 5개 신규 등급 x 10종) ──
 const PET_ULTRA_TIERS = [
-  {key:'ancient',       label:'고대',   color:'#78350f', scale:1.5},
-  {key:'divine',        label:'신성',   color:'#0ea5e9', scale:2.2},
-  {key:'ethereal',      label:'천계',   color:'#67e8f9', scale:3.2},
-  {key:'transcendent',  label:'초월',   color:'#f472b6', scale:4.5},
-  {key:'absolute',      label:'절대',   color:'#ffffff', scale:7},
+  {key:'ancient',       label:'고대',   icon:'🔥', color:'#78350f', scale:1.5},
+  {key:'divine',        label:'신성',   icon:'😇', color:'#0ea5e9', scale:2.2},
+  {key:'ethereal',      label:'천계',   icon:'❄️', color:'#67e8f9', scale:3.2},
+  {key:'transcendent',  label:'초월',   icon:'💫', color:'#f472b6', scale:4.5},
+  {key:'absolute',      label:'절대',   icon:'👑', color:'#ffffff', scale:7},
 ];
 {
   const adj2=['태초의','만물의','불멸하는','전능한','초자연적인','우주적인','시공을 초월한','신비로운','절대적인','영원불멸의',
@@ -100,7 +100,19 @@ const PET_ULTRA_TIERS = [
 
 const PET_RARITY_LABEL={common:'커먼',rare:'레어',epic:'에픽',legendary:'레전더리',mythic:'신화',event:'이벤트 한정'};
 const PET_RARITY_COLOR={common:'#9ca3af',rare:'#3b82f6',epic:'#a855f7',legendary:'#f59e0b',mythic:'#ec4899',event:'#22d3ee'};
-PET_ULTRA_TIERS.forEach(t=>{PET_RARITY_LABEL[t.key]=t.label;PET_RARITY_COLOR[t.key]=t.color;});
+const PET_RARITY_ICON={common:'⚪',rare:'🔵',epic:'🟣',legendary:'🥇',mythic:'🌈',event:'🎪'};
+PET_ULTRA_TIERS.forEach(t=>{PET_RARITY_LABEL[t.key]=t.label;PET_RARITY_COLOR[t.key]=t.color;PET_RARITY_ICON[t.key]=t.icon;});
+// 등급이 높을수록 이펙트(글로우/컨페티/오로라/흔들림)를 더 화려하게 - 0(약함)~3(최강), 차원의 별 뽑기와 동일한 체계
+const PET_RARITY_ORDER=['common','rare','epic','legendary','mythic','ancient','divine','ethereal','transcendent','absolute'];
+function petEffectLevel(rarity){
+  if(rarity==='event') return 1;
+  const idx=PET_RARITY_ORDER.indexOf(rarity);
+  if(idx<0) return 0;
+  if(idx<=1) return 0;
+  if(idx<=3) return 1;
+  if(idx<=6) return 2;
+  return 3;
+}
 
 const PET_EGGS = [
   {id:'egg_common',    name:'평범한 알',  icon:'🥚', price:5000,
@@ -191,11 +203,36 @@ function hatchEgg(eggId){
 function showPetHatchResult(pet){
   const el=document.getElementById('petHatchResult');
   if(!el) return;
-  el.style.color=PET_RARITY_COLOR[pet.rarity];
-  el.textContent=`${pet.icon} ${PET_RARITY_LABEL[pet.rarity]} - ${pet.name} 획득!`;
-  el.style.opacity='1';
+  const color=PET_RARITY_COLOR[pet.rarity];
+  const icon=PET_RARITY_ICON[pet.rarity]||pet.icon;
+  const label=PET_RARITY_LABEL[pet.rarity];
+  const lvl=petEffectLevel(pet.rarity);
+  el.style.setProperty('--sd-glow', color+'55');
+  el.style.setProperty('--sd-aurora', lvl);
+  const tierCls = lvl>=3 ? ' sd-result-tier-rainbow' : lvl>=2 ? ' sd-result-tier-epic' : '';
+  const confetti = typeof sdConfettiHTML==='function' ? sdConfettiHTML(lvl) : '';
+  el.innerHTML =
+    confetti+
+    '<div class="sd-result-tier'+tierCls+'" style="color:'+color+'">'+icon+' '+label+' 등급 - '+pet.name+' 획득! '+icon+'</div>'+
+    '<div class="sd-result-btns"><button class="sd-close-btn" onclick="closePetHatchResult()">확인</button></div>';
+  el.classList.add('show');
   clearTimeout(el._hideT);
-  el._hideT=setTimeout(()=>{el.style.opacity='0';},2500);
+  if(lvl<=0){
+    el._hideT=setTimeout(()=>closePetHatchResult(),1800);
+  }
+  if(lvl>=2){
+    const screenEl=document.getElementById('sPets');
+    if(screenEl){
+      screenEl.classList.remove('sd-chaos-shake');
+      void screenEl.offsetWidth;
+      screenEl.classList.add('sd-chaos-shake');
+    }
+  }
+}
+function closePetHatchResult(){
+  const el=document.getElementById('petHatchResult');
+  if(!el) return;
+  el.classList.remove('show');
 }
 
 function levelUpPet(petId){

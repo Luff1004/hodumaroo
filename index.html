@@ -411,9 +411,9 @@
     <button class="stab" style="background:#fce7f3;color:#831843;" onclick="setPetTab('eggs',this)">🥚 알 부화</button>
   </div>
   <div id="petEquipDisp" style="font-size:12px;color:#be185d;font-weight:700;margin-bottom:4px;"></div>
-  <div id="petHatchResult" style="font-size:13px;font-weight:800;min-height:18px;margin-bottom:8px;opacity:0;transition:opacity .3s;"></div>
   <div class="sgrid" id="petGrid" style="max-height:62vh;"></div>
 </div>
+<div id="petHatchResult" class="sd-result"></div>
 
 <!-- ══ 이벤트 화면 ══ -->
 <div id="sEvent" class="screen" style="background:#1a0a2e;overflow-y:auto;align-items:stretch;justify-content:flex-start;padding-bottom:20px;position:relative;transition:background 0.6s;">
@@ -473,6 +473,8 @@
   <div id="sdStage" class="sd-stage">
     <div id="sdStarWrap" class="sd-star-wrap">
       <div id="sdCrackGlow" class="sd-crack-glow"></div>
+      <div id="sdRays" class="sd-rays"></div>
+      <div id="sdChaosRing" class="sd-chaos-ring"></div>
       <div class="sd-ring sd-ring1"></div>
       <div class="sd-ring sd-ring2"></div>
       <div class="sd-ring sd-ring3"></div>
@@ -484,6 +486,7 @@
     </div>
     <div id="sdClicksBox" class="sd-clicks">남은 클릭 기회: 4</div>
     <div id="sdInfo" class="sd-info">별을 클릭해 차원의 별을 깨워보세요!</div>
+    <button id="sdBulkBtn" class="sd-bulk-btn" onclick="bulkOpenStarDrop(10)" style="display:none;">⚡ 10개씩 까기</button>
   </div>
   <div id="sdResult" class="sd-result"></div>
 </div>

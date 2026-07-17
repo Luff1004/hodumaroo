@@ -111,18 +111,37 @@ button:active{transform:scale(.95);}
 
 /* ── 차원의 별(스타드롭) 화면: 별만 크게, 이팩트 중심 ── */
 .sd-screen{background:radial-gradient(circle at 50% 45%,#1e1b4b,#020010 75%);overflow:hidden;position:relative;}
+/* 은은하게 반짝이는 배경 별밭 (항상 표시) */
+.sd-screen::before,.sd-screen::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background-image:radial-gradient(1.6px 1.6px at 12% 22%,#fff 100%,transparent),
+    radial-gradient(1.4px 1.4px at 28% 68%,#fff 100%,transparent),
+    radial-gradient(2px 2px at 42% 12%,#fff 100%,transparent),
+    radial-gradient(1.4px 1.4px at 58% 78%,#fff 100%,transparent),
+    radial-gradient(1.8px 1.8px at 72% 30%,#fff 100%,transparent),
+    radial-gradient(1.4px 1.4px at 85% 60%,#fff 100%,transparent),
+    radial-gradient(1.6px 1.6px at 92% 15%,#fff 100%,transparent),
+    radial-gradient(1.4px 1.4px at 8% 85%,#fff 100%,transparent),
+    radial-gradient(1.8px 1.8px at 50% 45%,#fff 100%,transparent),
+    radial-gradient(1.4px 1.4px at 65% 92%,#fff 100%,transparent);
+  opacity:.55;animation:sdStarTwinkle 3.2s ease-in-out infinite alternate;}
+.sd-screen::after{background-position:60px 90px;opacity:.32;animation-duration:4.6s;animation-delay:1.1s;}
+@keyframes sdStarTwinkle{0%{opacity:.18;}50%{opacity:.65;}100%{opacity:.3;}}
 .sd-stage{display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .3s;}
 .sd-stage.sd-stage-hide{opacity:0;pointer-events:none;}
 
-.sd-star-wrap{--sd-glow:#fbbf24;position:relative;width:260px;height:260px;display:flex;align-items:center;justify-content:center;}
-.sd-ring{position:absolute;inset:0;border-radius:50%;border:2px solid var(--sd-glow);opacity:.5;animation:sdRingPulse 2.6s ease-out infinite;}
+.sd-star-wrap{--sd-glow:#fbbf24;--sd-tier-level:0;position:relative;width:260px;height:260px;display:flex;align-items:center;justify-content:center;}
+.sd-ring{position:absolute;inset:0;border-radius:50%;border:2px solid var(--sd-glow);border-width:calc(2px + var(--sd-tier-level) * 1px);opacity:calc(.4 + var(--sd-tier-level) * 0.1);animation:sdRingPulse 2.6s ease-out infinite;transition:border-width .3s,opacity .3s;}
 .sd-ring2{animation-delay:.6s;}
 .sd-ring3{animation-delay:1.2s;}
 @keyframes sdRingPulse{0%{transform:scale(.7);opacity:.7;}100%{transform:scale(1.5);opacity:0;}}
 
+/* 등급이 높을수록 별 뒤로 회전하는 광선이 진하고 빠르게 퍼짐 */
+.sd-rays{position:absolute;inset:-56px;border-radius:50%;pointer-events:none;opacity:calc(var(--sd-tier-level) * 0.16);background:repeating-conic-gradient(from 0deg,var(--sd-glow) 0deg 3deg,transparent 3deg 20deg);filter:blur(1px);animation:sdRaysSpin calc(8s - var(--sd-tier-level) * 1.3s) linear infinite;transition:opacity .35s;}
+@keyframes sdRaysSpin{to{transform:rotate(360deg);}}
+
 .sd-star{position:relative;width:190px;height:190px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;background:radial-gradient(circle,rgba(255,255,255,.18),transparent 70%);filter:drop-shadow(0 0 34px var(--sd-glow)) drop-shadow(0 0 70px var(--sd-glow));animation:sdStarFloat 2.4s ease-in-out infinite;transition:transform .1s;z-index:2;}
 .sd-star-ico{font-size:100px;line-height:1;filter:drop-shadow(0 0 10px rgba(255,255,255,.6));}
-.sd-star-tier-label{position:absolute;bottom:22%;left:50%;transform:translateX(-50%);font-size:15px;font-weight:900;letter-spacing:1px;padding:3px 12px;border-radius:20px;background:rgba(0,0,0,.55);color:var(--sd-glow);text-shadow:0 0 10px var(--sd-glow);white-space:nowrap;border:1.5px solid var(--sd-glow);opacity:0;transition:opacity .3s;}
+.sd-star-tier-label{position:absolute;bottom:22%;left:50%;transform:translateX(-50%);font-size:calc(15px + var(--sd-tier-level) * 1.5px);font-weight:900;letter-spacing:1px;padding:3px 12px;border-radius:20px;background:rgba(0,0,0,.55);color:var(--sd-glow);text-shadow:0 0 10px var(--sd-glow);white-space:nowrap;border:1.5px solid var(--sd-glow);opacity:0;transition:opacity .3s;}
 .sd-star-tier-label.show{opacity:1;}
 .sd-star:active{transform:scale(.92);}
 @keyframes sdStarFloat{0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(-16px) rotate(3deg);}}
@@ -149,20 +168,55 @@ button:active{transform:scale(.95);}
   100%{transform:translate(-50%,-50%) translate(0,0) scale(0);opacity:0;}
 }
 
-/* 울트라 진화: 전설/초월/차원에서 극악 확률로 별이 깨져 초록빛으로 폭주 */
+/* 울트라 진화: 전설/초월/차원에서 극악 확률로 별이 깨져 초록빛으로 폭주 (브롤스타즈 카오스 드롭 참고) */
 .sd-crack-glow{position:absolute;inset:-20px;border-radius:50%;pointer-events:none;opacity:0;background:radial-gradient(circle,rgba(74,222,128,.55),transparent 70%);transition:opacity .3s;z-index:1;}
-.sd-star-wrap.sd-ultra-crack{--sd-crack-progress:0;}
+.sd-star-wrap.sd-ultra-crack{--sd-crack-progress:0;transform:scale(1.42);transition:transform .55s cubic-bezier(.34,1.56,.64,1);}
 .sd-star-wrap.sd-ultra-crack .sd-crack-glow{opacity:calc(0.25 + var(--sd-crack-progress) * 0.65);animation:sdCrackPulse 1.1s ease-in-out infinite;}
 @keyframes sdCrackPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.14);}}
-.sd-star-wrap.sd-ultra-crack .sd-star{filter:drop-shadow(0 0 34px var(--sd-glow)) drop-shadow(0 0 70px var(--sd-glow)) drop-shadow(0 0 26px #4ade80);}
+.sd-star-wrap.sd-ultra-crack .sd-star{filter:drop-shadow(0 0 34px var(--sd-glow)) drop-shadow(0 0 70px var(--sd-glow)) drop-shadow(0 0 30px #4ade80) drop-shadow(0 0 50px #bef264);}
+
+.sd-chaos-ring{position:absolute;inset:-36px;border-radius:50%;pointer-events:none;opacity:0;background:conic-gradient(from 0deg,#4ade80,#bef264,#fde047,#22c55e,#4ade80);filter:blur(3px);-webkit-mask:radial-gradient(closest-side,transparent 76%,#000 79%);mask:radial-gradient(closest-side,transparent 76%,#000 79%);}
+.sd-star-wrap.sd-ultra-crack .sd-chaos-ring{opacity:.9;animation:sdChaosSpin 1.4s linear infinite;}
+@keyframes sdChaosSpin{to{transform:rotate(360deg);}}
+
+.sd-chaos-shake{animation:sdChaosShake .5s cubic-bezier(.36,.07,.19,.97) both;}
+@keyframes sdChaosShake{
+  10%,90%{transform:translate3d(-3px,0,0);}
+  20%,80%{transform:translate3d(6px,0,0);}
+  30%,50%,70%{transform:translate3d(-10px,0,0);}
+  40%,60%{transform:translate3d(10px,0,0);}
+}
+
+.sd-spark-big{width:8px;height:8px;box-shadow:0 0 12px var(--sd-glow);}
+.sd-spark-chaos{width:9px;height:9px;background:radial-gradient(circle,#fef9c3,var(--sd-glow));box-shadow:0 0 16px var(--sd-glow),0 0 6px #fff;}
+
+.sd-result-tier-chaos{background:linear-gradient(90deg,#4ade80,#bef264,#fde047,#22c55e,#4ade80);background-size:400% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:sdChaosTextFlow 1.6s linear infinite;}
+@keyframes sdChaosTextFlow{to{background-position:400% 0;}}
+
+/* 전설/초월 등급 확정 연출: 강한 펄스 글로우 */
+.sd-result-tier-epic{text-shadow:0 0 20px currentColor,0 0 50px currentColor,0 0 90px currentColor;animation:sdEpicPulse 1s ease-in-out infinite;}
+@keyframes sdEpicPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
+/* 차원(최고) 등급 확정 연출: 무지개빛 텍스트 + 강한 펄스 */
+.sd-result-tier-rainbow{background:linear-gradient(90deg,#fff,#f472b6,#67e8f9,#fbbf24,#fff);background-size:400% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:sdChaosTextFlow 1.5s linear infinite,sdEpicPulse 1s ease-in-out infinite;}
+
+.sd-bulk-btn{margin-top:14px;padding:11px 22px;border:none;border-radius:12px;font-size:13px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,#4ade80,#0ea5e9);color:#fff;box-shadow:0 0 14px #4ade8060;}
+.sd-bulk-btn:hover{transform:scale(1.04);}
+.sd-bulk-btn:active{transform:scale(.96);}
 
 .sd-clicks{margin-top:8px;font-size:13px;font-weight:800;color:#fbbf24;}
 .sd-info{margin-top:10px;font-size:14px;font-weight:800;text-align:center;min-height:20px;color:#e5e7eb;max-width:80vw;}
 
 /* 보상 화면: 전체 화면 사용 */
-.sd-result{display:none;position:fixed;inset:0;z-index:30;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:radial-gradient(circle at 50% 45%,var(--sd-glow,#fbbf24) 0%,rgba(2,0,16,.97) 65%);}
+.sd-result{--sd-aurora:0;display:none;position:fixed;inset:0;z-index:30;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:radial-gradient(circle at 50% 45%,var(--sd-glow,#fbbf24) 0%,rgba(2,0,16,.97) 65%);overflow:hidden;}
 .sd-result.show{display:flex;animation:sdResultReveal .5s cubic-bezier(.22,1,.36,1);}
 @keyframes sdResultReveal{0%{opacity:0;transform:scale(.2);}60%{opacity:1;}100%{opacity:1;transform:scale(1);}}
+/* 등급이 높을수록 배경에 무지개빛 오로라가 은은하게 회전 */
+.sd-result::before{content:'';position:absolute;inset:-25%;z-index:-1;pointer-events:none;opacity:calc(var(--sd-aurora) * 0.11);background:conic-gradient(from 0deg,#f472b6,#fbbf24,#4ade80,#67e8f9,#a855f7,#f472b6);filter:blur(80px);animation:sdAuroraSpin 16s linear infinite;}
+@keyframes sdAuroraSpin{to{transform:rotate(360deg);}}
+/* 등급이 높을수록 배경에 색색의 별/파편이 떨어지는 연출 */
+.sd-confetti-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:-1;}
+.sd-confetti{position:absolute;top:-8%;font-size:18px;line-height:1;filter:drop-shadow(0 0 6px currentColor);animation:sdConfettiFall linear forwards;}
+@keyframes sdConfettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(115vh) rotate(600deg);opacity:.15;}}
 .sd-result-tier{font-size:40px;font-weight:900;text-shadow:0 0 26px currentColor,0 0 60px currentColor;letter-spacing:2px;}
 .sd-result-list{display:flex;flex-direction:column;gap:8px;align-items:center;background:rgba(0,0,0,.35);border-radius:18px;padding:20px 40px;border:1.5px solid rgba(255,255,255,.15);}
 .sd-reward-line{font-size:16px;font-weight:700;color:#f5f5f5;}
