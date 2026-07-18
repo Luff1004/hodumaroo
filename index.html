@@ -8,6 +8,11 @@
 </head>
 <body>
 
+<!-- 악마 디버프 전역 오버레이 -->
+<div id="merchDebuffOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:9500;pointer-events:none;"></div>
+<!-- 상인 등장/구매 토스트 -->
+<div id="merchantToast" class="merchant-toast"></div>
+
 <!-- ══ LOBBY ══ -->
 <div id="sLobby" class="screen on">
   <div class="logo">호두마루</div>
@@ -50,6 +55,16 @@
       <span class="side-tab-txt">인챈트</span>
     </button>
   </div>
+  <div class="side-tab-stack-left">
+    <button class="side-tab-btn side-tab-merchinv" onclick="go('sMerchantInv')">
+      <span class="side-tab-glow"></span>
+      <span class="side-tab-ico">🎒</span>
+      <span class="side-tab-txt">인벤토리</span>
+    </button>
+  </div>
+  <!-- 떠돌이 상인 (로비 배회) -->
+  <div id="merchantNpc" onclick="event.stopPropagation()" style="display:none;"></div>
+  <div id="kevinBegBadge" style="display:none;position:fixed;left:14px;bottom:80px;z-index:24;background:rgba(0,0,0,.55);color:#fde68a;font-size:11px;font-weight:700;padding:5px 10px;border-radius:14px;align-items:center;gap:4px;">🧓 케빈이 구걸 중...</div>
   <div class="ver">호두마루 v1.0</div>
   <div style="position:fixed;bottom:10px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;z-index:25;background:rgba(255,255,255,0.85);padding:4px 14px;border-radius:20px;border:1px solid #e5e7eb;">
     <span style="font-size:11px;color:#6b7280;">🎵 BGM</span>
@@ -430,6 +445,31 @@
 </div>
 <div id="petHatchResult" class="sd-result"></div>
 
+<!-- ══ 상인 인벤토리 ══ -->
+<div id="sMerchantInv" class="screen" style="background:linear-gradient(160deg,#fff7ed,#fef3c7);">
+  <button class="back" style="border-color:#c2410c;color:#7c2d12;" onclick="go('sLobby')">← 뒤로</button>
+  <div class="stitle" style="color:#7c2d12;">🎒 인벤토리</div>
+  <div class="stabs">
+    <button class="stab on" data-tab="fruit" style="background:#fed7aa;color:#7c2d12;" onclick="setMerchInvTab('fruit',this)">🍎 과일</button>
+    <button class="stab" data-tab="potion" style="background:#fed7aa;color:#7c2d12;" onclick="setMerchInvTab('potion',this)">🧪 물약</button>
+    <button class="stab" data-tab="junk" style="background:#fed7aa;color:#7c2d12;" onclick="setMerchInvTab('junk',this)">🗑️ 잡동사니</button>
+    <button class="stab" data-tab="snack" style="background:#fed7aa;color:#7c2d12;" onclick="setMerchInvTab('snack',this)">🥯 분식</button>
+  </div>
+  <div class="sgrid" id="merchInvGrid" style="max-height:62vh;"></div>
+</div>
+
+<!-- ══ 상인 상점 오버레이 (공용) ══ -->
+<div id="merchantShopOv" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(5,0,20,.92);z-index:44;align-items:center;justify-content:center;">
+  <div style="width:min(520px,92vw);max-height:82vh;overflow-y:auto;background:#1a1025;border:2px solid #7c3aed;border-radius:16px;padding:20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div id="merchantShopTitle" style="font-size:18px;font-weight:900;color:#fbbf24;"></div>
+      <button onclick="closeMerchantShop()" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div style="font-size:12px;color:#c4b5fd;margin-bottom:10px;">보유 코인: <span id="merchShopCoinDisp"></span></div>
+    <div id="merchantShopContent"></div>
+  </div>
+</div>
+
 <!-- ══ 이벤트 화면 ══ -->
 <div id="sEvent" class="screen" style="background:#1a0a2e;overflow-y:auto;align-items:stretch;justify-content:flex-start;padding-bottom:20px;position:relative;transition:background 0.6s;">
   <canvas id="eventAmbientCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
@@ -678,6 +718,7 @@
 <script src="/js/29-relics.js"></script>
 <script src="/js/30-stardrop.js"></script>
 <script src="/js/31-daily-reward.js"></script>
+<script src="/js/32-merchants.js"></script>
 
 <!-- ══ 설정 모달 ══ -->
 <div id="settingsModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;">

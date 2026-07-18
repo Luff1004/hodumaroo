@@ -142,6 +142,23 @@ button:active{transform:scale(.95);}
 .side-tab-enchant{background:linear-gradient(160deg,#2e1065,#6d28d9 60%,#c4b5fd);box-shadow:-4px 0 18px rgba(124,58,237,.45);}
 .side-tab-enchant:hover{box-shadow:-6px 0 26px rgba(124,58,237,.65);}
 
+/* ── 좌측 플로팅 탭 스택 (인벤토리) ── */
+.side-tab-stack-left{position:fixed;top:22%;left:0;transform:translateY(-50%);z-index:24;display:flex;flex-direction:column;gap:8px;}
+.side-tab-stack-left .side-tab-btn{padding:12px 11px 12px 7px;border-top-left-radius:0;border-bottom-left-radius:0;border-top-right-radius:16px;border-bottom-right-radius:16px;}
+.side-tab-stack-left .side-tab-btn:hover{padding-left:14px;transform:translateX(2px);}
+.side-tab-stack-left .side-tab-txt{writing-mode:vertical-rl;transform:rotate(180deg);}
+.side-tab-merchinv{background:linear-gradient(160deg,#c2410c,#f97316 55%,#fed7aa);box-shadow:4px 0 18px rgba(249,115,22,.45);}
+.side-tab-merchinv:hover{box-shadow:6px 0 26px rgba(249,115,22,.65);}
+
+/* ── 떠돌이 상인 (로비 배회 아이콘) ── */
+#merchantNpc{position:absolute;left:50%;top:50%;width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.9);border:2px solid #fbbf24;box-shadow:0 4px 14px rgba(0,0,0,.3),0 0 16px rgba(251,191,36,.6);display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;z-index:23;transition:left 3s ease-in-out,top 3s ease-in-out;animation:merchNpcBob 1.6s ease-in-out infinite;}
+#merchantNpc:hover{transform:scale(1.12);}
+@keyframes merchNpcBob{0%,100%{margin-top:0;}50%{margin-top:-8px;}}
+
+/* ── 상인 토스트 ── */
+.merchant-toast{position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-20px);z-index:9600;background:rgba(0,0,0,.82);color:#fde68a;font-size:12px;font-weight:700;padding:8px 18px;border-radius:20px;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;box-shadow:0 4px 14px rgba(0,0,0,.4);white-space:nowrap;}
+.merchant-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
 /* ── 차원의 별(스타드롭) 화면: 별만 크게, 이팩트 중심 ── */
 .sd-screen{background:radial-gradient(circle at 50% 45%,#1e1b4b,#020010 75%);overflow:hidden;position:relative;}
 /* 은은하게 반짝이는 배경 별밭 (항상 표시) */

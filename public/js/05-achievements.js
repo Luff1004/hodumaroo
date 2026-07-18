@@ -136,6 +136,8 @@ const ACHIEVEMENTS = [
   {id:'secret_37',  name:'나를 닮은 것',      desc:'무한의 탑 99층에서, 당신과 똑같이 생긴 것과 마주쳤다', reward:{job:'egg_job_mirror99', wep:'dualkatana'}, cond:'(achStats.egg_mirror99||0)>=1', hidden:true},
   {id:'secret_38',  name:'무(無)의 파편',     desc:'인챈트가 존재조차 희미한 등급을 토해냈다', reward:{job:'egg_job_void', armor:'void'}, cond:'(achStats.egg_void||0)>=1', hidden:true},
   {id:'secret_39',  name:'움직인 그림자',     desc:'로비에 오래 머문 어느 순간, 구석의 그림자가 분명히 움직였다', reward:{job:'egg_job_shadowmove', item:'decoy_item'}, cond:'(achStats.egg_shadowmove||0)>=1', hidden:true},
+  {id:'secret_richspoon', name:'사치의 극치', desc:'부자가 남긴 숟가락을 사용해 보았다', reward:{armor:'rich_hat'}, cond:'(achStats.egg_richspoon||0)>=1', hidden:true},
+  {id:'secret_angelfaith', name:'믿음의 사람', desc:'천사의 시험 앞에서 망설이지 않았다', reward:{energy:100000}, cond:'(achStats.egg_angelfaith||0)>=1', hidden:true},
 ];
 
 // 업적 진행도 저장
@@ -301,12 +303,13 @@ setInterval(()=>{
   }
 },1000);
 
-const SCREENS=['sLobby','sMap','sWeapon','sShop','sJob','sUpg','sEquip','sParty','sSeason','sDream','sDreamMap','sAch','sEnchant','sPotionShop','sDailyQuest','sPets','sEvent','sRecords','sRelics','sStarDrop'];
+const SCREENS=['sLobby','sMap','sWeapon','sShop','sJob','sUpg','sEquip','sParty','sSeason','sDream','sDreamMap','sAch','sEnchant','sPotionShop','sDailyQuest','sPets','sEvent','sRecords','sRelics','sStarDrop','sMerchantInv'];
 function go(id){
   SCREENS.forEach(s=>{const el=document.getElementById(s);if(el)el.classList.toggle('on',s===id);});
   document.getElementById('gameCanvas').style.display='none';
   document.getElementById('gameUI').style.display='none';
-  if(id==='sLobby'){updRes();stopGame();if(typeof stopEventPresentation==='function')stopEventPresentation();if(bgmUnlocked)startBGM();updateTitleDisp();}
+  if(id==='sLobby'){updRes();stopGame();if(typeof stopEventPresentation==='function')stopEventPresentation();if(bgmUnlocked)startBGM();updateTitleDisp();if(typeof renderMerchantNpc==='function')renderMerchantNpc();if(typeof renderKevinBeg==='function')renderKevinBeg();}
+  if(id==='sMerchantInv'&&typeof renderMerchantInv==='function')renderMerchantInv();
   if(id==='sMap')drawMP();
   if(id==='sWeapon')renderWepSel();
   if(id==='sShop'){curShopTab='items';renderShop();}

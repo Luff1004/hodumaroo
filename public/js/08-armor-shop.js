@@ -51,6 +51,8 @@ const ARMORS=[
   {id:'sp_armor_dec',name:'[시즌] 별빛 갑옷',icon:'⭐',price:0,def:82,bc:'#fbbf24',ac:'#f59e0b',desc:'12월 시즌Lv.25. 방어+82%, 모든 스탯 대폭 강화',bonus:{hp:400,dmg:12,crit:40,lifesteal:10,regen:12,spd:1},spOnly:true,rarity:'mythic',spMonth:12,spLv:25},
   {id:'sp_armor25',name:'[시즌] 성흔의 갑옷',rarity:'legendary',icon:'🌠',price:0,def:70,bc:'#6366f1',ac:'#4338ca',desc:'【시즌Lv.25 전용】방어+70%, HP+300, 재생+10, 회피+25%',bonus:{hp:300,regen:10,dodge:25},spOnly:true},
   {id:'sp_armor50',name:'[시즌] 별의 화신',rarity:'mythic',icon:'💫',price:0,def:88,bc:'#fbbf24',ac:'#f59e0b',desc:'【시즌Lv.50 전용】방어+88%, HP+999, 데미지+20, 치명타+50%, 흡혈+15, 재생+20',bonus:{hp:999,dmg:20,crit:50,lifesteal:15,regen:20},spOnly:true},
+  // ── 상인(부자 MR 감자씨) 히든 업적 전용 ──
+  {id:'rich_hat',rarity:'legendary',name:'부자의 모자',icon:'🎩',price:0,def:60,bc:'#111111',ac:'#c9a227',desc:'부자가 마지막으로 남긴 사치품. 방어+60%',bonus:{coinBonus:0.15},spOnly:true},
   // ── 시즌 이벤트(2개월 순환) 전용 갑옷 ──
   {id:'ev_cw_armor',name:'요리사 앞치마',icon:'🍳',price:0,def:55,bc:'#f97316',ac:'#c2410c',desc:'요리전쟁 이벤트 보상. 방어+55%, 재생+10, HP+150',bonus:{regen:10,hp:150},rarity:'legendary',eventOnly:true},
   {id:'ev_gd_armor',name:'텃밭지기 작업복',icon:'🌱',price:0,def:58,bc:'#4ade80',ac:'#16a34a',desc:'봄맞이 텃밭 가꾸기 이벤트 보상. 방어+58%, 회피+20%, 이동속도+1',bonus:{dodge:20,spd:1},rarity:'legendary',eventOnly:true},

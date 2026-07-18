@@ -116,7 +116,7 @@ function currentLuckMult(){
       m += pet.bonus.luckPct*(1+lv*0.15)/100;
     }
   }
-  return m;
+  return m*(typeof merchLuckMult==='function'?merchLuckMult():1);
 }
 
 // 30종 물약: 23종 반복 구매형(5분 임시버프) + 7종 1회용 "단발 대박 행운"형

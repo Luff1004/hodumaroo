@@ -208,6 +208,7 @@ function initGame(){
     reloadBonus:(shopLv['sh_reload']||0)*18+(pUpgLv['pr']||0)*9,
     _wepCrit:ws.enchCrit?0.25:0,
   };
+  if(typeof applyMerchStatsToPlayer==='function')applyMerchStatsToPlayer(P);
   if(shopLv['sh_grenade'])perkLv['grenade']=0;
   if(shopLv['sh_magnet'])perkLv['magnet']=0;
   if(shopLv['sh_multi'])perkLv['multi']=0;
@@ -537,6 +538,7 @@ function addExp(x,y,r=70,col='#FF6600'){
 }
 
 function hitZ(z,dmg){
+  dmg*=(typeof merchDmgMult==='function'?merchDmgMult():1);
   if(equippedJob==='berserker')dmg*=(P._berserkDmg||1);
   if(focusNextShot&&equippedJob==='sniper_job'){dmg*=5;focusNextShot=false;for(let i=0;i<10;i++)parts.push({x:z.x,y:z.y,vx:(Math.random()-.5)*8,vy:(Math.random()-.5)*8,l:20,ml:20,r:5,col:'#facc15'});}
   if(z.dead)return;
@@ -611,7 +613,7 @@ function takeDmg(d){
   if(dl>=0&&Math.random()<[.05,.10,.15,.20,.30][Math.min(dl,4)])return;
   if(P._armorDodge&&Math.random()<P._armorDodge)return;
   if(P._spShield)dmg=dmg*0.1; // 성흔 방패
-  const arR=1-Math.min(.65,(P.armor||0)/100);
+  const arR=1-Math.min(.65,(P.armor||0)*(typeof merchArmorMult==='function'?merchArmorMult():1)/100);
   if(activeBuffs.mirror>0){
     const tgt=zoms.filter(z=>!z.dead&&!z.isMinion).sort((a,b)=>d2(a.x,a.y,P.x,P.y)-d2(b.x,b.y,P.x,P.y))[0];
     if(tgt)hitZ(tgt,d*0.5);
@@ -1599,8 +1601,8 @@ function update(){
     else if(selMap.challenge){
       // 챌린지 맵: 특성 선택 없이 자동으로 바로 다음 웨이브 진행 (EXTREME 속도)
       const coinMult=1+(pUpgLv['pc']||0)*.05,enMult=1+(pUpgLv['pe']||0)*.05;
-      coins+=Math.floor((100+(shopLv['sh_coin']||0)*20)*coinMult*(partyBonus||1)*(window._petCoinMult||1));
-      energy+=Math.floor((100+(shopLv['sh_energy']||0)*30)*enMult*(partyBonus||1)*(window._petEnergyMult||1));
+      coins+=Math.floor((100+(shopLv['sh_coin']||0)*20)*coinMult*(partyBonus||1)*(window._petCoinMult||1)*(window._merchCoinMult||1));
+      energy+=Math.floor((100+(shopLv['sh_energy']||0)*30)*enMult*(partyBonus||1)*(window._petEnergyMult||1)*(window._merchEnergyMult||1));
       saveAll();updHUD();
       setTimeout(()=>{if(running||betweenWave)nextWave();},400);
     }
