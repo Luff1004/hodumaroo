@@ -4,6 +4,33 @@
 
 const DR_COOLDOWN = 24*60*60*1000;
 
+// ── 보물상자 아이콘 (SVG, 상태별) ──
+const CHEST_SVG_READY =
+  '<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">'+
+    '<ellipse cx="32" cy="30" rx="17" ry="8" fill="#fde68a" opacity="0.55"/>'+
+    '<g transform="rotate(-32 9 34)">'+
+      '<path d="M8 34 Q8 17 32 15 Q56 17 56 34 Z" fill="#c2833f" stroke="#5c3a1a" stroke-width="2.5"/>'+
+      '<rect x="8" y="26" width="48" height="5" fill="#fbbf24" stroke="#5c3a1a" stroke-width="1"/>'+
+    '</g>'+
+    '<rect x="8" y="34" width="48" height="21" rx="5" fill="#a5691f" stroke="#5c3a1a" stroke-width="2.5"/>'+
+    '<rect x="8" y="47" width="48" height="8" fill="#8b5a2b" stroke="#5c3a1a" stroke-width="1"/>'+
+    '<rect x="26" y="34" width="12" height="21" fill="#fbbf24" stroke="#b45309" stroke-width="1.5"/>'+
+    '<circle cx="32" cy="41" r="2.2" fill="#78350f"/>'+
+    '<circle cx="15" cy="18" r="1.8" fill="#fff" opacity="0.95"/>'+
+    '<circle cx="49" cy="16" r="1.4" fill="#fff" opacity="0.85"/>'+
+    '<circle cx="32" cy="8" r="1.9" fill="#fff" opacity="0.95"/>'+
+  '</svg>';
+const CHEST_SVG_LOCKED =
+  '<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">'+
+    '<path d="M8 30 Q8 14 32 12 Q56 14 56 30 Z" fill="#475569" stroke="#1e293b" stroke-width="2.5"/>'+
+    '<rect x="8" y="30" width="48" height="22" rx="5" fill="#334155" stroke="#1e293b" stroke-width="2.5"/>'+
+    '<rect x="8" y="27" width="48" height="6" fill="#64748b" stroke="#1e293b" stroke-width="1"/>'+
+    '<path d="M27 27 v-4 a5 5 0 0 1 10 0 v4" fill="none" stroke="#cbd5e1" stroke-width="2.6"/>'+
+    '<rect x="26" y="25" width="12" height="14" rx="2.5" fill="#cbd5e1" stroke="#1e293b" stroke-width="2"/>'+
+    '<circle cx="32" cy="30" r="2" fill="#334155"/>'+
+    '<rect x="31" y="30" width="2" height="4" fill="#334155"/>'+
+  '</svg>';
+
 // ── 영원의 별 (최상위 희귀 장비, 데일리 보상/특별 업적으로만 획득) ──
 const STARS = [
   {id:'star_dawn',      name:'여명의 별',   icon:'🌅', desc:'하루의 시작을 알리는 별'},
@@ -38,11 +65,11 @@ function renderDailyRewardBox(){
   box.classList.toggle('locked', !ready);
   const iconEl=document.getElementById('drBoxIcon'),timerEl=document.getElementById('drBoxTimer');
   if(ready){
-    if(iconEl)iconEl.textContent='🎁';
+    if(iconEl)iconEl.innerHTML=CHEST_SVG_READY;
     if(timerEl)timerEl.textContent='';
     box.title='데일리 보상 받기';
   } else {
-    if(iconEl)iconEl.textContent='🔒';
+    if(iconEl)iconEl.innerHTML=CHEST_SVG_LOCKED;
     if(timerEl)timerEl.textContent=fmtDrTime(DR_COOLDOWN-(Date.now()-(drData.lastClaim||0)));
     box.title='다음 보상까지 남은 시간';
   }
@@ -122,7 +149,7 @@ function showDailyRewardResult(coinsGain,energyGain,bonus){
       : `<div class="sd-reward-line">${bonus.icon} ${bonus.label} - ${bonus.name} 획득!</div>`;
   }
   el.innerHTML = confetti+
-    `<div class="sd-result-tier${tierCls}" style="color:${color}">🎁 데일리 보상 획득!</div>`+
+    `<div class="sd-result-tier${tierCls}" style="color:${color}">📦 보물상자 개봉!</div>`+
     `<div class="sd-result-list">`+
       `<div class="sd-reward-line">🪙 코인 +${coinsGain.toLocaleString()}</div>`+
       `<div class="sd-reward-line">⚡ 에너지 +${energyGain.toLocaleString()}</div>`+
