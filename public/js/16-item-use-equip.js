@@ -273,12 +273,12 @@ function renderItemBar(){
 // ══ 장비탭 3단 분류 ══
 // ════════════════════════════════════════════
 
-let curEquipTab = 'wep'; // 'wep' | 'armor' | 'item'
+let curEquipTab = 'wep'; // 'wep' | 'armor' | 'item' | 'star'
 
 function setEquipTab(tab){
   curEquipTab = tab;
   document.querySelectorAll('.etab').forEach(b=>b.classList.remove('on'));
-  const tabMap={wep:'eTabWep',armor:'eTabArmor',item:'eTabItem'};
+  const tabMap={wep:'eTabWep',armor:'eTabArmor',item:'eTabItem',star:'eTabStar'};
   const el=document.getElementById(tabMap[tab]);
   if(el)el.classList.add('on');
   renderEquip();

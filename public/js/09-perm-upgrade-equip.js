@@ -47,6 +47,7 @@ const WEP_RARITY_RANK={absolute:-3,divine:-2,ancient:-1,mythic:0,legendary:1,epi
 function renderEquip(){
   if(isDreamMode){renderDreamEquip();return;}
   if(curEquipTab==='item'){renderEquipItemTab();return;}
+  if(curEquipTab==='star'){renderEquipStarTab();return;}
   const list=document.getElementById('eList');list.innerHTML='';let has=false;
   if(curEquipTab==='armor'){
     ARMORS.forEach(ar=>{

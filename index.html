@@ -62,7 +62,16 @@
   <div id="dreamBtn" onclick="enterDreamworld();" style="position:fixed;top:10px;left:10px;width:48px;height:48px;cursor:pointer;z-index:9000;border-radius:6px;overflow:hidden;display:none;opacity:0.8;transition:all .3s;filter:grayscale(40%);" onmouseenter="dreamBtnHover(true)" onmouseleave="dreamBtnHover(false)">
     <img src="" id="dreamBtnImg" style="width:100%;height:100%;object-fit:cover;display:block;">
   </div>
+  <!-- 데일리 보상 상자 (24시간마다 1회) -->
+  <div id="dailyRewardBox" class="daily-box" onclick="openDailyRewardBox()" title="데일리 보상">
+    <div class="daily-box-glow"></div>
+    <div class="daily-box-ico" id="drBoxIcon">🎁</div>
+    <div class="daily-box-timer" id="drBoxTimer"></div>
+  </div>
 </div>
+
+<!-- 데일리 보상 결과 연출 -->
+<div id="dailyRewardResult" class="sd-result"></div>
 
 
 <!-- ══ DREAMCORE WORLD ══ -->
@@ -225,6 +234,7 @@
     <button id="eTabWep"  class="etab on" onclick="setEquipTab('wep')">⚔️ 무기</button>
     <button id="eTabArmor" class="etab"   onclick="setEquipTab('armor')">🛡️ 갑옷</button>
     <button id="eTabItem"  class="etab"   onclick="setEquipTab('item')">✨ 아이템</button>
+    <button id="eTabStar"  class="etab"   onclick="setEquipTab('star')">🌠 별</button>
   </div>
   <div class="ebody">
     <div class="elist" id="eList"></div>
@@ -667,6 +677,7 @@
 <script src="/js/28-eastereggs.js"></script>
 <script src="/js/29-relics.js"></script>
 <script src="/js/30-stardrop.js"></script>
+<script src="/js/31-daily-reward.js"></script>
 
 <!-- ══ 설정 모달 ══ -->
 <div id="settingsModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;">

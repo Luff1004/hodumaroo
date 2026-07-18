@@ -176,7 +176,7 @@ function renderDailyQuest(){
       <div style="flex:1;">
         <div class="enm">${q.desc}</div>
         <div style="background:#e5e7eb;border-radius:6px;height:8px;margin-top:6px;overflow:hidden;">
-          <div style="background:${done?'#22c55e':'#a855f7'};height:100%;width:${pct}%;"></div>
+          <div style="background:${done?'#16a34a':(cur>0?'#22c55e':'#a855f7')};height:100%;width:${pct}%;"></div>
         </div>
         <div class="elv" style="margin-top:4px;">${cur}/${target} · 🪙${q.reward.coins.toLocaleString()} ⚡${q.reward.energy.toLocaleString()}${bonusText}</div>
       </div>
