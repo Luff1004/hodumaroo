@@ -11,7 +11,7 @@ button{transition:transform .1s cubic-bezier(.34,1.56,.64,1),box-shadow .18s,fil
 button:active{transform:scale(.95);}
 
 /* 입체 버튼: 아래쪽 진한 그림자로 "눌리는" 물리감 부여. 색은 그대로, 촉감만 강화 */
-.lb,.bybtn,.ugbtn,.mok,.wok,.party-btn,.code-submit,.sp-claim-btn,.stab,.marr,.extreme-btn,.bgbtn,.ei,.si.cb2,.ui2.cb3{
+.lb,.bybtn,.ugbtn,.mok,.wok,.party-btn,.code-submit,.sp-claim-btn,.stab,.marr,.extreme-btn,.bgbtn{
   position:relative;overflow:hidden;
   box-shadow:0 3px 0 rgba(0,0,0,.16), 0 5px 10px rgba(0,0,0,.12);
   transition:transform .12s cubic-bezier(.34,1.56,.64,1), box-shadow .18s ease, filter .15s;
