@@ -87,6 +87,13 @@ const ACHIEVEMENTS = [
   {id:'pet_first',  name:'첫 반려동물',        desc:'펫 1마리 획득',                       reward:{coins:5000},   cond:'typeof ownedPets!=="undefined"&&Object.keys(ownedPets).length>=1'},
   {id:'pet_10',     name:'펫 애호가',          desc:'펫 10종 획득',                        reward:{energy:25000}, cond:'typeof ownedPets!=="undefined"&&Object.keys(ownedPets).length>=10'},
   {id:'pet_30',     name:'펫 마스터',          desc:'펫 30종 획득',                        reward:{energy:100000},cond:'typeof ownedPets!=="undefined"&&Object.keys(ownedPets).length>=30'},
+  // ── 퀘스트 업적 ──
+  {id:'daily_quest_10', name:'꾸준한 하루',    desc:'일일 퀘스트 10회 완수',               reward:{coins:8000},   cond:'(achStats.dailyQuestClaims||0)>=10'},
+  {id:'daily_quest_50', name:'일상의 달인',    desc:'일일 퀘스트 50회 완수',               reward:{energy:30000}, cond:'(achStats.dailyQuestClaims||0)>=50'},
+  {id:'weekly_quest_5', name:'주간 헌터',      desc:'주간 퀘스트 5회 완수',                reward:{coins:60000},  cond:'(achStats.weeklyQuestClaims||0)>=5'},
+  {id:'weekly_quest_20',name:'주간 정복자',    desc:'주간 퀘스트 20회 완수',               reward:{energy:150000},cond:'(achStats.weeklyQuestClaims||0)>=20'},
+  {id:'mega_quest_5',   name:'메가 퀘스트 마스터', desc:'메가퀘스트 5번 완수',              reward:{item:'black_hole'}, cond:'(achStats.megaQuestClaims||0)>=5'},
+  {id:'mega_quest_20',  name:'전설의 완수자',  desc:'메가퀘스트 20번 완수',                reward:{energy:500000},cond:'(achStats.megaQuestClaims||0)>=20'},
   // ── 운 업적 ──
   {id:'lucky',      name:'오늘은 운이 좋군요', desc:'매 1초마다 20000분의 1 확률로 획득',  reward:{item:'lucky_clover'}, cond:'luckyAchieved>=1'},
   // ── 히든 ──
@@ -136,7 +143,8 @@ let achData = lJ('hd_ach', {});  // {id: true/false}
 let achStats = lJ('hd_ach_stats', {
   kills:0, maxWave:0, mapWave:{}, bossKills:{}, dreamEntered:0,
   noDmgWave:0, noDmgBoss:0, partyPlayed:0, clearedMaps:[],
-  totalItemUses:0, luckyAchieved:0, dreamCloseKill:0
+  totalItemUses:0, luckyAchieved:0, dreamCloseKill:0,
+  dailyQuestClaims:0, weeklyQuestClaims:0, megaQuestClaims:0
 });
 function saveAch(){ sv('hd_ach',achData); sv('hd_ach_stats',achStats); }
 
