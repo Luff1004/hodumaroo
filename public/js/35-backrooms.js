@@ -27,6 +27,10 @@ function brWallScale(){
 function brBestDepth(){ return parseInt(localStorage.getItem(BR_DEPTH_KEY)||'0',10); }
 function brSaveBestDepth(d){ if(d>brBestDepth())localStorage.setItem(BR_DEPTH_KEY,String(d)); }
 
+const BR_LAST_ENDING_KEY='hd_brLastEnding';
+function brAnyEndingDone(){
+  return typeof achData!=='undefined'&&(achData['br_realexit']||achData['br_end_fun']||achData['br_end_garage']||achData['br_end_pool']||achData['br_end_field']);
+}
 function renderBackroomsHub(){
   const el=document.getElementById('brBestLevel');
   if(!el)return;
@@ -34,12 +38,13 @@ function renderBackroomsHub(){
   const fun=localStorage.getItem(BR_FUN_KEY)==='1';
   el.textContent=(best>0?('최고 도달 거리: '+best+'m'):'아직 도달한 기록이 없다')+(fun?' · 🎉 LEVEL FUN 발견':'');
   const replayBtn=document.getElementById('brEscapeReplayBtn');
-  if(replayBtn)replayBtn.style.display=(typeof achData!=='undefined'&&achData['br_realexit'])?'inline-block':'none';
+  if(replayBtn)replayBtn.style.display=brAnyEndingDone()?'inline-block':'none';
   const devPanel=document.getElementById('brDevPanel');
   if(devPanel)devPanel.style.display=(typeof devModeUnlocked!=='undefined'&&devModeUnlocked)?'flex':'none';
 }
 function replayBackroomsEscapeCutscene(){
-  brPlayCutscene(brEndingOpts('level0',brBestDepth(),0,0),()=>{});
+  const kind=localStorage.getItem(BR_LAST_ENDING_KEY)||'level0';
+  brPlayCutscene(brEndingOpts(kind,brBestDepth(),0,0),()=>{});
 }
 
 // ── 개발자 전용: 레벨 바로가기 / 엔딩 재생 ──
@@ -55,6 +60,14 @@ function devBrGoto(mode){
 }
 function devBrEnding(kind){
   brPlayCutscene(brEndingOpts(kind,77,0,0),()=>{});
+}
+function openDevBrEndingModal(){
+  const m=document.getElementById('devBrEndingModal');
+  if(m)m.style.display='flex';
+}
+function closeDevBrEndingModal(){
+  const m=document.getElementById('devBrEndingModal');
+  if(m)m.style.display='none';
 }
 
 function startBackroomsRun(){
@@ -635,9 +648,10 @@ const BR_ENDINGS={
   fun:{achFlag:'brEndFun',baseCoins:40000,baseEnergy:15000,style:'party',titleClass:'title-bounce',confetti:true,
     title:'THE PARTY IS OVER',sub:'LEVEL FUN=)',accent:'#f472b6',
     lines:['세 개의 케이크, 세 번의 생일','아무도 축하해주지 않던 파티에','당신이 촛불을 켜주었다','파티고어가 처음으로, 진짜로 웃는다','"와줘서 고마워요"','황금 문이 당신을 배웅한다']},
-  garage:{achFlag:'brEndGarage',baseCoins:25000,baseEnergy:10000,style:'industrial',titleClass:'title-stencil',
-    title:'B-∞',sub:'ENDLESS PARKING',accent:'#eab308',
-    lines:['발전기 세 대가 낮게 울린다','수천 대의 차들, 그러나 운전자는 없었다','형광등이 하나씩 켜지며 길을 비춘다','셔터 너머로, 바깥 공기 냄새가 난다']},
+  garage:{achFlag:'brEndGarage',baseCoins:35000,baseEnergy:15000,style:'crash',titleClass:'title-crash',accent:'#fecaca',
+    title:'AWAKEN',sub:'다시, 눈을 뜨다',
+    preLines:['발전기 세 대가 낮게 울리다 멈췄다','셔터가 천천히 올라간다','저 앞에... 빛이 보인다','한 걸음, 두 걸음','밖이다'],
+    postLines:['...쿵.','......','아무 소리도 들리지 않는다','저 멀리서, 누군가 부르는 목소리가 들린다','"...정신이 들어? 내 목소리 들려?"','손을 꽉 잡아주는 온기가 느껴진다','눈을 떠야 해','지금, 당장','다시,']},
   pool:{achFlag:'brEndPool',baseCoins:30000,baseEnergy:12000,style:'water',titleClass:'title-ripple',
     title:'DRAINED',sub:'THE POOLROOMS',accent:'#38bdf8',
     lines:['마지막 밸브가 잠기는 소리','수면이 천천히 낮아진다','물결에 비친 것은 당신 혼자뿐이었다','배수구 아래에서, 빛이 새어나온다']},
@@ -660,6 +674,7 @@ function brLevelEnding(kind){
   if(kind==='level0'){ achStats.brRealExits=(achStats.brRealExits||0)+1; }
   else { achStats[e.achFlag]=1; }
   saveAch();checkAchievements();
+  localStorage.setItem(BR_LAST_ENDING_KEY,kind);
   const rewardCoins=e.baseCoins+depth*250;
   const rewardEnergy=e.baseEnergy+depth*120;
   coins+=rewardCoins; energy+=rewardEnergy;
@@ -713,7 +728,84 @@ function brBuildCutsceneFx(fx,style){
     const sky=document.createElement('div');sky.className='br-fx-sky';fx.appendChild(sky);
     const sun=document.createElement('div');sun.className='br-fx-sun';fx.appendChild(sun);
     const reeds=document.createElement('div');reeds.className='br-fx-reeds';fx.appendChild(reeds);
+    const bird=document.createElement('div');bird.className='br-fx-bird';fx.appendChild(bird);
   }
+}
+
+// ── 주차장 전용 엔딩: 탈출한 줄 알았지만 차에 치이고, 병상에서 깨어난다 ──
+function brPlayCrashCutscene(opts,cb,refs){
+  const {el,flash,vign,scan,lines,title,sub,stats,fx}=refs;
+  el.classList.add('cs-crash');
+  const heartbeat=document.createElement('div');heartbeat.className='br-fx-heartbeat';fx.appendChild(heartbeat);
+
+  let t=600;
+  // 1) 셔터 밖으로 나가는 침착한 순간들
+  (opts.preLines||[]).forEach(txt=>{
+    const at=t;
+    setTimeout(()=>{ lines.textContent=txt; lines.classList.add('show'); },at);
+    setTimeout(()=>{ lines.classList.remove('show'); },at+950);
+    t+=1150;
+  });
+
+  // 2) 헤드라이트가 어둠 속에서 덮쳐온다
+  t+=200;
+  setTimeout(()=>{
+    const hl1=document.createElement('div');hl1.className='br-fx-headlight l approach';fx.appendChild(hl1);
+    const hl2=document.createElement('div');hl2.className='br-fx-headlight r approach';hl2.style.animationDelay='.08s';fx.appendChild(hl2);
+  },t);
+  t+=1450;
+  // 3) 충돌: 화이트-레드 임팩트 플래시 + 강한 흔들림
+  setTimeout(()=>{
+    el.classList.add('impact-flash','impact-shake');
+  },t);
+  t+=500;
+  setTimeout(()=>{
+    el.classList.remove('impact-flash','impact-shake');
+    const hl=fx.querySelectorAll('.br-fx-headlight'); hl.forEach(x=>x.remove());
+    heartbeat.classList.add('on');
+  },t);
+
+  // 4) 정적 속, 심장박동과 함께 목소리가 들려온다
+  t+=700;
+  (opts.postLines||[]).forEach(txt=>{
+    const at=t;
+    setTimeout(()=>{ lines.textContent=txt; lines.classList.add('show'); },at);
+    setTimeout(()=>{ lines.classList.remove('show'); },at+1100);
+    t+=1350;
+  });
+
+  // 5) 눈을 뜨는 순간: 새하얗게 번지는 원이 화면을 뒤덮는다
+  t+=200;
+  setTimeout(()=>{
+    heartbeat.classList.remove('on');
+    const wake=document.createElement('div');wake.className='br-fx-wake open';fx.appendChild(wake);
+    scan.classList.remove('run');
+  },t);
+  t+=1500;
+  setTimeout(()=>{
+    title.textContent=opts.title||'AWAKEN';
+    if(opts.titleClass)title.classList.add(opts.titleClass);
+    title.classList.add('show');
+    sub.textContent=opts.sub||'';
+    sub.classList.add('show');
+  },t);
+  t+=1900;
+  setTimeout(()=>{
+    stats.textContent=opts.statsText||'';
+    stats.classList.add('show');
+  },t);
+  t+=2300;
+  setTimeout(()=>{
+    el.style.transition='opacity 1.3s ease';
+    el.style.opacity='0';
+  },t);
+  t+=1250;
+  setTimeout(()=>{
+    el.classList.remove('on','cs-crash');
+    el.style.opacity='';el.style.transition='';
+    fx.innerHTML='';
+    cb();
+  },t);
 }
 function brPlayCutscene(opts,cb){
   const el=document.getElementById('brEscapeCutscene');
@@ -730,9 +822,9 @@ function brPlayCutscene(opts,cb){
   const fx=document.getElementById('brCsFx');
   const style=opts.style||'dark';
   el.style.transition='';el.style.opacity='';
-  el.classList.remove('shake','cs-party','cs-industrial','cs-water','cs-sunrise');
+  el.classList.remove('shake','cs-party','cs-industrial','cs-water','cs-sunrise','cs-crash','impact-flash','impact-shake');
   [light,flash,vign,scan,lines,title,sub,stats].forEach(x=>x.classList.remove('go','show','run','grow'));
-  title.classList.remove('fun-title','title-bounce','title-stencil','title-ripple','title-rise');
+  title.classList.remove('fun-title','title-bounce','title-stencil','title-ripple','title-rise','title-crash');
   lines.textContent='';title.textContent='';sub.textContent='';stats.textContent='';
   if(confetti)confetti.innerHTML='';
   if(fx)fx.innerHTML='';
@@ -743,6 +835,11 @@ function brPlayCutscene(opts,cb){
   else if(style==='sunrise')el.classList.add('cs-sunrise');
   el.classList.add('on');
   void el.offsetWidth;
+
+  if(style==='crash'){
+    brPlayCrashCutscene(opts,cb,{el,flash,vign,scan,lines,title,sub,stats,fx});
+    return;
+  }
   if(fx)brBuildCutsceneFx(fx,style);
 
   // 1) 스타일별 도입부

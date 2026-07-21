@@ -942,6 +942,43 @@ button:active{transform:scale(.95);}
 @keyframes brTitleRipple{0%,100%{transform:scaleY(1);}50%{transform:scaleY(1.07) translateY(-3px);}}
 .br-cs-title.title-rise.show{color:#fde68a;animation:brTitleRise 2.2s ease forwards !important;text-shadow:0 0 30px rgba(251,191,36,.85);}
 @keyframes brTitleRise{0%{transform:translateY(46px);opacity:0;}100%{transform:translateY(0);opacity:1;}}
+
+/* ── 주차장 전용: 차에 치이고 병상에서 깨어나는 엔딩 ── */
+.br-cutscene.cs-crash{background:#000;}
+.br-fx-headlight{position:absolute;top:36%;width:240px;height:100px;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(255,255,240,.98),rgba(255,255,200,.45) 55%,transparent 76%);
+  filter:blur(2px);opacity:0;}
+.br-fx-headlight.l{top:32%;}
+.br-fx-headlight.r{top:44%;}
+.br-fx-headlight.approach{animation:brFxHeadlightApproach 1.45s cubic-bezier(.4,0,.85,1) forwards;}
+@keyframes brFxHeadlightApproach{0%{opacity:0;left:-45%;transform:scale(.25);}65%{opacity:1;}100%{opacity:1;left:58%;transform:scale(2.8);}}
+.br-cutscene.impact-flash{animation:brImpactFlash .5s ease-out;}
+@keyframes brImpactFlash{0%{background:#fff;}12%{background:#fff;}30%{background:#7f1d1d;}60%{background:#000;}100%{background:#000;}}
+.br-cutscene.impact-shake{animation:brImpactShake .55s cubic-bezier(.36,.07,.19,.97);}
+@keyframes brImpactShake{
+  0%{transform:translate(0,0) rotate(0);}10%{transform:translate(-16px,9px) rotate(-2.4deg);}
+  20%{transform:translate(14px,-11px) rotate(2.2deg);}32%{transform:translate(-11px,7px) rotate(-1.2deg);}
+  44%{transform:translate(9px,-6px) rotate(1deg);}58%{transform:translate(-5px,4px);}74%{transform:translate(3px,-3px);}100%{transform:translate(0,0);}
+}
+.br-fx-heartbeat{position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 50%,rgba(220,38,38,.4),transparent 68%);}
+.br-fx-heartbeat.on{animation:brHeartbeat 1.15s ease-in-out infinite;}
+@keyframes brHeartbeat{0%,100%{opacity:.14;}8%{opacity:.55;}16%{opacity:.14;}25%{opacity:.4;}33%{opacity:.1;}}
+.br-fx-wake{position:absolute;left:50%;top:50%;width:6px;height:6px;border-radius:50%;background:#fff;
+  transform:translate(-50%,-50%);opacity:0;}
+.br-fx-wake.open{animation:brWakeOpen 1.7s cubic-bezier(.2,.8,.3,1) forwards;}
+@keyframes brWakeOpen{0%{width:6px;height:6px;opacity:1;}100%{width:240vw;height:240vw;opacity:1;}}
+.br-cs-title.title-crash.show{animation:brTitleCrash 1.5s ease-out forwards !important;text-shadow:0 0 30px rgba(220,38,38,.55);}
+@keyframes brTitleCrash{0%{transform:scale(2.3);opacity:0;filter:blur(10px);}55%{transform:scale(.92);opacity:1;filter:blur(0);}100%{transform:scale(1);opacity:1;}}
+
+/* ── 나머지 엔딩 보강 이펙트 ── */
+.br-fx-bird{position:absolute;top:22%;left:-6%;width:34px;height:14px;opacity:0;
+  background:radial-gradient(ellipse at 30% 60%,#1c1917 0 30%,transparent 32%),radial-gradient(ellipse at 70% 60%,#1c1917 0 30%,transparent 32%);
+  animation:brFxBirdFly 5.5s linear 1.2s forwards;}
+@keyframes brFxBirdFly{0%{left:-6%;opacity:0;}8%{opacity:.85;}92%{opacity:.85;}100%{left:104%;opacity:0;}}
+.br-cutscene.cs-party::before{content:'';position:absolute;inset:-20%;pointer-events:none;
+  background:conic-gradient(from 0deg,transparent 0 82%,rgba(255,255,255,.14) 90%,transparent 98%);
+  animation:brSpotlightSweep 4.2s linear infinite;}
+@keyframes brSpotlightSweep{to{transform:rotate(360deg);}}
 .br-cs-vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle,transparent 30%,rgba(120,0,0,.55) 100%);opacity:0;}
 .br-cs-vignette.show{animation:brCsVignetteFade 1.6s ease-out forwards;}
 @keyframes brCsVignetteFade{0%{opacity:1;}100%{opacity:0;}}
