@@ -642,22 +642,31 @@ function loseBackrooms(){
 
 // ── 레벨별 엔딩: 보상 지급 + 업적 마킹 + 전용 컷신 ──
 const BR_ENDINGS={
-  level0:{achFlag:'brRealExits',baseCoins:15000,baseEnergy:6000,style:'dark',titleClass:'',
-    title:'ESCAPED',sub:'THE BACKROOMS',accent:'#7dd3fc',
-    lines:['...문이 열렸다...','뒤에서는 이제, 아무 소리도 들리지 않는다','셀 수 없이 걸었던 그 모든 노란 방들이','이제는 흐릿한 꿈처럼 멀어진다','이곳은 곧, 기억이 될 것이다']},
-  fun:{achFlag:'brEndFun',baseCoins:40000,baseEnergy:15000,style:'party',titleClass:'title-bounce',confetti:true,
-    title:'THE PARTY IS OVER',sub:'LEVEL FUN=)',accent:'#f472b6',
-    lines:['세 개의 케이크, 세 번의 생일','아무도 축하해주지 않던 파티에','당신이 촛불을 켜주었다','파티고어가 처음으로, 진짜로 웃는다','"와줘서 고마워요"','황금 문이 당신을 배웅한다']},
-  garage:{achFlag:'brEndGarage',baseCoins:35000,baseEnergy:15000,style:'crash',titleClass:'title-crash',accent:'#fecaca',
-    title:'AWAKEN',sub:'다시, 눈을 뜨다',
+  level0:{achFlag:'brRealExits',baseCoins:15000,baseEnergy:6000,titleClass:'',accent:'#7dd3fc',
+    title:'ESCAPED',sub:'THE BACKROOMS',introEffect:'dark',canvasDuration:2400,
+    drawFn:brDrawDoorApproachFrame,
+    preLines:['...문이 열렸다...','뒤에서는 이제, 아무 소리도 들리지 않는다'],
+    postLines:['셀 수 없이 걸었던 그 모든 노란 방들이','이제는 흐릿한 꿈처럼 멀어진다','손잡이가... 어쩐지 낯익다','이곳은 곧, 기억이 될 것이다']},
+  fun:{achFlag:'brEndFun',baseCoins:40000,baseEnergy:15000,titleClass:'title-bounce',accent:'#f472b6',confetti:true,
+    title:'THE PARTY IS OVER',sub:'LEVEL FUN=)',ambientStyle:'party',canvasDuration:2700,
+    drawFn:brDrawFunReleaseFrame,
+    preLines:['세 개의 케이크, 세 번의 생일','아무도 축하해주지 않던 파티에','당신이 촛불을 켜주었다'],
+    postLines:['파티고어가 처음으로, 진짜로 웃는다','"...함께 있어줘서, 고마워요"','이제는, 편히 쉬어도 돼']},
+  garage:{achFlag:'brEndGarage',baseCoins:35000,baseEnergy:15000,titleClass:'title-crash',accent:'#fecaca',
+    title:'AWAKEN',sub:'다시, 눈을 뜨다',reaction:'crash',canvasDuration:2300,
+    drawFn:brDrawCrashApproachFrame,
     preLines:['발전기 세 대가 낮게 울리다 멈췄다','셔터가 천천히 올라간다','저 앞에... 빛이 보인다','한 걸음, 두 걸음','밖이다'],
     postLines:['...쿵.','......','아무 소리도 들리지 않는다','사이렌 소리가 점점 가까워진다','누군가 어깨를 흔든다','"저기요! 저기요! 일어나세요!"','"괜찮아요, 제 목소리 들리세요? OK?"','눈을 떠야 해','지금, 당장']},
-  pool:{achFlag:'brEndPool',baseCoins:30000,baseEnergy:12000,style:'water',titleClass:'title-ripple',
-    title:'DRAINED',sub:'THE POOLROOMS',accent:'#38bdf8',
-    lines:['마지막 밸브가 잠기는 소리','수면이 천천히 낮아진다','물결에 비친 것은 당신 혼자뿐이었다','배수구 아래에서, 빛이 새어나온다']},
-  field:{achFlag:'brEndField',baseCoins:20000,baseEnergy:8000,style:'sunrise',titleClass:'title-rise',
-    title:'HORIZON',sub:'ENDLESS FIELDS',accent:'#a3e635',
-    lines:['갈대가 바람에 눕는다','도시도, 수영장도, 노란 방도','이제는 등 뒤의 이야기','지평선이 처음으로, 가까워진다']},
+  pool:{achFlag:'brEndPool',baseCoins:30000,baseEnergy:12000,titleClass:'title-ripple',accent:'#38bdf8',
+    title:'DRAINED',sub:'다시, 숨을 쉬다',ambientStyle:'water',canvasDuration:2700,
+    drawFn:brDrawPoolSurfaceFrame,
+    preLines:['마지막 밸브가 잠기는 소리','수면이 천천히 낮아진다','숨이... 차오른다'],
+    postLines:['그 순간, 물 밖으로','차가운 공기가 폐를 가득 채운다','살아있다']},
+  field:{achFlag:'brEndField',baseCoins:20000,baseEnergy:8000,titleClass:'title-rise',accent:'#a3e635',
+    title:'HORIZON',sub:'다시 만난 자리',ambientStyle:'sunrise',canvasDuration:2900,
+    drawFn:brDrawFieldReunionFrame,
+    preLines:['갈대가 바람에 눕는다','도시도, 수영장도, 노란 방도','이제는 등 뒤의 이야기'],
+    postLines:['저 끝에서, 누군가 서 있다','두 팔을 벌린 채로','오래, 아주 오래 기다린 사람처럼']},
 };
 function brEndingOpts(kind,depth,rewardCoins,rewardEnergy){
   const e=BR_ENDINGS[kind]||BR_ENDINGS.level0;
@@ -734,7 +743,7 @@ function brBuildCutsceneFx(fx,style){
 
 // ── 주차장 전용 엔딩: 탈출한 줄 알았지만 차에 치이고, 병상에서 깨어난다 ──
 // 눈을 감은 채 옆으로 쓰러진 1인칭 시점에서, 횡단보도를 따라 다가오는 차를 원근 3D로 그린다
-let _brCrashRafId=null;
+let _brCanvasRafId=null;
 // 깊이(depth, 0=바로 앞 ~ 큼=저 멀리)를 화면상의 원근 스케일/위치로 변환 (호러 코리도어와 같은 K/(K+depth) 공식)
 const BR_CRASH_K=170, BR_CRASH_VANISH=460;
 function brCrashProject(depth){
@@ -923,84 +932,345 @@ function brDrawCrashApproachFrame(cctx,w,h,t){
   g2.addColorStop(0,'rgba(0,0,0,.9)');g2.addColorStop(1,'rgba(0,0,0,0)');
   cctx.fillStyle=g2;cctx.fillRect(0,centerY+slit/2,w,edge);
 }
-function brStartCrashApproach(canvas,durationMs,onDone){
+// ── 나머지 4개 엔딩도 같은 방식(대사 → 캔버스 시네마틱 장면 → 대사 → 타이틀)의 전용 3D 연출을 가진다 ──
+// LEVEL 0: 복도 저편의 문으로 다가가 손잡이를 잡는다
+function brDrawDoorApproachFrame(cctx,w,h,t){
+  cctx.save();
+  cctx.clearRect(0,0,w,h);
+  cctx.fillStyle='#050402';
+  cctx.fillRect(0,0,w,h);
+
+  const sway=Math.sin(t*Math.PI*3)*5*(1-t*0.5);
+  cctx.translate(w*0.5+sway,h*0.52);
+
+  const blur=6*(1-t);
+  cctx.filter='blur('+blur.toFixed(1)+'px)';
+
+  const K=130,VAN=340;
+  const proj=d=>{ const s=K/(K+d); return {scale:s, ly:-VAN*(1-s)}; };
+  const halfW=w*0.34;
+  for(let i=0;i<18;i++){
+    const d0=i*(280/18), d1=(i+1)*(280/18);
+    const p0=proj(d0), p1=proj(d1);
+    const warm=0.06+((i*53)%7)/7*0.05;
+    cctx.fillStyle='rgb('+Math.round(60+warm*180)+','+Math.round(48+warm*140)+','+Math.round(18+warm*60)+')';
+    cctx.beginPath();
+    cctx.moveTo(-halfW*p0.scale,p0.ly);cctx.lineTo(halfW*p0.scale,p0.ly);
+    cctx.lineTo(halfW*p1.scale,p1.ly);cctx.lineTo(-halfW*p1.scale,p1.ly);
+    cctx.closePath();cctx.fill();
+    cctx.fillStyle='rgba(10,7,3,.5)';
+    cctx.fillRect(-halfW*p0.scale,p0.ly-6*p0.scale,halfW*2*p0.scale,4*p0.scale);
+  }
+
+  const doorDepth=Math.max(2,260*(1-t));
+  const dp=proj(doorDepth);
+  const doorW=180*dp.scale, doorH=280*dp.scale;
+  const glow=cctx.createRadialGradient(0,dp.ly,0,0,dp.ly,doorW*1.4);
+  glow.addColorStop(0,'rgba(255,225,150,'+(0.35+t*0.4).toFixed(2)+')');
+  glow.addColorStop(1,'rgba(255,225,150,0)');
+  cctx.fillStyle=glow;
+  cctx.beginPath();cctx.arc(0,dp.ly,doorW*1.4,0,Math.PI*2);cctx.fill();
+  cctx.fillStyle='rgb('+Math.round(220-40*t)+','+Math.round(180-30*t)+',90)';
+  cctx.fillRect(-doorW/2,dp.ly-doorH,doorW,doorH);
+  cctx.strokeStyle='rgba(80,50,10,.6)';cctx.lineWidth=Math.max(1,doorW*0.02);
+  cctx.strokeRect(-doorW*0.38,dp.ly-doorH*0.92,doorW*0.76,doorH*0.36);
+  cctx.strokeRect(-doorW*0.38,dp.ly-doorH*0.5,doorW*0.76,doorH*0.36);
+  cctx.fillStyle='#fff7d6';
+  cctx.beginPath();cctx.arc(doorW*0.34,dp.ly-doorH*0.5,Math.max(2,doorW*0.03),0,Math.PI*2);cctx.fill();
+
+  cctx.filter='none';
+  cctx.restore();
+
+  if(t>0.55){
+    const reach=(t-0.55)/0.45;
+    cctx.fillStyle='rgba(10,8,6,.92)';
+    cctx.beginPath();
+    cctx.ellipse(w*0.56,h*(1.02-reach*0.32),26,58,0.15,0,Math.PI*2);
+    cctx.fill();
+  }
+}
+// FUN: 파티고어가 균열을 따라 황금빛으로 부서지며, 마침내 편히 흩어진다
+function brDrawFunReleaseFrame(cctx,w,h,t){
+  cctx.save();
+  cctx.clearRect(0,0,w,h);
+  cctx.fillStyle='#0c0410';
+  cctx.fillRect(0,0,w,h);
+
+  const cx=w*0.5, cy=h*0.58;
+  const spot=cctx.createRadialGradient(cx,cy,0,cx,cy,h*0.55);
+  spot.addColorStop(0,'rgba(255,225,160,'+(0.22+t*0.22).toFixed(2)+')');
+  spot.addColorStop(1,'rgba(255,225,160,0)');
+  cctx.fillStyle=spot;cctx.fillRect(0,0,w,h);
+
+  for(let i=0;i<5;i++){
+    const bx=w*(0.12+i*0.19), by=h*(0.95-((t*0.6+i*0.18)%1)*0.75);
+    cctx.strokeStyle='rgba(255,255,255,.35)';cctx.lineWidth=1;
+    cctx.beginPath();cctx.moveTo(bx,by+h*0.035);cctx.lineTo(bx,by+h*0.11);cctx.stroke();
+    cctx.globalAlpha=0.55;
+    cctx.fillStyle=BR_BALLOON_COLORS[i%BR_BALLOON_COLORS.length];
+    cctx.beginPath();cctx.ellipse(bx,by,h*0.025,h*0.035,0,0,Math.PI*2);cctx.fill();
+    cctx.globalAlpha=1;
+  }
+
+  const size=h*0.5;
+  const bodyAlpha=Math.max(0,1-t*1.15);
+  if(bodyAlpha>0.02){
+    cctx.save();
+    cctx.globalAlpha=bodyAlpha;
+    const bodyH=size*0.85,bodyW=size*0.32,headR=size*0.15;
+    cctx.fillStyle='#c9a227';
+    cctx.beginPath();
+    cctx.moveTo(cx-bodyW*0.5,cy+bodyH*0.38);
+    cctx.lineTo(cx-bodyW*0.3,cy-bodyH*0.15);
+    cctx.lineTo(cx+bodyW*0.3,cy-bodyH*0.15);
+    cctx.lineTo(cx+bodyW*0.5,cy+bodyH*0.38);
+    cctx.closePath();cctx.fill();
+    cctx.beginPath();cctx.arc(cx,cy-bodyH*0.15-headR*0.9,headR,0,Math.PI*2);cctx.fill();
+    cctx.fillStyle='#e0245e';
+    cctx.beginPath();
+    cctx.moveTo(cx,cy-bodyH*0.15-headR*2.1);
+    cctx.lineTo(cx-headR*0.7,cy-bodyH*0.15-headR*0.9);
+    cctx.lineTo(cx+headR*0.7,cy-bodyH*0.15-headR*0.9);
+    cctx.closePath();cctx.fill();
+    cctx.fillStyle='#fdf6e3';
+    const faceY=cy-bodyH*0.15-headR*0.62;
+    cctx.beginPath();
+    cctx.moveTo(cx-headR*0.6,faceY);
+    cctx.quadraticCurveTo(cx,faceY+headR*0.55,cx+headR*0.6,faceY);
+    cctx.quadraticCurveTo(cx,faceY+headR*0.28,cx-headR*0.6,faceY);
+    cctx.closePath();cctx.fill();
+    cctx.restore();
+  }
+
+  const crackCount=Math.floor(2+t*8);
+  for(let i=0;i<crackCount;i++){
+    const ang=(i/9)*Math.PI*2+0.4;
+    const len=size*(0.14+0.3*t);
+    cctx.strokeStyle='rgba(255,224,120,'+(0.35+0.35*Math.abs(Math.sin(t*9+i))).toFixed(2)+')';
+    cctx.lineWidth=2;
+    cctx.beginPath();
+    let px=cx+Math.cos(ang)*18, py=cy-size*0.1+Math.sin(ang)*18;
+    cctx.moveTo(px,py);
+    for(let s=0;s<3;s++){
+      px+=Math.cos(ang+((s%2)?0.35:-0.35))*len/3;
+      py+=Math.sin(ang+((s%2)?0.35:-0.35))*len/3-size*0.02;
+      cctx.lineTo(px,py);
+    }
+    cctx.stroke();
+  }
+
+  const particleCount=Math.floor(t*80);
+  for(let i=0;i<particleCount;i++){
+    const ang=((i*137.5)%360)*Math.PI/180;
+    const dist=(t*t)*size*0.9*(0.3+((i*53)%100)/100);
+    const px=cx+Math.cos(ang)*dist;
+    const py=cy-size*0.1+Math.sin(ang)*dist*0.7-t*size*0.3;
+    const r=Math.max(0.6,2.6*(1-t*0.3));
+    cctx.fillStyle='rgba(255,215,130,'+(0.85*(1-t*0.3)).toFixed(2)+')';
+    cctx.beginPath();cctx.arc(px,py,r,0,Math.PI*2);cctx.fill();
+  }
+  cctx.restore();
+}
+// 수영장: 물속에서 수면을 향해 떠올라 마침내 숨을 들이쉰다
+function brDrawPoolSurfaceFrame(cctx,w,h,t){
+  cctx.save();
+  cctx.clearRect(0,0,w,h);
+
+  const surfaceY=h*(1.25-1.0*t);
+  const skyGrad=cctx.createLinearGradient(0,0,0,Math.max(1,surfaceY));
+  skyGrad.addColorStop(0,'#eaf6ff');skyGrad.addColorStop(1,'#bfe6ff');
+  cctx.fillStyle=skyGrad;cctx.fillRect(0,0,w,Math.max(0,surfaceY));
+
+  const waterGrad=cctx.createLinearGradient(0,surfaceY,0,h);
+  waterGrad.addColorStop(0,'#1c6fa0');waterGrad.addColorStop(1,'#021a30');
+  cctx.fillStyle=waterGrad;cctx.fillRect(0,Math.max(0,surfaceY),w,h);
+
+  cctx.strokeStyle='rgba(255,255,255,.55)';cctx.lineWidth=3;
+  cctx.beginPath();
+  for(let x=0;x<=w;x+=16){
+    const y=surfaceY+Math.sin(x*0.04+t*14)*6;
+    if(x===0)cctx.moveTo(x,y);else cctx.lineTo(x,y);
+  }
+  cctx.stroke();
+
+  for(let i=0;i<5;i++){
+    const bx=w*(0.15+i*0.18)+Math.sin(t*3+i)*20;
+    const grad=cctx.createLinearGradient(bx,surfaceY,bx,h);
+    grad.addColorStop(0,'rgba(255,255,240,'+(0.28+t*0.25).toFixed(2)+')');
+    grad.addColorStop(1,'rgba(255,255,240,0)');
+    cctx.fillStyle=grad;
+    cctx.beginPath();
+    cctx.moveTo(bx-30,surfaceY);cctx.lineTo(bx+30,surfaceY);
+    cctx.lineTo(bx+90,h);cctx.lineTo(bx-90,h);
+    cctx.closePath();cctx.fill();
+  }
+
+  for(let i=0;i<26;i++){
+    const seed=i*91.7;
+    const bx=(seed%w+(t*40*((i%5)+1)))%w;
+    const by=h-((t*h*1.4+seed*3)%(h*1.3));
+    if(by<surfaceY-10)continue;
+    const r=1.5+((i*37)%10)*0.4;
+    cctx.fillStyle='rgba(220,245,255,.7)';
+    cctx.beginPath();cctx.arc(bx,by,r,0,Math.PI*2);cctx.fill();
+  }
+
+  if(t>0.72){
+    const burst=(t-0.72)/0.28;
+    cctx.fillStyle='rgba(255,255,250,'+(burst*0.85).toFixed(2)+')';
+    cctx.fillRect(0,0,w,h);
+  }
+  cctx.restore();
+}
+// 갈대밭: 지평선 저편에서 두 팔 벌린 채 기다리던 누군가에게 다가간다
+function brDrawFieldReunionFrame(cctx,w,h,t){
+  cctx.save();
+  cctx.clearRect(0,0,w,h);
+
+  const sky=cctx.createLinearGradient(0,0,0,h*0.72);
+  sky.addColorStop(0,'#1c2a4a');sky.addColorStop(0.55,'#a1522c');sky.addColorStop(1,'#f8c56b');
+  cctx.fillStyle=sky;cctx.fillRect(0,0,w,h*0.72);
+
+  const sunY=h*0.62-t*h*0.1;
+  const sunGlow=cctx.createRadialGradient(w*0.5,sunY,0,w*0.5,sunY,h*0.32);
+  sunGlow.addColorStop(0,'rgba(255,236,180,.9)');sunGlow.addColorStop(1,'rgba(255,236,180,0)');
+  cctx.fillStyle=sunGlow;
+  cctx.beginPath();cctx.arc(w*0.5,sunY,h*0.32,0,Math.PI*2);cctx.fill();
+  cctx.fillStyle='#fff3c4';
+  cctx.beginPath();cctx.arc(w*0.5,sunY,h*0.09,0,Math.PI*2);cctx.fill();
+
+  cctx.fillStyle='#3c2a12';
+  cctx.fillRect(0,h*0.68,w,h*0.32);
+
+  const K=150;
+  const depth=Math.max(3,260*(1-t));
+  const scale=K/(K+depth);
+  const figH=h*0.5*scale, figCx=w*0.5, figBaseY=h*0.7;
+  cctx.fillStyle='#0c0805';
+  const headR=figH*0.14;
+  cctx.beginPath();cctx.arc(figCx,figBaseY-figH+headR,headR,0,Math.PI*2);cctx.fill();
+  cctx.beginPath();
+  cctx.moveTo(figCx-figH*0.16,figBaseY);
+  cctx.lineTo(figCx-figH*0.1,figBaseY-figH*0.78);
+  cctx.lineTo(figCx+figH*0.1,figBaseY-figH*0.78);
+  cctx.lineTo(figCx+figH*0.16,figBaseY);
+  cctx.closePath();cctx.fill();
+  const armSpread=0.3+t*0.25;
+  cctx.strokeStyle='#0c0805';cctx.lineWidth=Math.max(2,figH*0.05);
+  cctx.beginPath();
+  cctx.moveTo(figCx,figBaseY-figH*0.7);cctx.lineTo(figCx-figH*armSpread,figBaseY-figH*0.5);
+  cctx.moveTo(figCx,figBaseY-figH*0.7);cctx.lineTo(figCx+figH*armSpread,figBaseY-figH*0.5);
+  cctx.stroke();
+
+  cctx.fillStyle='#0a0602';
+  for(let i=0;i<40;i++){
+    const rx=(i/40)*w+Math.sin(i*13.1)*8;
+    const sway=Math.sin(t*4+i)*6;
+    const rh=h*0.1+((i*31)%40);
+    cctx.fillRect(rx+sway,h-rh,2,rh);
+  }
+
+  if(t>0.75){
+    const burst=(t-0.75)/0.25;
+    cctx.fillStyle='rgba(255,238,200,'+(burst*0.75).toFixed(2)+')';
+    cctx.fillRect(0,0,w,h);
+  }
+  cctx.restore();
+}
+
+// ── 컷신용 캔버스 세그먼트 구동기 (rAF로 drawFn(cctx,w,h,t)를 반복 호출) ──
+function brStartCanvasSegment(canvas,durationMs,drawFn,onDone){
   canvas.classList.add('on');
   canvas.width=canvas.clientWidth;canvas.height=canvas.clientHeight;
   const cctx=canvas.getContext('2d');
   const start=performance.now();
   function frame(now){
     const t=Math.min(1,(now-start)/durationMs);
-    brDrawCrashApproachFrame(cctx,canvas.width,canvas.height,t);
-    if(t<1){ _brCrashRafId=requestAnimationFrame(frame); }
-    else { _brCrashRafId=null; onDone(); }
+    drawFn(cctx,canvas.width,canvas.height,t);
+    if(t<1){ _brCanvasRafId=requestAnimationFrame(frame); }
+    else { _brCanvasRafId=null; onDone(); }
   }
-  _brCrashRafId=requestAnimationFrame(frame);
+  _brCanvasRafId=requestAnimationFrame(frame);
 }
-function brStopCrashApproach(canvas){
-  if(_brCrashRafId){ cancelAnimationFrame(_brCrashRafId); _brCrashRafId=null; }
+function brStopCanvasSegment(canvas){
+  if(_brCanvasRafId){ cancelAnimationFrame(_brCanvasRafId); _brCanvasRafId=null; }
   canvas.classList.remove('on');
 }
 
-function brPlayCrashCutscene(opts,cb,refs){
-  const {el,flash,vign,scan,lines,title,sub,stats,fx}=refs;
+// ── 모든 엔딩 공용: 대사 → 캔버스 시네마틱 장면 → (선택) 리액션 → 대사 → 깨어남 리빌 → 타이틀 → 통계 → 페이드아웃 ──
+function brPlayCinematicCutscene(opts,cb,refs){
+  const {el,light,flash,vign,scan,lines,title,sub,stats,confetti,fx}=refs;
   const canvas=document.getElementById('brCsCanvas');
-  el.classList.add('cs-crash');
   const heartbeat=document.createElement('div');heartbeat.className='br-fx-heartbeat';fx.appendChild(heartbeat);
 
   let t=600;
-  // 1) 셔터 밖으로 나가는 침착한 순간들
+  if(opts.introEffect==='dark'){
+    // 어둠이 화면 중앙에서 자라나 모든 것을 삼킨다
+    light.classList.add('grow');
+    setTimeout(()=>{ flash.classList.add('go'); },1500);
+    setTimeout(()=>{ el.classList.add('shake'); vign.classList.add('show'); scan.classList.add('run'); },2050);
+    t=2500;
+  } else if(opts.confetti){
+    if(confetti)brSpawnConfetti(confetti,20);
+  }
+  if(opts.ambientStyle&&fx)brBuildCutsceneFx(fx,opts.ambientStyle);
+
+  // 1) 대사 전반부
   (opts.preLines||[]).forEach(txt=>{
     const at=t;
-    setTimeout(()=>{ lines.textContent=txt; lines.classList.add('show'); },at);
-    setTimeout(()=>{ lines.classList.remove('show'); },at+950);
-    t+=1150;
+    setTimeout(()=>{ lines.textContent=txt; lines.classList.add('show'); if(opts.introEffect==='dark')el.classList.add('shake'); },at);
+    setTimeout(()=>{ lines.classList.remove('show'); if(opts.introEffect==='dark')el.classList.remove('shake'); },at+1000);
+    t+=1200;
   });
 
-  // 2) 횡단보도에 쓰러져 실눈을 뜨며, 다가오는 차를 3D 원근으로 마주한다
+  // 2) 캔버스 시네마틱 장면
   t+=250;
   setTimeout(()=>{
     lines.classList.remove('show');
-    if(canvas){
-      brStartCrashApproach(canvas,2300,()=>{
-        brStopCrashApproach(canvas);
-        brAfterCrashImpact();
+    scan.classList.remove('run');
+    if(canvas&&opts.drawFn){
+      brStartCanvasSegment(canvas,opts.canvasDuration||2400,opts.drawFn,()=>{
+        brStopCanvasSegment(canvas);
+        brAfterCanvas();
       });
-    } else brAfterCrashImpact();
+    } else brAfterCanvas();
   },t);
 
-  function brAfterCrashImpact(){
-    // 3) 충돌: 화이트-레드 임팩트 플래시 + 강한 흔들림
-    el.classList.add('impact-flash','impact-shake');
-    setTimeout(()=>{
-      el.classList.remove('impact-flash','impact-shake');
-      heartbeat.classList.add('on');
-      brRunCrashAftermath();
-    },520);
+  function brAfterCanvas(){
+    if(opts.reaction==='crash'){
+      el.classList.add('impact-flash','impact-shake');
+      setTimeout(()=>{
+        el.classList.remove('impact-flash','impact-shake');
+        heartbeat.classList.add('on');
+        brRunAftermath();
+      },520);
+    } else {
+      brRunAftermath();
+    }
   }
 
-  function brRunCrashAftermath(){
-    // 4) 정적 속, 심장박동과 함께 목소리가 들려온다
+  // 3) 대사 후반부 → 리빌 → 타이틀 → 통계 → 페이드아웃
+  function brRunAftermath(){
     let t2=650;
     (opts.postLines||[]).forEach(txt=>{
       const at=t2;
       setTimeout(()=>{ lines.textContent=txt; lines.classList.add('show'); },at);
       setTimeout(()=>{ lines.classList.remove('show'); },at+1100);
-      t2+=1350;
+      t2+=1300;
     });
-    // 5) 눈을 뜨는 순간: 새하얗게 번지는 원이 화면을 뒤덮는다
     t2+=200;
     setTimeout(()=>{
       heartbeat.classList.remove('on');
       const wake=document.createElement('div');wake.className='br-fx-wake open';fx.appendChild(wake);
-      scan.classList.remove('run');
     },t2);
     t2+=1500;
     setTimeout(()=>{
-      title.textContent=opts.title||'AWAKEN';
+      title.textContent=opts.title||'ESCAPED';
       if(opts.titleClass)title.classList.add(opts.titleClass);
       title.classList.add('show');
       sub.textContent=opts.sub||'';
       sub.classList.add('show');
+      if(opts.confetti&&confetti)brSpawnConfetti(confetti,48);
     },t2);
     t2+=1900;
     setTimeout(()=>{
@@ -1014,9 +1284,10 @@ function brPlayCrashCutscene(opts,cb,refs){
     },t2);
     t2+=1250;
     setTimeout(()=>{
-      el.classList.remove('on','cs-crash');
+      el.classList.remove('on','cs-crash','cs-party','cs-industrial','cs-water','cs-sunrise');
       el.style.opacity='';el.style.transition='';
       fx.innerHTML='';
+      if(confetti)confetti.innerHTML='';
       cb();
     },t2);
   }
@@ -1035,8 +1306,7 @@ function brPlayCutscene(opts,cb){
   const confetti=document.getElementById('brCsConfetti');
   const fx=document.getElementById('brCsFx');
   const crashCanvas=document.getElementById('brCsCanvas');
-  if(crashCanvas)brStopCrashApproach(crashCanvas);
-  const style=opts.style||'dark';
+  if(crashCanvas)brStopCanvasSegment(crashCanvas);
   el.style.transition='';el.style.opacity='';
   el.classList.remove('shake','cs-party','cs-industrial','cs-water','cs-sunrise','cs-crash','impact-flash','impact-shake');
   [light,flash,vign,scan,lines,title,sub,stats].forEach(x=>x.classList.remove('go','show','run','grow'));
@@ -1045,87 +1315,13 @@ function brPlayCutscene(opts,cb){
   if(confetti)confetti.innerHTML='';
   if(fx)fx.innerHTML='';
   sub.style.color=opts.accent||'#7dd3fc';
-  if(style==='party')el.classList.add('cs-party');
-  else if(style==='industrial')el.classList.add('cs-industrial');
-  else if(style==='water')el.classList.add('cs-water');
-  else if(style==='sunrise')el.classList.add('cs-sunrise');
+  const ambientCls={party:'cs-party',industrial:'cs-industrial',water:'cs-water',sunrise:'cs-sunrise'}[opts.ambientStyle];
+  if(ambientCls)el.classList.add(ambientCls);
+  if(opts.reaction==='crash')el.classList.add('cs-crash');
   el.classList.add('on');
   void el.offsetWidth;
 
-  if(style==='crash'){
-    brPlayCrashCutscene(opts,cb,{el,flash,vign,scan,lines,title,sub,stats,fx});
-    return;
-  }
-  if(fx)brBuildCutsceneFx(fx,style);
-
-  // 1) 스타일별 도입부
-  let t;
-  if(style==='dark'){
-    // 어둠이 화면 중앙에서 자라나 모든 것을 삼킨다
-    light.classList.add('grow');
-    t=1500;
-    setTimeout(()=>{ flash.classList.add('go'); },t);
-    t+=550;
-    setTimeout(()=>{
-      el.classList.add('shake');
-      vign.classList.add('show');
-      scan.classList.add('run');
-    },t);
-    t+=450;
-  } else if(style==='party'){
-    // 풍선이 떠오르고 컨페티가 쏟아지는 무대
-    if(confetti)brSpawnConfetti(confetti,24);
-    t=900;
-  } else if(style==='industrial'){
-    // 캄캄한 어둠 속, 형광등이 위에서부터 한 줄씩 켜진다
-    t=2600;
-    setTimeout(()=>{ el.classList.add('shake'); },600);
-    setTimeout(()=>{ el.classList.remove('shake'); },1100);
-  } else if(style==='water'){
-    // 물이 화면을 가득 채운 채 시작해 서서히 빠진다
-    t=1400;
-  } else {
-    // sunrise: 어둠 속에서 새벽 하늘이 열린다
-    t=1600;
-  }
-
-  // 2) 회상하듯 대사가 하나씩 떠오른다
-  const LINES=opts.lines||[];
-  LINES.forEach(txt=>{
-    const at=t;
-    setTimeout(()=>{ lines.textContent=txt; lines.classList.add('show'); if(style==='dark')el.classList.add('shake'); },at);
-    setTimeout(()=>{ lines.classList.remove('show'); if(style==='dark')el.classList.remove('shake'); },at+1000);
-    t+=1300;
-  });
-
-  // 3) 스타일별 타이틀 등장
-  setTimeout(()=>{
-    scan.classList.remove('run');
-    title.textContent=opts.title||'ESCAPED';
-    if(opts.titleClass)title.classList.add(opts.titleClass);
-    title.classList.add('show');
-    sub.textContent=opts.sub||'';
-    sub.classList.add('show');
-    if(opts.confetti&&confetti)brSpawnConfetti(confetti,48);
-  },t);
-  t+=1800;
-  setTimeout(()=>{
-    stats.textContent=opts.statsText||'';
-    stats.classList.add('show');
-  },t);
-  t+=2200;
-  setTimeout(()=>{
-    el.style.transition='opacity 1.1s ease';
-    el.style.opacity='0';
-  },t);
-  t+=1150;
-  setTimeout(()=>{
-    el.classList.remove('on','cs-party','cs-industrial','cs-water','cs-sunrise');
-    el.style.opacity='';el.style.transition='';
-    if(confetti)confetti.innerHTML='';
-    if(fx)fx.innerHTML='';
-    cb();
-  },t);
+  brPlayCinematicCutscene(opts,cb,{el,light,flash,vign,scan,lines,title,sub,stats,confetti,fx});
 }
 
 const BR_FUN_THEME={ceil:[255,150,190],fog:'rgba(60,10,50,'};
