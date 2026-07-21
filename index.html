@@ -17,6 +17,10 @@
 <div id="merchantToast" class="merchant-toast"></div>
 <!-- 상인 히든 연출용 풀스크린 컷신 -->
 <div id="merchCutsceneFx"></div>
+<!-- 스타쉽/에일리언 등장 시 1회 재생되는 비인터랙티브 착륙 컷신 (버튼을 막지 않음) -->
+<div id="shipLandingFx"></div>
+<div id="warpFlashFx"></div>
+<div id="alienPortalFx"></div>
 <!-- 상인 계약서(두루마리 인장 확인) 오버레이: MR 감자씨/악마/천사 전용 -->
 <div id="merchContractOv">
   <div class="merch-contract-scroll">
@@ -25,6 +29,65 @@
     <div class="mc-seal" id="merchContractSeal"></div>
     <button class="mc-sign-btn" id="merchContractSignBtn"></button>
     <button class="mc-cancel-btn" onclick="closeMerchContract()">취소</button>
+  </div>
+</div>
+<!-- 특별 상인 팝업: 보상 없음, 순수하게 독특한 연출 + 영구 배치 구매 -->
+<div id="specialMerchOv">
+  <div class="special-merch-card">
+    <button class="smc-close" onclick="closeSpecialMerch()">✕</button>
+    <div class="smc-stage"><div class="smc-icon" id="smcIcon"></div><div class="smc-fx" id="smcFx"></div></div>
+    <div class="smc-title" id="smcTitle"></div>
+    <div class="smc-line" id="smcLine"></div>
+    <div class="smc-interact" id="smcInteractZone"></div>
+    <button class="smc-talk-btn" id="smcActionBtn"></button>
+    <button class="smc-place-btn" id="smcPlaceBtn" onclick="buySpecialResident()"></button>
+  </div>
+</div>
+<!-- 스타쉽 매입 팝업: 우주선을 사면 월드3로 갈 수 있다 -->
+<div id="starshipOv">
+  <div class="starship-panel">
+    <button class="smc-close" onclick="closeStarshipPopup()">✕</button>
+    <div class="ssp-visual">
+      <svg viewBox="0 0 300 110" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="hullGradPop" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#e2e8f0"/><stop offset="45%" stop-color="#94a3b8"/><stop offset="100%" stop-color="#334155"/>
+          </linearGradient>
+          <linearGradient id="hullGradPop2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f8fafc"/><stop offset="100%" stop-color="#64748b"/>
+          </linearGradient>
+          <linearGradient id="flameGradPop" x1="1" y1="0" x2="0" y2="0">
+            <stop offset="0%" stop-color="#dbeafe"/><stop offset="35%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7" stop-opacity="0"/>
+          </linearGradient>
+          <radialGradient id="engineGlowPop" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#bae6fd"/><stop offset="55%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0369a1" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <path class="ssp-idle-flame" d="M58 44 Q4 50 -4 50 Q4 50 58 60 Z" fill="url(#flameGradPop)"/>
+        <path d="M100 34 L64 4 L128 30 Z" fill="#94a3b8" stroke="#1e293b" stroke-width="1.6"/>
+        <path d="M100 66 L64 96 L128 70 Z" fill="#7c8ba1" stroke="#1e293b" stroke-width="1.6"/>
+        <path d="M58 36 Q42 50 58 64 L140 70 Q168 66 190 58 L246 52 Q270 50 246 44 L190 40 Q168 34 140 30 Z" fill="url(#hullGradPop)" stroke="#1e293b" stroke-width="2.2"/>
+        <path d="M64 40 Q52 50 64 60 L138 65 L138 35 Z" fill="#e2e8f0" opacity=".4"/>
+        <path d="M150 30 L158 12 L176 14 L172 32 Z" fill="url(#hullGradPop2)" stroke="#1e293b" stroke-width="1.6"/>
+        <rect x="160" y="16" width="10" height="6" rx="1.5" fill="#38bdf8" opacity=".85"/>
+        <path d="M96 38 L96 62 M118 34 L118 66 M140 32 L140 68 M164 34 L164 66 M186 36 L186 64 M210 40 L210 60" stroke="#475569" stroke-width="1" opacity=".55"/>
+        <path d="M200 42 L236 45 M200 58 L236 55" stroke="#94a3b8" stroke-width="1.2" opacity=".7"/>
+        <path d="M246 44 L272 47 L246 52 Z" fill="#475569" stroke="#1e293b" stroke-width="1.5"/>
+        <ellipse cx="60" cy="38" rx="7" ry="6" fill="url(#engineGlowPop)"/>
+        <ellipse cx="60" cy="50" rx="8" ry="7" fill="url(#engineGlowPop)"/>
+        <ellipse cx="60" cy="62" rx="7" ry="6" fill="url(#engineGlowPop)"/>
+        <circle class="ship-navlight" cx="66" cy="8" r="2.6" fill="#ef4444"/>
+        <circle class="ship-navlight nl2" cx="66" cy="94" r="2.6" fill="#4ade80"/>
+        <path d="M104 66 L96 88 M96 88 L86 91 M96 88 L106 93" stroke="#334155" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <path d="M188 60 L198 90 M198 90 L188 93 M198 90 L208 95" stroke="#334155" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <rect x="150" y="38" width="22" height="26" rx="3" fill="#fde68a"/>
+        <rect x="150" y="38" width="22" height="26" rx="3" fill="none" stroke="#78350f" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <div class="ssp-title">🚀 신비로운 우주선</div>
+    <div class="ssp-desc">우주 저편에서 날아온 진짜 우주선입니다. 이걸 손에 넣으면 아무도 가본 적 없는<br><b>월드3</b>로 떠날 수 있다는 소문이...</div>
+    <div class="ssp-note" id="starshipNote"></div>
+    <button class="ssp-buy-btn" id="starshipBuyBtn"></button>
   </div>
 </div>
 
@@ -84,6 +147,12 @@
   <div id="merchVehicleNpc" onclick="event.stopPropagation()"></div>
   <!-- 공중 상인(천사/악마/별의 요정) 전용 로비 전체 배경 연출 -->
   <div id="merchLobbyAmbientFx"></div>
+  <!-- 영구 배치된 특별 상인들이 로비 구석에서 배회 -->
+  <div id="specialResidentsZone"></div>
+  <!-- 매입한 스타쉽: 크게 정박해서 상시 엔진 글로우 + 클릭 시 월드3로 출발 -->
+  <div id="starshipDockEarth" class="starship-dock" onclick="event.stopPropagation()"></div>
+  <!-- 에일리언 함선이 떨구고 간 정체불명의 큐브: 클릭하면 차원으로 진입 -->
+  <div id="alienCubeEarth" class="alien-cube" onclick="event.stopPropagation()"></div>
   <div id="kevinBegBadge" style="display:none;position:fixed;left:14px;bottom:80px;z-index:24;background:rgba(0,0,0,.55);color:#fde68a;font-size:11px;font-weight:700;padding:5px 10px;border-radius:14px;align-items:center;gap:4px;">🧓 케빈이 구걸 중...</div>
   <div class="ver">호두마루 v1.0</div>
   <div style="position:fixed;bottom:10px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;z-index:25;background:rgba(255,255,255,0.85);padding:4px 14px;border-radius:20px;border:1px solid #e5e7eb;">
@@ -103,6 +172,67 @@
     <div class="daily-box-ico" id="drBoxIcon">🎁</div>
     <div class="daily-box-timer" id="drBoxTimer"></div>
   </div>
+</div>
+
+<!-- ══ 월드3 전용 신규 로비: 우주 착륙장 ══ -->
+<div id="sLobby3" class="screen w3-lobby">
+  <div class="w3-starfield"></div>
+  <div class="logo">월드3</div>
+  <div class="logo-sub">UNKNOWN ORBIT</div>
+  <div class="w3-lobby-desc">아무도 가본 적 없는 궤도. 우주선이 이곳 바닥에 정박해 있다.</div>
+  <div id="starshipDockWorld3" class="starship-dock" onclick="event.stopPropagation()"></div>
+  <div class="w3-lobby-btns">
+    <button class="lb w3-btn" onclick="openWorld3MapSelect()">🗺 맵 선택</button>
+    <button class="lb w3-btn w3-btn-return" onclick="returnFromWorld3()">🌍 지구로 귀환</button>
+  </div>
+  <div class="ver">호두마루 v1.0</div>
+</div>
+
+<!-- ══ 월드3 홀로그램 맵 선택 UI ══ -->
+<div id="sWorld3Hologram" class="screen holo-screen">
+  <div class="w3-starfield"></div>
+  <button class="back holo-back" onclick="go('sLobby3')">← 뒤로</button>
+  <div class="holo-title">MISSION SELECT</div>
+  <div id="world3HoloCards" class="holo-cards"></div>
+</div>
+
+<!-- ══ 에일리언 함선으로만 갈 수 있는 특별한 차원: 공포 연출 전용 ══ -->
+<div id="sAlienDimension" class="screen horror-dim">
+  <div class="horror-vignette"></div>
+  <div class="horror-eyes-field" id="horrorEyesField"></div>
+  <div class="horror-title" id="horrorTitle">???</div>
+  <div class="horror-sub">SOMETHING IS WATCHING</div>
+  <div class="horror-lines" id="horrorLine"></div>
+  <div class="horror-btn-row">
+    <button class="horror-btn horror-btn-escape" onclick="startHorrorCorridor()">ESCAPE</button>
+    <button class="horror-btn" onclick="exitAlienDimension()">🌀 차원의 틈에서 빠져나가기</button>
+  </div>
+</div>
+
+<!-- ══ 백룸 진짜 탈출구 컷신 ══ -->
+<div id="brEscapeCutscene" class="br-cutscene">
+  <div class="br-cs-light" id="brCsLight"></div>
+  <div class="br-cs-flash" id="brCsFlash"></div>
+  <div class="br-cs-vignette" id="brCsVignette"></div>
+  <div class="br-cs-scanline" id="brCsScanline"></div>
+  <div class="br-cs-lines" id="brCsLines"></div>
+  <div class="br-cs-title" id="brCsTitle"></div>
+  <div class="br-cs-sub" id="brCsSub"></div>
+  <div class="br-cs-stats" id="brCsStats"></div>
+</div>
+
+<!-- ══ 노란 문을 통과해야만 갈 수 있는 새로운 차원: 백룸즈 ══ -->
+<div id="sBackrooms" class="screen backrooms-dim">
+  <div class="backrooms-flicker"></div>
+  <div class="backrooms-title">THE BACKROOMS</div>
+  <div class="backrooms-sub">아무도 없어야 할 곳에 아무도 없다</div>
+  <div class="backrooms-desc">누런 벽지와 젖은 카펫 냄새. 형광등이 웅웅거린다. 여긴 대체 몇 층일까.</div>
+  <div class="backrooms-best" id="brBestLevel">아직 도달한 층이 없다</div>
+  <div class="backrooms-btn-row">
+    <button class="lb backrooms-btn backrooms-btn-enter" onclick="startBackroomsRun()">🚪 미로로 들어가기</button>
+    <button class="lb backrooms-btn" onclick="go('sLobby')">🏠 로비로 돌아가기</button>
+  </div>
+  <button id="brEscapeReplayBtn" class="backrooms-replay-btn" style="display:none;" onclick="replayBackroomsEscapeCutscene()">🎬 탈출 컷신 다시보기</button>
 </div>
 
 <!-- 데일리 보상 결과 연출 -->
@@ -170,6 +300,7 @@
     <div id="titleProgress" style="font-size:11px;color:#6b7280;margin-top:4px;"></div>
     <button id="devEggRevealBtn" style="display:none;margin-top:10px;padding:6px 14px;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;" onclick="openDevEggPreview()">🛠️ 이스터에그 프리뷰 (DEV)</button>
     <button id="devMerchSummonBtn" style="display:none;margin-top:8px;padding:6px 14px;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#c2410c,#f97316);color:#fff;" onclick="openDevMerchantSummon()">🛠️ 상인 소환 (DEV)</button>
+    <button id="devBackroomsBtn" style="display:none;margin-top:8px;padding:6px 14px;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;" onclick="devEnterBackrooms()">🛠️ 백룸 바로 입장 (DEV)</button>
   </div>
   <div id="achList" style="display:flex;flex-direction:column;gap:8px;max-width:700px;margin:0 auto;padding-bottom:40px;"></div>
   <div id="titleList" style="display:none;flex-direction:column;gap:8px;max-width:700px;margin:0 auto;padding-bottom:40px;"></div>
@@ -178,11 +309,12 @@
 <!-- ══ MAP SELECT ══ -->
 <div id="sMap" class="screen">
   <div id="extremeGlow" class="extreme-glow"></div>
-  <button class="back" onclick="go('sLobby')">← 뒤로</button>
+  <button class="back" onclick="mapBack()">← 뒤로</button>
   <div class="stitle">🗺 맵 선택</div>
   <div class="stabs" style="margin-bottom:8px;">
     <button id="world1Btn" class="stab wtab on" onclick="setWorld(1)">🌍 월드1</button>
     <button id="world2Btn" class="stab wtab" onclick="setWorld(2)">🌐 월드2 🔒</button>
+    <button id="world3Btn" class="stab wtab" onclick="setWorld(3)">🚀 월드3 🔒</button>
   </div>
   <div class="stabs">
     <button class="stab on" onclick="mapTab('wave',this)">🌊 웨이브맵</button>
@@ -740,6 +872,9 @@
 <script src="/js/30-stardrop.js"></script>
 <script src="/js/31-daily-reward.js"></script>
 <script src="/js/32-merchants.js"></script>
+<script src="/js/33-horror-corridor.js"></script>
+<script src="/js/34-world3-shooter.js"></script>
+<script src="/js/35-backrooms.js"></script>
 
 <!-- ══ 설정 모달 ══ -->
 <div id="settingsModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;">

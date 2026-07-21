@@ -132,7 +132,19 @@ const MAPS2=[
    tags:[{t:'♾️ SSSSSSS EXTREME DEMON',c:'#f8fafc',bg:'#020617'},{t:'월드2 최종 보스',c:'#fff',bg:'#000'}],
    type:'omega_zero',diff:11,boss:'omega_zero',category:'boss'},
 ];
+// ── 월드3 (우주선을 매입해야 해금되는 초희귀 전용 콘텐츠) — 갤러그 스타일 슈팅게임 2종 ──
+const MAPS3=[
+  {id:'asteroid_run',name:'소행성 지대 돌파',desc:'파편이 흩날리는 소행성 벨트. 적이 빠르고 자주 쏟아진다.',
+   tags:[{t:'🚀 월드3 슈팅',c:'#93c5fd',bg:'#0f172a'},{t:'속도전',c:'#fde68a',bg:'#422006'}],
+   shooterEngine:true,noWeapons:true,noJobs:true,noItems:true,noWaveSpeed:true,
+   enemyPattern:{spawnInt:65,speed:2.4,hp:1,driftAmp:36,waves:8}},
+  {id:'mothership_siege',name:'모함 결전',desc:'거대한 모함이 버티는 최종 격전지. 적은 느리지만 단단하다.',
+   tags:[{t:'🚀 월드3 슈팅',c:'#93c5fd',bg:'#0f172a'},{t:'물량전',c:'#fde68a',bg:'#422006'}],
+   shooterEngine:true,noWeapons:true,noJobs:true,noItems:true,noWaveSpeed:true,
+   enemyPattern:{spawnInt:95,speed:1.6,hp:3,driftAmp:70,waves:12}},
+];
 let curWorld=1;
+let mapSelectOrigin='sLobby'; // 맵 선택 화면 진입 전 있던 로비 — 뒤로가기 시 여기로 복귀
 let mapCategory='wave',mapIdx=0,selMap=MAPS[0];
 let extremeMode=false;
 function isWorld2Unlocked(){
@@ -141,43 +153,85 @@ function isWorld2Unlocked(){
   const bk=achStats.bossKills||{};
   return bossIds.every(id=>(bk[id]||0)>=1);
 }
-function curWorldMaps(){return curWorld===2?MAPS2:MAPS;}
+function isWorld3Unlocked(){
+  if(typeof devModeUnlocked!=='undefined'&&devModeUnlocked)return true;
+  return typeof ownedStarship!=='undefined'&&!!ownedStarship;
+}
+function curWorldMaps(){if(curWorld===3)return MAPS3;return curWorld===2?MAPS2:MAPS;}
 function catMaps(){return curWorldMaps().filter(m=>m.category===mapCategory).sort((a,b)=>(a.diff||0)-(b.diff||0));}
 function updWorld2Btn(){
   const btn=document.getElementById('world2Btn');
-  if(!btn)return;
-  const unlocked=isWorld2Unlocked();
-  btn.innerHTML=unlocked?'🌐 월드2':'🌐 월드2 🔒';
-  btn.classList.toggle('locked',!unlocked);
+  if(btn){
+    const unlocked=isWorld2Unlocked();
+    btn.innerHTML=unlocked?'🌐 월드2':'🌐 월드2 🔒';
+    btn.classList.toggle('locked',!unlocked);
+  }
+  const btn3=document.getElementById('world3Btn');
+  if(btn3){
+    const unlocked3=isWorld3Unlocked();
+    btn3.innerHTML=unlocked3?'🚀 월드3':'🚀 월드3 🔒';
+    btn3.classList.toggle('locked',!unlocked3);
+  }
 }
 function setWorld(w){
   if(w===2&&!isWorld2Unlocked()){
     setMapMsg('🔒 보스맵을 모두 클리어해야 월드2가 열립니다');
     return;
   }
+  if(w===3&&!isWorld3Unlocked()){
+    setMapMsg('🔒 우주선을 매입해야 월드3가 열립니다');
+    return;
+  }
   curWorld=w;mapCategory='wave';mapIdx=0;
   document.querySelectorAll('#sMap .wtab').forEach(b=>b.classList.remove('on'));
-  const btn=document.getElementById(w===2?'world2Btn':'world1Btn');if(btn)btn.classList.add('on');
-  document.querySelectorAll('#sMap .stab').forEach(b=>b.classList.remove('on'));
-  const firstTab=document.querySelector('#sMap .stab');if(firstTab)firstTab.classList.add('on');
+  const btn=document.getElementById(w===3?'world3Btn':w===2?'world2Btn':'world1Btn');if(btn)btn.classList.add('on');
+  document.querySelectorAll('#sMap .stab:not(.wtab)').forEach(b=>b.classList.remove('on'));
+  const firstTab=document.querySelector('#sMap .stab:not(.wtab)');if(firstTab)firstTab.classList.add('on');
   selMap=catMaps()[0];
   drawMP();
 }
+function mapBack(){ go(mapSelectOrigin); }
+function openWorld3MapSelect(){
+  mapSelectOrigin='sLobby3';
+  curWorld=3;
+  go('sWorld3Hologram');
+  renderWorld3Hologram();
+}
+function renderWorld3Hologram(){
+  const wrap=document.getElementById('world3HoloCards'); if(!wrap)return;
+  wrap.innerHTML='';
+  MAPS3.forEach(m=>{
+    const card=document.createElement('div'); card.className='holo-card';
+    card.innerHTML=
+      '<div class="holo-card-scan"></div>'+
+      '<div class="holo-card-title">'+m.name+'</div>'+
+      '<div class="holo-card-desc">'+m.desc+'</div>'+
+      '<div class="holo-card-tags">'+(m.tags||[]).map(t=>'<span style="color:'+t.c+';background:'+t.bg+';">'+t.t+'</span>').join('')+'</div>'+
+      '<button class="holo-card-btn">▶ 출격</button>';
+    card.querySelector('.holo-card-btn').onclick=()=>launchWorld3Shooter(m);
+    wrap.appendChild(card);
+  });
+}
+function launchWorld3Shooter(m){
+  selMap=m;
+  startGame();
+}
 function openMapSelect(){
+  mapSelectOrigin='sLobby';
   curWorld=1;mapCategory='wave';mapIdx=0;
   extremeMode=false;updExtremeBtn();
   updWorld2Btn();
   go('sMap');
   document.querySelectorAll('#sMap .wtab').forEach(b=>b.classList.remove('on'));
   const firstWtab=document.getElementById('world1Btn');if(firstWtab)firstWtab.classList.add('on');
-  document.querySelectorAll('#sMap .stab').forEach(b=>b.classList.remove('on'));
-  const firstTab=document.querySelector('#sMap .stab');if(firstTab)firstTab.classList.add('on');
+  document.querySelectorAll('#sMap .stab:not(.wtab)').forEach(b=>b.classList.remove('on'));
+  const firstTab=document.querySelector('#sMap .stab:not(.wtab)');if(firstTab)firstTab.classList.add('on');
   selMap=catMaps()[0];
   drawMP();
 }
 function mapTab(cat,btn){
   mapCategory=cat;mapIdx=0;
-  document.querySelectorAll('#sMap .stab').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('#sMap .stab:not(.wtab)').forEach(b=>b.classList.remove('on'));
   if(btn)btn.classList.add('on');
   const list=catMaps();
   selMap=list[0];

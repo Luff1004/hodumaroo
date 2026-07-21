@@ -94,6 +94,17 @@ const ACHIEVEMENTS = [
   {id:'weekly_quest_20',name:'주간 정복자',    desc:'주간 퀘스트 20회 완수',               reward:{energy:150000},cond:'(achStats.weeklyQuestClaims||0)>=20'},
   {id:'mega_quest_5',   name:'메가 퀘스트 마스터', desc:'메가퀘스트 5번 완수',              reward:{item:'black_hole'}, cond:'(achStats.megaQuestClaims||0)>=5'},
   {id:'mega_quest_20',  name:'전설의 완수자',  desc:'메가퀘스트 20번 완수',                reward:{energy:500000},cond:'(achStats.megaQuestClaims||0)>=20'},
+  // ── 백룸/스타쉽/에일리언 업적 ──
+  {id:'br_first',   name:'낯선 벽지',          desc:'더 백룸스에 처음 발을 들였다',         reward:{coins:5000},   cond:'(achStats.brEntries||0)>=1'},
+  {id:'br_depth50', name:'끝없는 복도',        desc:'백룸에서 50m 이상 진행',              reward:{item:'spatial_path'}, cond:'typeof brBestDepth==="function"&&brBestDepth()>=50'},
+  {id:'br_fun',     name:'초대장',             desc:'LEVEL FUN=)에서 살아 돌아왔다',       reward:{job:'egg_job_partygoer'}, cond:'(achStats.brFunEscapes||0)>=1'},
+  {id:'br_realexit',name:'진짜 출구',          desc:'백룸의 진짜 탈출구를 찾아냈다',        reward:{coins:60000,energy:100000,stardrops:2}, cond:'(achStats.brRealExits||0)>=1'},
+  {id:'ship_first', name:'미지의 궤도로',      desc:'우주선을 타고 월드3에 처음 진출',      reward:{coins:8000},   cond:'(achStats.starshipLaunches||0)>=1'},
+  {id:'ship_mission',name:'첫 임무 완수',      desc:'월드3 미션 1회 승리',                  reward:{item:'star_rain'}, cond:'(achStats.shooterWins||0)>=1'},
+  {id:'ship_ace',   name:'우주 에이스',        desc:'월드3 미션 5회 승리',                  reward:{stardrops:1},  cond:'(achStats.shooterWins||0)>=5'},
+  {id:'alien_first',name:'차원의 틈',          desc:'정체불명의 큐브를 열어 에일리언 차원에 처음 진입', reward:{coins:6000}, cond:'(achStats.alienDimensionEntered||0)>=1'},
+  {id:'alien_escape',name:'ESCAPE',            desc:'공포의 복도를 탈출해 노란 문을 통과했다', reward:{stardrops:1}, cond:'(achStats.corridorCleared||0)>=1'},
+  {id:'alien_master',name:'차원을 넘나드는 자', desc:'에일리언 차원에 5회 진입',            reward:{job:'egg_job_dimensiontraveler'}, cond:'(achStats.alienDimensionEntered||0)>=5'},
   // ── 운 업적 ──
   {id:'lucky',      name:'오늘은 운이 좋군요', desc:'매 1초마다 20000분의 1 확률로 획득',  reward:{item:'lucky_clover'}, cond:'luckyAchieved>=1'},
   // ── 히든 ──
@@ -183,6 +194,7 @@ function grantAchReward(a){
   if(!r) return;
   if(r.coins){ coins+=r.coins; sv('hd_c',coins); }
   if(r.energy){ energy+=r.energy; sv('hd_e',energy); }
+  if(r.stardrops){ plData.stardrops=(plData.stardrops||0)+r.stardrops; sv('hd_pl',plData); if(typeof renderPlayerLevelBar==='function')renderPlayerLevelBar(); }
   if(r.item){ ownedItems[r.item]=true; saveItems(); }
   if(r.job){ ownedJobs[r.job]=true; saveJobData(); }
   if(r.wep){ owned[r.wep]=true; saveAll(); }
@@ -196,6 +208,7 @@ function achRewardText(a){
   let parts=[];
   if(r.coins)parts.push('🪙 '+r.coins.toLocaleString()+'코인');
   if(r.energy)parts.push('⚡ '+r.energy.toLocaleString()+'에너지');
+  if(r.stardrops)parts.push('🌠 차원의 별 x'+r.stardrops);
   if(r.item){const it=ITEMS.find(x=>x.id===r.item);if(it)parts.push(it.icon+' '+it.name);}
   if(r.wep){const w=WEPS[r.wep];if(w)parts.push(w.icon+' '+w.name);}
   if(r.armor){const ar=ARMORS.find(x=>x.id===r.armor);if(ar)parts.push(ar.icon+' '+ar.name+'갑옷');}
@@ -303,12 +316,16 @@ setInterval(()=>{
   }
 },1000);
 
-const SCREENS=['sLobby','sMap','sWeapon','sShop','sJob','sUpg','sEquip','sParty','sSeason','sDream','sDreamMap','sAch','sEnchant','sPotionShop','sDailyQuest','sPets','sEvent','sRecords','sRelics','sStarDrop','sMerchantInv'];
+const SCREENS=['sLobby','sLobby3','sAlienDimension','sBackrooms','sWorld3Hologram','sMap','sWeapon','sShop','sJob','sUpg','sEquip','sParty','sSeason','sDream','sDreamMap','sAch','sEnchant','sPotionShop','sDailyQuest','sPets','sEvent','sRecords','sRelics','sStarDrop','sMerchantInv'];
 function go(id){
   SCREENS.forEach(s=>{const el=document.getElementById(s);if(el)el.classList.toggle('on',s===id);});
   document.getElementById('gameCanvas').style.display='none';
   document.getElementById('gameUI').style.display='none';
+  if(id!=='sAlienDimension'&&typeof stopHorrorLines==='function')stopHorrorLines();
   if(id==='sLobby'){updRes();stopGame();if(typeof stopEventPresentation==='function')stopEventPresentation();if(bgmUnlocked)startBGM();updateTitleDisp();if(typeof renderMerchantNpc==='function')renderMerchantNpc();if(typeof renderKevinBeg==='function')renderKevinBeg();}
+  if(id==='sLobby3'){updRes();stopGame();if(typeof stopEventPresentation==='function')stopEventPresentation();if(bgmUnlocked)startBGM();}
+  if(id==='sAlienDimension'){stopGame();if(typeof stopEventPresentation==='function')stopEventPresentation();if(typeof renderHorrorEyesField==='function')renderHorrorEyesField();if(typeof startHorrorLines==='function')startHorrorLines();}
+  if(id==='sBackrooms'){stopGame();if(typeof stopEventPresentation==='function')stopEventPresentation();if(typeof renderBackroomsHub==='function')renderBackroomsHub();}
   if(id==='sMerchantInv'&&typeof renderMerchantInv==='function')renderMerchantInv();
   if(id==='sMap')drawMP();
   if(id==='sWeapon')renderWepSel();

@@ -283,6 +283,9 @@ function initGame(){
   if(!selMap.noItems)renderItemBar();
   if(selMap.campEngine&&typeof initDefenseMode==='function')initDefenseMode();
   if(selMap.id==='tower'&&typeof initTowerRun==='function')initTowerRun();
+  if(selMap.corridorEngine&&typeof initHorrorCorridor==='function')initHorrorCorridor();
+  if(selMap.shooterEngine&&typeof initShooterMode==='function')initShooterMode();
+  if(selMap.backroomsEngine&&typeof initBackroomsMode==='function')initBackroomsMode();
 }
 
 function spawnHpItems(){
@@ -1503,6 +1506,9 @@ function triggerChallengeClear(){
 // ── UPDATE ──
 function update(){
   if(selMap&&selMap.campEngine){updateDefenseMode();return;}
+  if(selMap&&selMap.corridorEngine){updateHorrorCorridor();return;}
+  if(selMap&&selMap.shooterEngine){updateShooterMode();return;}
+  if(selMap&&selMap.backroomsEngine){updateBackroomsMode();return;}
   // 적 탄환 폭증 방지 상한선 (렉 방지)
   if(buls.length>200){
     let enemyBuls=buls.filter(b=>b.en);
@@ -2276,6 +2282,9 @@ const THEMES={city:{bg:'#7a7a7a',bd:'rgba(60,60,60,.6)'},forest:{bg:'#1a2e1a',bd
 function draw(){
   ctx.clearRect(0,0,VW(),VH());
   if(selMap&&selMap.campEngine){drawDefenseMode();return;}
+  if(selMap&&selMap.corridorEngine){drawHorrorCorridor();return;}
+  if(selMap&&selMap.shooterEngine){drawShooterMode();return;}
+  if(selMap&&selMap.backroomsEngine){drawBackroomsMode();return;}
   ctx.shadowBlur=0;ctx.shadowColor='transparent';
   const _ox=VW()>=MW?(VW()-MW)/2:-camX;
   ctx.save();ctx.translate(_ox,-camY);
@@ -3040,7 +3049,7 @@ function clearToLobby(){
     isDreamMode=true;
     enterDreamworld();
   } else {
-    if(bgmUnlocked)startBGM();go('sLobby');
+    if(bgmUnlocked)startBGM();go(curWorld===3?'sLobby3':'sLobby');
   }
 }
 // 게임 로직은 60fps 기준으로 프레임당 고정값을 사용하므로, 화면 주사율이
@@ -3082,9 +3091,10 @@ function startGame(){
   document.getElementById('gameUI').style.display='block';
   document.getElementById('pauseBtn').style.display='block';
   const isDefense=selMap&&selMap.category==='defense';
-  document.getElementById('waveSpeedBtn').style.display=(isDefense&&selMap.noWaveSpeed)?'none':'block';
-  document.getElementById('fireModeBtn').style.display=(isDefense&&selMap.noWeapons)?'none':'block';
-  ['hw','hsc','ham','hkl','hco','hen'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=isDefense?'none':'';});
+  const isMinigame=selMap&&(selMap.corridorEngine||selMap.shooterEngine||selMap.backroomsEngine);
+  document.getElementById('waveSpeedBtn').style.display=((isDefense&&selMap.noWaveSpeed)||isMinigame)?'none':'block';
+  document.getElementById('fireModeBtn').style.display=((isDefense&&selMap.noWeapons)||isMinigame)?'none':'block';
+  ['hw','hsc','ham','hkl','hco','hen'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=(isDefense||isMinigame)?'none':'';});
   ['hDay','hTime','hBaseHp'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=isDefense?'':'none';});
   document.getElementById('defenseSackBar').style.display=isDefense?'flex':'none';
   document.getElementById('defenseVitalsBar').style.display=isDefense?'block':'none';
@@ -3092,19 +3102,19 @@ function startGame(){
   document.getElementById('defenseInvBtn').style.display=isDefense?'block':'none';
   document.getElementById('defenseBuildBtn').style.display=isDefense?'block':'none';
   document.getElementById('defensePhaseIndicator').style.display=isDefense?'block':'none';
-  const mmbox=document.querySelector('.mmbox');if(mmbox)mmbox.style.display=isDefense?'none':'';
-  document.getElementById('skillBar').style.display='flex';
+  const mmbox=document.querySelector('.mmbox');if(mmbox)mmbox.style.display=(isDefense||isMinigame)?'none':'';
+  document.getElementById('skillBar').style.display=isMinigame?'none':'flex';
   if(isDefense){
     const sBar=document.getElementById('skillBar');
     sBar.style.bottom='76px';sBar.style.right='14px';
     const eBtn=document.getElementById('skillBtnE'),qBtn=document.getElementById('skillBtnQ');
     if(eBtn){eBtn.style.display='flex';eBtn.textContent='✋';eBtn.onclick=()=>{if(typeof interactDefense==='function')interactDefense();};}
     if(qBtn)qBtn.style.display='none';
-  } else {
+  } else if(!isMinigame){
     const sBar=document.getElementById('skillBar');
     sBar.style.bottom='14px';sBar.style.right='14px';
   }
-  if(typeof showMobileControls==='function')showMobileControls();
+  if(!isMinigame&&typeof showMobileControls==='function')showMobileControls();
   skillCooldowns={E:0,Q:0};
   turrets=[];timeFreezeTimer=0;overclockTimer=0;focusNextShot=false;hpSnapshot=0;
   initGame();startLoop();
@@ -3119,7 +3129,7 @@ gC.addEventListener('mousemove',e=>{
 });
 gC.addEventListener('mousedown',e=>{
   if(e.button!==0)return;
-  if(!running&&gC.style.display==='block'){go('sLobby');return;}
+  if(!running&&gC.style.display==='block'){go(curWorld===3?'sLobby3':'sLobby');return;}
   if(!P)return;
   if(selMap&&selMap.noWeapons){if(typeof swingTool==='function')swingTool();return;}
   if(fireMode==='semi'){P._semiOn=!P._semiOn;updSemiIndicator();return;}
@@ -3133,7 +3143,8 @@ document.addEventListener('keydown',e=>{
   const k=e.key.toLowerCase();keys[k]=true;
   if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
   if(k==='r'&&running&&P&&!P.reloading&&!(selMap&&selMap.noWeapons)&&!P.ws.knife)startRel();
-  if(k==='e'&&running&&!paused){if(selMap&&selMap.noJobs){if(typeof interactDefense==='function')interactDefense();}else useSkill('E');}
+  if(k==='e'&&running&&!paused&&selMap&&(selMap.corridorEngine||selMap.backroomsEngine)){/* 공포 복도/백룸스: 전용 조작만 사용, E는 사용하지 않음 */}
+  else if(k==='e'&&running&&!paused){if(selMap&&selMap.noJobs){if(typeof interactDefense==='function')interactDefense();}else useSkill('E');}
   if(k==='q'&&running&&!paused&&!(selMap&&selMap.noJobs))useSkill('Q');
   if(['1','2','3'].includes(k)&&running&&!paused&&!(selMap&&selMap.noItems)){
     const idx=parseInt(k,10)-1;

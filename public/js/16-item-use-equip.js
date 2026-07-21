@@ -346,6 +346,8 @@ function renderAchievements(){
   if(devBtn)devBtn.style.display=(typeof devModeUnlocked!=='undefined'&&devModeUnlocked)?'inline-block':'none';
   const devMerchBtn=document.getElementById('devMerchSummonBtn');
   if(devMerchBtn)devMerchBtn.style.display=(typeof devModeUnlocked!=='undefined'&&devModeUnlocked)?'inline-block':'none';
+  const devBrBtn=document.getElementById('devBackroomsBtn');
+  if(devBrBtn)devBrBtn.style.display=(typeof devModeUnlocked!=='undefined'&&devModeUnlocked)?'inline-block':'none';
   checkAchievements();
   ACHIEVEMENTS.forEach(a=>{
     const isDone=!!achData[a.id];

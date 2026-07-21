@@ -25,8 +25,10 @@ function quitGame() {
   if(wasDream){
     isDreamMode=true;
     enterDreamworld();
+  } else if(selMap&&selMap.backroomsEngine){
+    go('sBackrooms');
   } else {
-    go('sLobby');
+    go(curWorld===3?'sLobby3':'sLobby');
   }
 }
 
@@ -651,6 +653,20 @@ function execJobSkill(jobId, key) {
         setTimeout(()=>{P.spd-=2;},2000);
         for(let i=0;i<10;i++)parts.push({x:P.x,y:P.y,vx:(Math.random()-.5)*4,vy:(Math.random()-.5)*4,l:18,ml:18,r:3,col:'#3f3f46'});
         setMsg('🌚 그림자 걸음.');
+      }
+      break;
+    case 'egg_job_partygoer':
+      if(key==='E'){
+        for(let i=-2;i<=2;i++){const a=P.angle+i*0.18;buls.push({x:P.x,y:P.y,vx:Math.cos(a)*9,vy:Math.sin(a)*9,r:7,l:90,en:false,dmg:28+(P.dmgB||0),col:'#ec4899',_explosive:true});}
+        setMsg('🎈 풍선 폭탄!');
+      }
+      break;
+    case 'egg_job_dimensiontraveler':
+      if(key==='E'){
+        P.x=Math.max(P.r,Math.min(MW-P.r,mxW));P.y=Math.max(P.r,Math.min(MH-P.r,myW));
+        P._invincible=(P._invincible||0)+120;
+        for(let i=0;i<14;i++)parts.push({x:P.x,y:P.y,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5,l:20,ml:20,r:4,col:'#a855f7'});
+        setMsg('🌀 차원 도약.');
       }
       break;
     // ── 차원의 별(스타드롭) 전용 직업 스킬 ──

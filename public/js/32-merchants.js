@@ -113,10 +113,39 @@ const MERCHANTS=[
   {id:'devil', name:'악마', title:'', icon:'😈'},
   {id:'angel', name:'천사', title:'', icon:'👼'},
   {id:'eggbread', name:'계란빵 아저씨', title:'', icon:'🥯'},
+  // ── 특별 상인 6종: 보상은 없지만 극도로 희귀하고 독특함. 로비에 영구 배치 가능 ──
+  {id:'jester', name:'제스터', title:'???', icon:'🤡', special:true},
+  {id:'kitten', name:'아기고양이', title:'???', icon:'🐱', special:true},
+  {id:'shrimp', name:'새우', title:'???', icon:'🦐', special:true},
+  {id:'starship', name:'스타쉽', title:'???', icon:'🚀', special:true},
+  {id:'alien', name:'에일리언 우주선', title:'???', icon:'🛸', special:true},
+  {id:'portalman', name:'포탈맨', title:'???', icon:'🌀', special:true},
 ];
+const SPECIAL_MERCHANT_IDS=new Set(['jester','kitten','shrimp','starship','alien','portalman']);
+const SPECIAL_PLACEMENT_PRICE={jester:2000000, kitten:1500000, shrimp:1000000, starship:4000000, alien:5000000, portalman:6000000};
+const SPECIAL_FLAVOR={
+  jester:['"흐흐흐... 심심하지? 수수께끼 하나 낼까?"','"작을수록 더 무거워지는 게 뭘까~? 정답은... 네 지갑이지! 크하하하핫!"',
+    '"박수 쳐봐! ...아니, 진심으로 아무 이유 없어. 그냥 쳐봐."','"나는 마을 축제에서 쫓겨난 광대야. 이유는 묻지 마."',
+    '"너의 미래를 봐줄게... 어... 음... 아무것도 안 보이는데?"'],
+  kitten:['"...냐옹?"','"(가르릉가르릉) 쓰다듬어줘서 고마워, 인간."','"왜 자꾸 나만 보면 심장이 아파오지... 알 수 없는 감정이다."',
+    '"이 몸은 원래 좀비 잡는 특수부대 소속이었는데, 낮잠 자다 여기로 와버렸다."','"누르지 마... 누르지 마... 아 좋다."'],
+  shrimp:['"탁탁탁탁! (꼬리로 바닥을 두드리는 소리)"','"나는야 춤추는 새우, 오늘도 열심히 튀겨질 준비 완료!"',
+    '"내가 왜 여기 있냐고? 그러게, 나도 궁금해."','"새우깡 봉지에 사진 실린 그 새우가 바로... 아니 나 아니야."',
+    '"(휙휙 꼬리를 흔든다) 어때, 춤 좀 추지?"'],
+  starship:['"삐- 삐- 신호 수신 중... 지구인 발견."','"연료가 부족합니다. 하지만 딱히 갈 데도 없어요."',
+    '"이 은하계에서 3번째로 느린 우주선입니다. 자랑스럽습니다."','"선장님은 지금 화장실에 가셨습니다. 잠시만 기다려 주세요."',
+    '"경고: 이 메시지는 아무 의미 없습니다."'],
+  alien:['"*크르릉* (촉수가 꿈틀거린다)"','"지구의 \'치킨\'이라는 문명을 조사하러 왔다..."',
+    '"너를 납치하려 했으나... 서류 작업이 너무 귀찮아서 포기했다."','"우리 별에서는 코인을 모으는 행위가 신성한 의식으로 여겨진다. 계속 해라, 인간."',
+    '"*삐빅* 번역 오류... \'안녕\' 이 무슨 뜻이지?"'],
+  portalman:['"여긴... 어디지? 방금까지 다른 차원에 있었는데."','"오렌지 문으로 들어가면 파란 문으로 나온다. 그게 다야."',
+    '"차원을 넘나들다 보면 가끔 반대로 걷게 될 때가 있어... 지금처럼."','"다른 세계의 나는 지금 이 순간 정반대의 말을 하고 있을 거야."',
+    '"궁금해하지 마. 나도 내가 왜 여기 있는지 몰라."'],
+};
 
 // ── 상인별 로비 탈것: kind는 이동 방식(ship=배, cart=바퀴달린 수레, float=공중부유) ──
-const MERCHANT_KIND={sebastian:'ship', angelina:'cart', potato:'cart', kevin:'cart', eggbread:'cart', starfairy:'float', devil:'float', angel:'float'};
+const MERCHANT_KIND={sebastian:'ship', angelina:'cart', potato:'cart', kevin:'cart', eggbread:'cart', starfairy:'float', devil:'float', angel:'float',
+  jester:'float', kitten:'float', shrimp:'float', starship:'parked', alien:'float', portalman:'float'};
 const MERCHANT_VEHICLE_SVG={
   sebastian:`<svg viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
     <path d="M8 78 Q80 102 152 78 L138 94 Q80 112 22 94 Z" fill="#5c3a21" stroke="#2b1a0e" stroke-width="2"/>
@@ -170,6 +199,65 @@ const MERCHANT_VEHICLE_SVG={
     <ellipse cx="95" cy="62" rx="22" ry="14" fill="#ffffff"/>
     <text x="65" y="52" font-size="30" text-anchor="middle">👼</text>
   </svg>`,
+  jester:`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="30" fill="#a855f7" opacity=".22"/>
+    <path d="M30 60 L20 30 L40 45 L50 20 L60 45 L80 30 L70 60 Z" fill="#ec4899" opacity=".5"/>
+    <circle cx="20" cy="30" r="4" fill="#fbbf24"/><circle cx="50" cy="20" r="4" fill="#fbbf24"/><circle cx="80" cy="30" r="4" fill="#fbbf24"/>
+    <text x="50" y="66" font-size="30" text-anchor="middle">🤡</text>
+  </svg>`,
+  kitten:`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="30" fill="#fbcfe8" opacity=".3"/>
+    <text x="50" y="60" font-size="34" text-anchor="middle">🐱</text>
+    <text x="18" y="86" font-size="13">🐾</text><text x="76" y="24" font-size="13">🐾</text>
+  </svg>`,
+  shrimp:`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="28" fill="#38bdf8" opacity=".2"/>
+    <circle cx="28" cy="28" r="4" fill="#7dd3fc" opacity=".7"/><circle cx="74" cy="22" r="3" fill="#7dd3fc" opacity=".7"/><circle cx="80" cy="62" r="3.5" fill="#7dd3fc" opacity=".7"/>
+    <text x="50" y="60" font-size="32" text-anchor="middle">🦐</text>
+  </svg>`,
+  starship:`<svg viewBox="0 0 300 110" xmlns="http://www.w3.org/2000/svg">
+    <path class="ss-flame" d="M58 44 Q16 49 4 50 Q16 51 58 60 Z" fill="#38bdf8" opacity=".4"/>
+    <path d="M100 34 L64 4 L128 30 Z" fill="#94a3b8" stroke="#1e293b" stroke-width="1.6"/>
+    <path d="M100 66 L64 96 L128 70 Z" fill="#7c8ba1" stroke="#1e293b" stroke-width="1.6"/>
+    <path d="M58 36 Q42 50 58 64 L140 70 Q168 66 190 58 L246 52 Q270 50 246 44 L190 40 Q168 34 140 30 Z" fill="#cbd5e1" stroke="#1e293b" stroke-width="2.2"/>
+    <path d="M64 40 Q52 50 64 60 L138 65 L138 35 Z" fill="#e2e8f0" opacity=".5"/>
+    <path d="M150 30 L158 12 L176 14 L172 32 Z" fill="#e2e8f0" stroke="#1e293b" stroke-width="1.6"/>
+    <rect x="160" y="16" width="10" height="6" rx="1.5" fill="#38bdf8"/>
+    <path d="M96 38 L96 62 M118 34 L118 66 M140 32 L140 68 M164 34 L164 66 M186 36 L186 64 M210 40 L210 60" stroke="#475569" stroke-width="1" opacity=".5"/>
+    <path d="M200 42 L236 45 M200 58 L236 55" stroke="#94a3b8" stroke-width="1.2" opacity=".7"/>
+    <path d="M246 44 L272 47 L246 52 Z" fill="#475569" stroke="#1e293b" stroke-width="1.5"/>
+    <circle class="ship-navlight" cx="66" cy="8" r="2.6" fill="#ef4444"/>
+    <circle class="ship-navlight nl2" cx="66" cy="94" r="2.6" fill="#4ade80"/>
+    <ellipse class="ss-dock-glow g1" cx="60" cy="38" rx="7" ry="6" fill="#38bdf8"/>
+    <ellipse class="ss-dock-glow g2" cx="60" cy="50" rx="8" ry="7" fill="#38bdf8"/>
+    <ellipse class="ss-dock-glow g3" cx="60" cy="62" rx="7" ry="6" fill="#38bdf8"/>
+    <path d="M104 66 L96 88 M96 88 L86 91 M96 88 L106 93" stroke="#334155" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <path d="M188 60 L198 90 M198 90 L188 93 M198 90 L208 95" stroke="#334155" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <rect x="150" y="38" width="22" height="26" rx="3" fill="#fde68a" class="parked-hatch"/>
+    <rect x="150" y="38" width="22" height="26" rx="3" fill="none" stroke="#78350f" stroke-width="1.5"/>
+  </svg>`,
+  alien:`<svg viewBox="0 0 200 170" xmlns="http://www.w3.org/2000/svg">
+    <path class="alien-tentacle t1" d="M70 120 Q58 140 48 160" stroke="#7f1d1d" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <g class="alien-tentacle t1"><ellipse cx="48" cy="160" rx="6" ry="5" fill="#fff"/><circle class="alien-eye-glow" cx="48" cy="160" r="2.6" fill="#dc2626"/><circle cx="48" cy="160" r="1.1" fill="#000"/></g>
+    <path class="alien-tentacle t2" d="M90 126 Q84 146 80 164" stroke="#7f1d1d" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <g class="alien-tentacle t2"><ellipse cx="80" cy="164" rx="6" ry="5" fill="#fff"/><circle class="alien-eye-glow" cx="80" cy="164" r="2.6" fill="#dc2626" style="animation-delay:-.5s"/><circle cx="80" cy="164" r="1.1" fill="#000"/></g>
+    <path class="alien-tentacle t3" d="M110 126 Q116 146 120 164" stroke="#7f1d1d" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <g class="alien-tentacle t3"><ellipse cx="120" cy="164" rx="6" ry="5" fill="#fff"/><circle class="alien-eye-glow" cx="120" cy="164" r="2.6" fill="#dc2626" style="animation-delay:-1s"/><circle cx="120" cy="164" r="1.1" fill="#000"/></g>
+    <path class="alien-tentacle t4" d="M130 120 Q142 140 152 160" stroke="#7f1d1d" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <g class="alien-tentacle t4"><ellipse cx="152" cy="160" rx="6" ry="5" fill="#fff"/><circle class="alien-eye-glow" cx="152" cy="160" r="2.6" fill="#dc2626" style="animation-delay:-1.5s"/><circle cx="152" cy="160" r="1.1" fill="#000"/></g>
+    <ellipse cx="100" cy="118" rx="80" ry="17" fill="#5b1414" stroke="#000" stroke-width="2"/>
+    <ellipse cx="100" cy="96" rx="52" ry="32" fill="#902020" stroke="#2a0a0a" stroke-width="2.5"/>
+    <ellipse cx="100" cy="90" rx="20" ry="15" fill="#2a0a0a"/>
+    <ellipse cx="100" cy="90" rx="20" ry="15" fill="none" stroke="#ef4444" stroke-width="2" class="alien-eye-glow"/>
+    <circle cx="92" cy="86" r="3.2" fill="#fca5a5" opacity=".8"/>
+    <ellipse cx="60" cy="110" rx="6.5" ry="5" fill="#fff"/><circle class="alien-eye-glow" cx="60" cy="110" r="2.6" fill="#dc2626" style="animation-delay:-.3s"/><circle cx="60" cy="110" r="1.1" fill="#000"/>
+    <ellipse cx="140" cy="108" rx="5.4" ry="4.2" fill="#fff"/><circle class="alien-eye-glow" cx="140" cy="108" r="2.1" fill="#dc2626" style="animation-delay:-.9s"/><circle cx="140" cy="108" r="1" fill="#000"/>
+  </svg>`,
+  portalman:`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="34" cy="50" r="17" fill="none" stroke="#f97316" stroke-width="5" opacity=".8"/>
+    <circle cx="66" cy="50" r="17" fill="none" stroke="#3b82f6" stroke-width="5" opacity=".8"/>
+    <text x="50" y="58" font-size="26" text-anchor="middle">🌀</text>
+  </svg>`,
 };
 
 // ════════════════════════════════════════════
@@ -179,17 +267,32 @@ let merchState = lJ('hd_merch_state', {id:null, until:0});
 function saveMerchState(){ sv('hd_merch_state', merchState); }
 let _merchMoveItv=null;
 
+// 특별 상인(보상 없음, 순수 컬렉션용)은 일반 상인보다 등장 확률이 낮다
+function pickWeightedMerchant(){
+  // 이미 착륙한 스타쉽/에일리언은 로비에 영구 정박해 있으므로, 떠돌이 상인으로는 더 이상 등장하지 않는다
+  const pool=MERCHANTS.filter(m=>
+    !(m.id==='starship'&&typeof ownedStarship!=='undefined'&&ownedStarship) &&
+    !(m.id==='alien'&&typeof alienLanded!=='undefined'&&alienLanded));
+  const weighted=pool.map(m=>({m, w:m.special?0.3:1}));
+  const total=weighted.reduce((s,x)=>s+x.w,0);
+  let r=Math.random()*total;
+  for(const x of weighted){ if(r<x.w) return x.m; r-=x.w; }
+  return weighted[weighted.length-1].m;
+}
 function spawnCheckTick(){
   if(merchState.id && merchState.until>Date.now()) return;
   if(merchState.id){ merchState={id:null,until:0}; saveMerchState(); renderMerchantNpc(); }
   if(Math.random()<0.15){
-    const m=MERCHANTS[Math.floor(Math.random()*MERCHANTS.length)];
+    const m=pickWeightedMerchant();
     merchState={id:m.id, until:Date.now()+600000}; saveMerchState();
     const msg = m.id==='sebastian'
       ? '🏴‍☠️ 해적선이 앞바다에 나타났습니다... 곧 나포당할 것이다!'
+      : m.special ? '✨ 아주 특별한 손님이 로비에 나타났습니다... ✨ '+m.icon+' '+m.name
       : m.icon+' '+m.name+'가(이) 로비에 나타났습니다!';
     showMerchantToast(msg);
     if(m.id==='sebastian') scheduleSebastianAutoCapture();
+    if(m.id==='starship') setTimeout(()=>playShipLandingCutscene(m.id), 600);
+    if(m.id==='alien') setTimeout(()=>playAlienCubeDropSequence(), 600);
   }
   renderMerchantNpc();
 }
@@ -207,8 +310,8 @@ function scheduleSebastianAutoCapture(){
   }, 2500);
 }
 
-// 공중에 떠서 등장하는 상인(천사/악마/별의 요정)은 바닥 연출 대신 로비 전체 배경 연출을 받는다
-const LOBBY_AMBIENT_IDS=new Set(['angel','devil','starfairy']);
+// 공중에 떠서 등장하는 상인(천사/악마/별의 요정/스타쉽/에일리언)은 바닥 연출 대신 로비 전체 배경 연출을 받는다
+const LOBBY_AMBIENT_IDS=new Set(['angel','devil','starfairy','starship','alien']);
 let _shootingStarItv=null;
 function renderLobbyAmbient(themeId){
   const el=document.getElementById('merchLobbyAmbientFx'); if(!el)return;
@@ -231,9 +334,105 @@ function renderLobbyAmbient(themeId){
       return `<span class="mla-star" style="left:${left}%;top:${top}%;animation-duration:${dur}s;animation-delay:${delay}s;"></span>`;
     }).join('');
     startShootingStars();
+  } else if(themeId==='starship'){
+    el.innerHTML=Array.from({length:70}).map(()=>{
+      const left=(Math.random()*100).toFixed(1), top=(Math.random()*100).toFixed(1);
+      const dur=(1.2+Math.random()*2.5).toFixed(2), delay=(-Math.random()*3).toFixed(2);
+      return `<span class="mla-star" style="left:${left}%;top:${top}%;animation-duration:${dur}s;animation-delay:${delay}s;"></span>`;
+    }).join('');
+  } else if(themeId==='alien'){
+    el.innerHTML=`<div class="mla-alien-glow"></div>`;
   }
   setTimeout(()=>el.classList.add('show'),20);
 }
+// 스타쉽/에일리언 전용: 등장 시 딱 한 번, 화면 전체를 덮는 초대형 착륙 컷신(논인터랙티브)을 재생한다.
+// 실제로 클릭 가능한 상시 아이콘은 안전한 위치(top:16~20%)에 "주기된" 형태로 고정 배치된다(둥둥 뜨는 비눗방울 아님).
+function playShipLandingCutscene(themeId){
+  const el=document.getElementById('shipLandingFx'); if(!el)return;
+  const svg = themeId==='starship' ? STARSHIP_SVG : ALIEN_SHIP_SVG;
+  el.className='on theme-'+themeId;
+  el.innerHTML=`<div class="big-ship">${svg}${themeId==='alien'?'<div class="ls-dust"></div>':''}</div>`;
+  if(themeId==='starship'){
+    // 왼쪽에서 날아와 파란 화염을 내뿜으며 서서히 착륙 → 지지대 전개 → 출입구 개방
+    setTimeout(()=>{
+      const lobbyEl=document.getElementById('sLobby'); if(!lobbyEl)return;
+      lobbyEl.classList.remove('ss-impact-shake'); void lobbyEl.offsetWidth; lobbyEl.classList.add('ss-impact-shake');
+    }, 1900);
+    setTimeout(()=>{ el.className=''; el.innerHTML=''; }, 4300);
+  } else {
+    setTimeout(()=>{
+      const lobbyEl=document.getElementById('sLobby'); if(!lobbyEl)return;
+      lobbyEl.classList.remove('ss-impact-shake'); void lobbyEl.offsetWidth; lobbyEl.classList.add('ss-impact-shake');
+    }, 1650);
+    setTimeout(()=>{ el.className=''; el.innerHTML=''; }, 2300);
+  }
+}
+// 고품질 스타쉽(UFO 아님, 옆에서 날아와 착륙하는 함선) / 에일리언 함선 SVG
+const STARSHIP_SVG=`<svg viewBox="0 0 300 110" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="hullGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e2e8f0"/><stop offset="45%" stop-color="#94a3b8"/><stop offset="100%" stop-color="#334155"/>
+    </linearGradient>
+    <linearGradient id="hullGrad2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8fafc"/><stop offset="100%" stop-color="#64748b"/>
+    </linearGradient>
+    <linearGradient id="flameGrad" x1="1" y1="0" x2="0" y2="0">
+      <stop offset="0%" stop-color="#dbeafe"/><stop offset="35%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="engineGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#bae6fd"/><stop offset="55%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0369a1" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <path class="ss-flame" d="M58 44 Q4 50 -4 50 Q4 50 58 60 Z" fill="url(#flameGrad)"/>
+  <path d="M100 34 L64 4 L128 30 Z" fill="#94a3b8" stroke="#1e293b" stroke-width="1.6"/>
+  <path d="M100 66 L64 96 L128 70 Z" fill="#7c8ba1" stroke="#1e293b" stroke-width="1.6"/>
+  <path d="M58 36 Q42 50 58 64 L140 70 Q168 66 190 58 L246 52 Q270 50 246 44 L190 40 Q168 34 140 30 Z" fill="url(#hullGrad)" stroke="#1e293b" stroke-width="2.2"/>
+  <path d="M64 40 Q52 50 64 60 L138 65 L138 35 Z" fill="#e2e8f0" opacity=".4"/>
+  <path d="M150 30 L158 12 L176 14 L172 32 Z" fill="url(#hullGrad2)" stroke="#1e293b" stroke-width="1.6"/>
+  <rect x="160" y="16" width="10" height="6" rx="1.5" fill="#38bdf8" opacity=".85"/>
+  <path d="M96 38 L96 62 M118 34 L118 66 M140 32 L140 68 M164 34 L164 66 M186 36 L186 64 M210 40 L210 60" stroke="#475569" stroke-width="1" opacity=".5"/>
+  <path d="M200 42 L236 45 M200 58 L236 55" stroke="#94a3b8" stroke-width="1.2" opacity=".7"/>
+  <path d="M246 44 L272 47 L246 52 Z" fill="#475569" stroke="#1e293b" stroke-width="1.5"/>
+  <ellipse cx="60" cy="38" rx="7" ry="6" fill="url(#engineGlow)"/>
+  <ellipse cx="60" cy="50" rx="8" ry="7" fill="url(#engineGlow)"/>
+  <ellipse cx="60" cy="62" rx="7" ry="6" fill="url(#engineGlow)"/>
+  <circle class="ship-navlight" cx="66" cy="8" r="2.6" fill="#ef4444"/>
+  <circle class="ship-navlight nl2" cx="66" cy="94" r="2.6" fill="#4ade80"/>
+  <g class="ss-legs">
+    <path d="M104 66 L96 88" stroke="#334155" stroke-width="4.4" stroke-linecap="round"/>
+    <path d="M96 88 L86 91 M96 88 L106 93" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+    <path d="M188 60 L198 90" stroke="#334155" stroke-width="4.4" stroke-linecap="round"/>
+    <path d="M198 90 L188 93 M198 90 L208 95" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <rect class="ss-hatch" x="150" y="38" width="22" height="26" rx="3" fill="#fde68a"/>
+  <rect x="150" y="38" width="22" height="26" rx="3" fill="none" stroke="#78350f" stroke-width="1.5"/>
+</svg>`;
+const ALIEN_SHIP_SVG=`<svg viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="alienCore" cx="50%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#fecaca"/><stop offset="50%" stop-color="#b91c1c"/><stop offset="100%" stop-color="#450a0a"/>
+    </radialGradient>
+    <linearGradient id="alienShell" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7f1d1d"/><stop offset="100%" stop-color="#2a0a0a"/>
+    </linearGradient>
+  </defs>
+  <path class="alien-tentacle t1" d="M62 76 Q48 100 38 128 Q34 138 42 144" stroke="#7f1d1d" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <g class="alien-tentacle t1"><ellipse cx="42" cy="144" rx="5.5" ry="4.5" fill="#fff"/><circle class="alien-eye-glow" cx="42" cy="144" r="2.6" fill="#dc2626"/><circle cx="42" cy="144" r="1.1" fill="#000"/></g>
+  <path class="alien-tentacle t2" d="M84 82 Q76 108 68 134 Q65 144 73 149" stroke="#7f1d1d" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <g class="alien-tentacle t2"><ellipse cx="73" cy="149" rx="5.5" ry="4.5" fill="#fff"/><circle class="alien-eye-glow" cx="73" cy="149" r="2.6" fill="#dc2626" style="animation-delay:-.5s"/><circle cx="73" cy="149" r="1.1" fill="#000"/></g>
+  <path class="alien-tentacle t3" d="M116 82 Q124 108 132 134 Q135 144 127 149" stroke="#7f1d1d" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <g class="alien-tentacle t3"><ellipse cx="127" cy="149" rx="5.5" ry="4.5" fill="#fff"/><circle class="alien-eye-glow" cx="127" cy="149" r="2.6" fill="#dc2626" style="animation-delay:-1s"/><circle cx="127" cy="149" r="1.1" fill="#000"/></g>
+  <path class="alien-tentacle t4" d="M138 76 Q152 100 162 128 Q166 138 158 144" stroke="#7f1d1d" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <g class="alien-tentacle t4"><ellipse cx="158" cy="144" rx="5.5" ry="4.5" fill="#fff"/><circle class="alien-eye-glow" cx="158" cy="144" r="2.6" fill="#dc2626" style="animation-delay:-1.5s"/><circle cx="158" cy="144" r="1.1" fill="#000"/></g>
+  <ellipse cx="100" cy="70" rx="84" ry="18" fill="url(#alienShell)" stroke="#000" stroke-width="2"/>
+  <ellipse cx="100" cy="48" rx="54" ry="34" fill="url(#alienCore)" stroke="#2a0a0a" stroke-width="2.5"/>
+  <ellipse cx="100" cy="42" rx="21" ry="16" fill="#2a0a0a"/>
+  <ellipse cx="100" cy="42" rx="21" ry="16" fill="none" stroke="#ef4444" stroke-width="2" class="alien-eye-glow"/>
+  <circle cx="92" cy="38" r="3.5" fill="#fca5a5" opacity=".8"/>
+  <ellipse cx="58" cy="64" rx="6.5" ry="5" fill="#fff"/><circle class="alien-eye-glow" cx="58" cy="64" r="2.6" fill="#dc2626" style="animation-delay:-.3s"/><circle cx="58" cy="64" r="1.1" fill="#000"/>
+  <ellipse cx="142" cy="62" rx="5.5" ry="4.2" fill="#fff"/><circle class="alien-eye-glow" cx="142" cy="62" r="2.1" fill="#dc2626" style="animation-delay:-.9s"/><circle cx="142" cy="62" r="1" fill="#000"/>
+  <ellipse cx="100" cy="80" rx="7" ry="5" fill="#fff"/><circle class="alien-eye-glow" cx="100" cy="80" r="2.8" fill="#dc2626" style="animation-delay:-1.3s"/><circle cx="100" cy="80" r="1.1" fill="#000"/>
+</svg>`;
 function clearLobbyAmbient(){
   const el=document.getElementById('merchLobbyAmbientFx'); if(!el)return;
   el.className=''; el.innerHTML='';
@@ -292,12 +491,21 @@ function renderMerchantNpc(){
       if(m.id==='sebastian'){
         vehicleEl.title=m.name+' - 클릭하면 즉시 나포된다';
         vehicleEl.onclick=()=>openSebastianCapture();
+      } else if(m.id==='starship'){
+        vehicleEl.title=m.name+' - 클릭해서 우주선 살펴보기';
+        vehicleEl.onclick=()=>openStarshipPopup();
+      } else if(m.id==='alien'){
+        vehicleEl.title=m.name+' - 클릭해서 함선을 부르기';
+        vehicleEl.onclick=()=>playAlienCubeDropSequence();
+      } else if(m.special){
+        vehicleEl.title=m.name+' - 클릭해서 말 걸기';
+        vehicleEl.onclick=()=>openSpecialMerchantPopup(m.id);
       } else {
         vehicleEl.title=m.name+' - 클릭해서 상점 열기';
         vehicleEl.onclick=()=>openMerchantShop(m.id);
       }
+      setTimeout(()=>{ if(vehicleEl)vehicleEl.classList.add('show'); },20);
     }
-    setTimeout(()=>{ if(vehicleEl)vehicleEl.classList.add('show'); },20);
     return;
   }
   clearThemeVisuals();
@@ -345,6 +553,8 @@ window.devSpawnMerchant=function(id){
   renderMerchantNpc();
   showMerchantToast('[DEV] '+m.icon+' '+m.name+' 강제 등장');
   if(id==='sebastian') scheduleSebastianAutoCapture();
+  if(id==='starship') setTimeout(()=>playShipLandingCutscene(id), 600);
+  if(id==='alien') setTimeout(()=>playAlienCubeDropSequence(), 600);
 };
 
 // 개발자용 상인 소환 버튼/모달 (업적 화면의 DEV 버튼에서 진입)
@@ -616,6 +826,9 @@ function angelDeal(){
 let _curMerchantShopId=null;
 function openMerchantShop(id){
   if(id==='sebastian'){ openSebastianCapture(); return; }
+  if(id==='starship'){ openStarshipPopup(); return; }
+  if(id==='alien'){ playAlienCubeDropSequence(); return; }
+  if(SPECIAL_MERCHANT_IDS.has(id)){ openSpecialMerchantPopup(id); return; }
   const m=MERCHANTS.find(x=>x.id===id); if(!m)return;
   _curMerchantShopId=id;
   const t=document.getElementById('merchantShopTitle');
@@ -648,8 +861,8 @@ function renderMerchantShopContent(){
   if(id==='angelina') renderFruitMarket(c);
   else if(id==='eggbread'){
     themedShopHeader(c, '🌙 야시장의 불빛과 고소한 냄새가 감돈다', null);
-    renderPotScene(c, SNACKS.map(s=>({...s,kind:'snack'})),
-      '"뜨끈할 때 드셔야 제맛이지! 꼬치를 뽑으면 바로 계산해줄게, 냠!"');
+    renderGriddleScene(c, SNACKS.map(s=>({...s,kind:'snack'})),
+      '"철판 위에서 지글지글~ 골라잡으면 바로 계산해줄게, 냠!"');
   }
   else if(id==='potato') renderPotatoShop(c);
   else if(id==='kevin') renderKevinShop(c);
@@ -710,6 +923,410 @@ function openMerchContract({theme, title, bodyHtml, sealIcon, signLabel, signDis
 function closeMerchContract(){
   const ov=document.getElementById('merchContractOv'); if(ov)ov.classList.remove('on');
 }
+
+// ════════════════════════════════════════════
+// ══ 특별 상인 6종: 독특한 연출 + 로비 영구 배치 (제스터/아기고양이/새우/포탈맨 4종은 상호작용 시 실제 보상 지급) ══
+// ════════════════════════════════════════════
+let specialResidents = lJ('hd_special_residents', {});
+function saveSpecialResidents(){ sv('hd_special_residents', specialResidents); }
+let _curSpecialId=null;
+function openSpecialMerchantPopup(id){
+  const m=MERCHANTS.find(x=>x.id===id); if(!m)return;
+  _curSpecialId=id;
+  merchState={id:null,until:0}; saveMerchState(); renderMerchantNpc();
+  const ov=document.getElementById('specialMerchOv');
+  const card=ov.querySelector('.special-merch-card');
+  card.className='special-merch-card theme-'+id;
+  document.getElementById('smcIcon').textContent=m.icon;
+  document.getElementById('smcTitle').textContent=m.icon+' '+m.name;
+  specialMerchTalk();
+  const zone=document.getElementById('smcInteractZone');
+  if(zone){ zone.innerHTML=''; zone.onclick=null; }
+  const btn=document.getElementById('smcActionBtn');
+  if(btn){
+    btn.textContent=SPECIAL_ACTION_LABEL[id]||'💬 말 걸기';
+    btn.onclick=SPECIAL_ACTION_FN[id]||specialMerchTalk;
+  }
+  updateSpecialPlaceBtn();
+  ov.classList.add('on');
+}
+// ── 특별 상인 4종(제스터/아기고양이/새우/포탈맨) 전용 상호작용: 넷 다 서로 완전히 다른 미니 콘텐츠 ──
+let jesterRiddleSolved = lJ('hd_jester_solved', 0);
+let jesterRiddleIdx = -1;
+const JESTER_RIDDLES=[
+  {q:'"작을수록 더 무거워지는 게 뭘까~?"', a:['그림자','네 지갑','솜사탕'], correct:1},
+  {q:'"문은 있지만 집은 없는 게 뭘까?"', a:['키보드','옷장','창문'], correct:0},
+  {q:'"말은 없지만 항상 대답하는 게 뭘까?"', a:['시계','메아리','거울'], correct:1},
+  {q:'"먹을수록 계속 늘어나는 게 뭘까?"', a:['나이','밥그릇','숫자'], correct:0},
+  {q:'"세상에서 가장 빠른 액체는 뭘까?"', a:['눈물','번개주스','순간이동수'], correct:1},
+];
+function jesterAsk(){
+  jesterRiddleIdx=Math.floor(Math.random()*JESTER_RIDDLES.length);
+  const r=JESTER_RIDDLES[jesterRiddleIdx];
+  const zone=document.getElementById('smcInteractZone'); if(!zone)return;
+  zone.innerHTML=`<div class="jest-q">${r.q}</div><div class="jest-choices">`+
+    r.a.map((t,i)=>`<button class="jest-choice" onclick="jesterAnswer(${i})">${t}</button>`).join('')+
+    `</div><div class="jest-solved">🎉 맞힌 수수께끼: ${jesterRiddleSolved}개</div>`;
+}
+function jesterAnswer(i){
+  const r=JESTER_RIDDLES[jesterRiddleIdx]; if(!r)return;
+  const zone=document.getElementById('smcInteractZone'); if(!zone)return;
+  if(i===r.correct){
+    jesterRiddleSolved++; sv('hd_jester_solved', jesterRiddleSolved);
+    const reward=200+Math.floor(Math.random()*300);
+    coins+=reward; sv('hd_c',coins); updRes();
+    playSpecialMerchFx('jester');
+    zone.innerHTML=`<div class="jest-result ok">"정답이야! 크하하핫, 제법인데? 상금이다, 받아라!" 🪙+${reward}</div><div class="jest-solved">🎉 맞힌 수수께끼: ${jesterRiddleSolved}개</div>`;
+  } else {
+    zone.innerHTML=`<div class="jest-result no">"땡~! 아깝다, 다시 도전해봐."</div><div class="jest-solved">🎉 맞힌 수수께끼: ${jesterRiddleSolved}개</div>`;
+  }
+  setTimeout(jesterAsk, 1400);
+}
+let kittenPets = lJ('hd_kitten_pets', 0);
+let _kittenMeter = 0;
+function kittenPet(){
+  kittenPets++; sv('hd_kitten_pets', kittenPets);
+  _kittenMeter=Math.min(_kittenMeter+1, 8);
+  const zone=document.getElementById('smcInteractZone'); if(!zone)return;
+  if(_kittenMeter>=8){
+    _kittenMeter=0;
+    applyMerchBuff('maxHp', 1.05, 180000);
+    coins+=300; sv('hd_c',coins); updRes();
+    playSpecialMerchFx('kitten');
+    zone.innerHTML=`<div class="kit-purr">"골골골골~ 완전 행복한 골골송이다냥" 최대체력 +5% (3분) · 🪙+300</div>`+
+      `<div class="kit-meter"><div class="kit-meter-fill" style="width:100%"></div></div>`+
+      `<div class="kit-count">총 ${kittenPets.toLocaleString()}번 쓰다듬음</div>`;
+  } else {
+    zone.innerHTML=`<div class="kit-meter"><div class="kit-meter-fill" style="width:${_kittenMeter/8*100}%"></div></div>`+
+      `<div class="kit-count">총 ${kittenPets.toLocaleString()}번 쓰다듬음</div>`;
+  }
+}
+let shrimpBest = lJ('hd_shrimp_best', 0);
+let _shrimpTapCount=0, _shrimpTimer=null, _shrimpActive=false;
+function shrimpStartDance(){
+  if(_shrimpActive)return;
+  _shrimpActive=true; _shrimpTapCount=0;
+  const zone=document.getElementById('smcInteractZone'); if(!zone)return;
+  let timeLeft=3;
+  const render=()=>{ zone.innerHTML=`<div class="shr-timer">⏱ ${timeLeft}s</div>`+
+    `<div class="shr-tap-hint">탁탁탁! 여기를 마구 눌러서 같이 춤춰라!</div>`+
+    `<div class="shr-tapcount">${_shrimpTapCount} 탁</div>`; };
+  render();
+  zone.onclick=()=>{ if(_shrimpActive){ _shrimpTapCount++; render(); } };
+  _shrimpTimer=setInterval(()=>{
+    timeLeft--;
+    if(timeLeft<=0){
+      clearInterval(_shrimpTimer); _shrimpTimer=null; _shrimpActive=false; zone.onclick=null;
+      if(_shrimpTapCount>shrimpBest){ shrimpBest=_shrimpTapCount; sv('hd_shrimp_best', shrimpBest); }
+      const grade = _shrimpTapCount>=25?'댄스왕 🏆':_shrimpTapCount>=15?'좋아요 👍':_shrimpTapCount>=5?'그럭저럭 😐':'춤신은 아니야 😅';
+      const reward = _shrimpTapCount>=25?3000:_shrimpTapCount>=15?1200:_shrimpTapCount>=5?400:100;
+      coins+=reward; sv('hd_c',coins); updRes();
+      playSpecialMerchFx('shrimp');
+      zone.innerHTML=`<div class="shr-result">${_shrimpTapCount}탁 - ${grade} · 🪙+${reward}</div><div class="shr-best">최고 기록: ${shrimpBest}탁</div>`;
+    } else render();
+  },1000);
+}
+let portalOpens = lJ('hd_portalman_opens', 0);
+const PORTAL_OUTCOMES=[
+  '반대편 차원에서 똑같은 나를 만났다... 그 쪽 나는 인사도 안 하고 사라졌다.',
+  '차원 너머에서 이상한 노랫소리가 들렸다. 왠지 익숙하다.',
+  '포탈 너머는 그냥... 여기랑 똑같이 생긴 방이었다. 뭐지.',
+  '저편에서 손 하나가 불쑥 나왔다가 그대로 쏙 들어갔다.',
+  '아주 잠깐, 하늘이 초록색이었던 세계가 보였다.',
+  '아무 일도 일어나지 않았다. 그냥 조용했다.',
+];
+const PORTAL_RARE_OUTCOME='희귀 확률: 포탈 저편에서 반짝이는 별 조각이 툭 떨어졌다! ✨';
+function portalOpen(){
+  portalOpens++; sv('hd_portalman_opens', portalOpens);
+  const zone=document.getElementById('smcInteractZone'); if(!zone)return;
+  zone.innerHTML=`<div class="por-spin"></div>`;
+  playSpecialMerchFx('portalman');
+  setTimeout(()=>{
+    const rare = Math.random()<0.05;
+    const coinReward = rare ? 5000 : 100+Math.floor(Math.random()*300);
+    const energyReward = rare ? 500 : 30+Math.floor(Math.random()*70);
+    coins+=coinReward; energy+=energyReward; sv('hd_c',coins); sv('hd_e',energy); updRes();
+    const line = rare ? PORTAL_RARE_OUTCOME : PORTAL_OUTCOMES[Math.floor(Math.random()*PORTAL_OUTCOMES.length)];
+    zone.innerHTML=`<div class="por-result${rare?' rare':''}">${line} 🪙+${coinReward} ⚡+${energyReward}</div>`+
+      `<div class="por-count">🌀 총 ${portalOpens.toLocaleString()}번째 차원 이동</div>`;
+  }, 700);
+}
+const SPECIAL_ACTION_LABEL={jester:'🎭 수수께끼 듣기', kitten:'🐾 쓰다듬기', shrimp:'🕺 춤 배틀 시작', portalman:'🌀 포탈 열기'};
+const SPECIAL_ACTION_FN={jester:jesterAsk, kitten:kittenPet, shrimp:shrimpStartDance, portalman:portalOpen};
+function specialMerchTalk(){
+  const id=_curSpecialId; const pool=SPECIAL_FLAVOR[id]; if(!pool)return;
+  const line=pool[Math.floor(Math.random()*pool.length)];
+  const lineEl=document.getElementById('smcLine');
+  lineEl.textContent=line;
+  lineEl.classList.remove('pop'); void lineEl.offsetWidth; lineEl.classList.add('pop');
+  playSpecialMerchFx(id);
+}
+function playSpecialMerchFx(id){
+  const fx=document.getElementById('smcFx'); if(!fx)return;
+  const emojiMap={jester:'🎉', kitten:'💗', shrimp:'🫧', starship:'✨', alien:'🌀', portalman:'🌌'};
+  fx.innerHTML='';
+  const emoji=emojiMap[id]||'✨';
+  for(let i=0;i<10;i++){
+    const s=document.createElement('span'); s.textContent=emoji; s.className='smc-particle';
+    const ang=Math.random()*Math.PI*2;
+    const dist=30+Math.random()*50;
+    s.style.setProperty('--dx',(Math.cos(ang)*dist)+'px');
+    s.style.setProperty('--dy',(Math.sin(ang)*dist)+'px');
+    s.style.animationDelay=(Math.random()*0.2)+'s';
+    fx.appendChild(s);
+  }
+  setTimeout(()=>{ if(fx)fx.innerHTML=''; },1100);
+}
+function updateSpecialPlaceBtn(){
+  const id=_curSpecialId; if(!id)return;
+  const btn=document.getElementById('smcPlaceBtn'); if(!btn)return;
+  const placed=!!specialResidents[id];
+  const price=SPECIAL_PLACEMENT_PRICE[id]||0;
+  if(placed){
+    btn.textContent='🏠 이미 로비에서 함께 살고 있어요';
+    btn.disabled=true;
+  } else {
+    const cb=coins>=price;
+    btn.textContent=`🏠 로비에 영원히 머물게 하기 (🪙 ${price.toLocaleString()})`;
+    btn.disabled=!cb;
+  }
+}
+function buySpecialResident(){
+  const id=_curSpecialId; if(!id||specialResidents[id])return;
+  const price=SPECIAL_PLACEMENT_PRICE[id]||0;
+  if(coins<price)return;
+  coins-=price; sv('hd_c',coins); updRes();
+  specialResidents[id]=true; saveSpecialResidents();
+  const m=MERCHANTS.find(x=>x.id===id);
+  showMerchantToast((m?m.icon:'')+' 이제부터 로비 한 켠에서 함께 지냅니다!');
+  updateSpecialPlaceBtn();
+  renderSpecialResidents();
+}
+function closeSpecialMerch(){
+  const ov=document.getElementById('specialMerchOv'); if(ov)ov.classList.remove('on');
+  if(_shrimpTimer){ clearInterval(_shrimpTimer); _shrimpTimer=null; }
+  _shrimpActive=false;
+}
+function renderSpecialResidents(){
+  const zone=document.getElementById('specialResidentsZone'); if(!zone)return;
+  zone.innerHTML='';
+  Object.keys(specialResidents).filter(id=>specialResidents[id]).forEach((id,i)=>{
+    const m=MERCHANTS.find(x=>x.id===id); if(!m)return;
+    const el=document.createElement('button'); el.className='special-resident theme-'+id;
+    el.style.setProperty('--slot', i);
+    el.textContent=m.icon;
+    el.title=m.name;
+    el.onclick=(e)=>{ e.stopPropagation(); openSpecialMerchantPopup(id); };
+    zone.appendChild(el);
+  });
+}
+
+// ════════════════════════════════════════════
+// ══ 스타쉽: 매입하면 월드3(우주선 전용 콘텐츠)로 갈 수 있다 ══
+// ════════════════════════════════════════════
+let ownedStarship = lJ('hd_owned_starship', false);
+function saveOwnedStarship(){ sv('hd_owned_starship', ownedStarship); }
+// 이전 세션에 "떠돌이 스타쉽 상인"이 떠 있던 상태로 저장됐는데 그 사이 매입했다면, 낡은 상태를 지운다
+if(ownedStarship&&merchState.id==='starship'){ merchState={id:null,until:0}; saveMerchState(); }
+const STARSHIP_PRICE=10000000;
+function openStarshipPopup(){
+  merchState={id:null,until:0}; saveMerchState(); renderMerchantNpc();
+  const ov=document.getElementById('starshipOv'); if(!ov)return;
+  updateStarshipBtn();
+  ov.classList.add('on');
+}
+function closeStarshipPopup(){
+  const ov=document.getElementById('starshipOv'); if(ov)ov.classList.remove('on');
+}
+function updateStarshipBtn(){
+  const btn=document.getElementById('starshipBuyBtn'); if(!btn)return;
+  const note=document.getElementById('starshipNote');
+  if(ownedStarship){
+    btn.textContent='🚀 월드3로 출발하기';
+    btn.disabled=false;
+    btn.onclick=()=>{ closeStarshipPopup(); goToWorld3(); };
+    if(note)note.textContent='이미 이 우주선의 주인입니다. 언제든 월드3로 떠날 수 있어요.';
+  } else {
+    const cb=coins>=STARSHIP_PRICE;
+    btn.textContent=`🚀 우주선 매입 (🪙 ${STARSHIP_PRICE.toLocaleString()})`;
+    btn.disabled=!cb;
+    btn.onclick=()=>buyStarship();
+    if(note)note.textContent='극도로 희귀한 손님. 이 기회를 놓치면 언제 다시 만날지 알 수 없습니다.';
+  }
+}
+function buyStarship(){
+  if(ownedStarship||coins<STARSHIP_PRICE)return;
+  coins-=STARSHIP_PRICE; sv('hd_c',coins); updRes();
+  ownedStarship=true; saveOwnedStarship();
+  closeStarshipPopup();
+  showMerchantToast('🚀 우주선을 손에 넣었다! 이제 월드3로 떠날 수 있습니다!');
+  playMerchCutscene({theme:'gold', particleEmoji:'🚀',
+    lines:['🚀 우주선이 당신의 것이 되었다!','미지의 월드3가 열립니다...'], duration:2600});
+  updateStarshipBtn();
+  setTimeout(()=>playDockLanding('starshipDockEarth'), 2700);
+}
+// 매입한 스타쉽이 로비 바닥에 상시 정박해 있는 대형 연출 — 그 자체가 월드3 왕복 버튼.
+// 애니메이션 없이 즉시 "정박된 상태"로 보여줄 때 사용 (페이지 로드 시 등).
+function renderStarshipDock(){
+  ['starshipDockEarth','starshipDockWorld3'].forEach(id=>{
+    const el=document.getElementById(id); if(!el)return;
+    el.classList.remove('landing','launching');
+    if(!ownedStarship){ el.classList.remove('on'); el.innerHTML=''; return; }
+    el.innerHTML=MERCHANT_VEHICLE_SVG.starship;
+    el.classList.add('on');
+    bindDockClick(id);
+  });
+}
+function bindDockClick(id){
+  const el=document.getElementById(id); if(!el)return;
+  el.title=id==='starshipDockEarth' ? '우주선 - 클릭해서 월드3로 출발' : '우주선 - 클릭해서 지구로 귀환';
+  el.onclick=(e)=>{ e.stopPropagation(); id==='starshipDockEarth' ? launchToWorld3() : returnFromWorld3(); };
+}
+// 정박 지점 그 자체가 "나타나자마자 천천히 하강 → 지지대 착지 → 정박"까지 끊김 없이 한 요소로 연기한다
+function playDockLanding(dockId, afterFn){
+  const el=document.getElementById(dockId); if(!el){ if(afterFn)afterFn(); return; }
+  el.onclick=null;
+  el.innerHTML=MERCHANT_VEHICLE_SVG.starship;
+  el.classList.remove('launching');
+  el.classList.add('on','landing');
+  setTimeout(()=>{
+    const lobbyEl=document.querySelector('.screen.on');
+    if(lobbyEl){ lobbyEl.classList.remove('ss-impact-shake'); void lobbyEl.offsetWidth; lobbyEl.classList.add('ss-impact-shake'); }
+    const dust=document.createElement('div'); dust.className='dock-dust'; el.appendChild(dust);
+    setTimeout(()=>dust.remove(), 900);
+  }, 2350);
+  setTimeout(()=>{
+    el.classList.remove('landing');
+    bindDockClick(dockId);
+    if(afterFn)afterFn();
+  }, 2650);
+}
+// 정박 지점 그 자리에서 엔진을 가동해 이륙한 뒤 화면 밖으로 가속 이탈한다(다른 위치에 새 함선이 나타나지 않음)
+function playDockLaunch(dockId, afterFn){
+  const el=document.getElementById(dockId); if(!el){ if(afterFn)afterFn(); return; }
+  el.onclick=null;
+  el.classList.add('launching');
+  const lobbyEl=document.querySelector('.screen.on');
+  if(lobbyEl){ lobbyEl.classList.remove('sd-chaos-shake'); void lobbyEl.offsetWidth; lobbyEl.classList.add('sd-chaos-shake'); }
+  setTimeout(()=>{
+    el.classList.remove('on','launching');
+    el.innerHTML='';
+    if(afterFn)afterFn();
+  }, 1300);
+}
+function triggerWarpFlash(){
+  const el=document.getElementById('warpFlashFx'); if(!el)return;
+  el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
+  setTimeout(()=>el.classList.remove('on'), 900);
+}
+function goToWorld3(){ launchToWorld3(); }
+function launchToWorld3(){
+  if(!ownedStarship||!isWorld3Unlocked())return;
+  closeStarshipPopup();
+  playDockLaunch('starshipDockEarth', ()=>{
+    triggerWarpFlash();
+    curWorld=3;
+    go('sLobby3');
+    playDockLanding('starshipDockWorld3');
+    achStats.starshipLaunches=(achStats.starshipLaunches||0)+1;saveAch();checkAchievements();
+  });
+}
+function returnFromWorld3(){
+  if(!ownedStarship)return;
+  playDockLaunch('starshipDockWorld3', ()=>{
+    triggerWarpFlash();
+    curWorld=1;
+    go('sLobby');
+    playDockLanding('starshipDockEarth');
+  });
+}
+
+// ════════════════════════════════════════════
+// ══ 에일리언 우주선: 로비 중간쯤으로 날아와 정체불명의 큐브를 떨구고 떠난다 ══
+// ════════════════════════════════════════════
+let alienLanded = lJ('hd_alien_landed', false);
+function saveAlienState(){ sv('hd_alien_landed', alienLanded); }
+if(alienLanded&&merchState.id==='alien'){ merchState={id:null,until:0}; saveMerchState(); }
+const ALIEN_CUBE_SVG=`<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <path d="M60 10 L104 34 L60 58 L16 34 Z" fill="#7f1d1d" stroke="#000" stroke-width="1.5"/>
+  <path d="M16 34 L60 58 L60 106 L16 82 Z" fill="#1a0505" stroke="#000" stroke-width="1.5"/>
+  <path d="M104 34 L60 58 L60 106 L104 82 Z" fill="#450a0a" stroke="#000" stroke-width="1.5"/>
+  <ellipse cx="60" cy="34" rx="14" ry="8" fill="#2a0a0a"/>
+  <ellipse cx="60" cy="34" rx="14" ry="8" fill="none" stroke="#ef4444" stroke-width="1.6" class="alien-eye-glow"/>
+  <circle cx="55" cy="31" r="2.2" fill="#fca5a5" opacity=".7"/>
+</svg>`;
+// 정체불명의 큐브: 함선이 떨구고 간 뒤 로비 바닥에 영구히 남아 클릭하면 차원으로 이어진다
+function renderAlienCube(){
+  const el=document.getElementById('alienCubeEarth'); if(!el)return;
+  if(!alienLanded){ el.classList.remove('on'); el.innerHTML=''; return; }
+  el.innerHTML=ALIEN_CUBE_SVG;
+  el.classList.add('on');
+  bindAlienCubeClick();
+}
+function bindAlienCubeClick(){
+  const el=document.getElementById('alienCubeEarth'); if(!el)return;
+  el.title='정체불명의 큐브 - 클릭해서 살펴보기';
+  el.onclick=(e)=>{ e.stopPropagation(); enterAlienDimension(); };
+}
+// 등장: 함선이 화면 중앙쯤으로 날아와 멈췄다가 큐브를 떨어뜨리고, 그대로 반대편으로 날아가며 퇴장한다
+function playAlienCubeDropSequence(){
+  if(alienLanded)return;
+  const el=document.getElementById('shipLandingFx'); if(!el)return;
+  merchState={id:null,until:0}; saveMerchState(); renderMerchantNpc();
+  el.className='on theme-alien-flyby';
+  el.innerHTML=`<div class="alien-flyby-ship">${ALIEN_SHIP_SVG}</div>`+
+    `<div class="alien-cube-flash"></div><div class="alien-flyby-cube">${ALIEN_CUBE_SVG}</div>`;
+  setTimeout(()=>{
+    const lobbyEl=document.querySelector('.screen.on');
+    if(lobbyEl){ lobbyEl.classList.remove('ss-impact-shake'); void lobbyEl.offsetWidth; lobbyEl.classList.add('ss-impact-shake'); }
+  }, 1950);
+  setTimeout(()=>{
+    el.className=''; el.innerHTML='';
+    alienLanded=true; saveAlienState();
+    showMerchantToast('🌀 함선이 정체불명의 큐브를 남기고 사라졌다...');
+    renderAlienCube();
+  }, 3800);
+}
+// ══ 에일리언 함선으로만 갈 수 있는 특별한 차원: 월드는 아니지만 공포 연출 전용 화면 ══
+const HORROR_LINES=[
+  '...뒤를 돌아보지 마라...','그것은 항상 너를 보고 있다','여기 오면 안 됐다','숨소리가... 하나 더 들린다',
+  '눈을 감아도 계속 보인다','시간이 이상하게 흐른다','누군가 네 이름을 속삭였다','문은 없다. 나갈 방법도 없다',
+];
+let _horrorLineItv=null;
+function triggerAlienPortalFlash(){
+  const el=document.getElementById('alienPortalFx'); if(!el)return;
+  el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
+  setTimeout(()=>el.classList.remove('on'), 900);
+}
+function enterAlienDimension(){
+  if(!alienLanded)return;
+  const cube=document.getElementById('alienCubeEarth');
+  if(cube){ cube.classList.remove('ss-impact-shake'); void cube.offsetWidth; cube.classList.add('ss-impact-shake'); }
+  triggerAlienPortalFlash();
+  achStats.alienDimensionEntered=(achStats.alienDimensionEntered||0)+1;saveAch();checkAchievements();
+  setTimeout(()=>{ go('sAlienDimension'); }, 350);
+}
+function exitAlienDimension(){
+  triggerAlienPortalFlash();
+  setTimeout(()=>{ go('sLobby'); }, 350);
+}
+function renderHorrorEyesField(){
+  const el=document.getElementById('horrorEyesField'); if(!el)return;
+  el.innerHTML=Array.from({length:14}).map(()=>{
+    const left=(Math.random()*94).toFixed(1), top=(Math.random()*90).toFixed(1);
+    const w=(10+Math.random()*10).toFixed(0), h=(w*0.65).toFixed(0);
+    const dur=(4+Math.random()*5).toFixed(2), delay=(-Math.random()*8).toFixed(2);
+    return `<span class="horror-eye" style="left:${left}%;top:${top}%;width:${w}px;height:${h}px;animation-duration:${dur}s;animation-delay:${delay}s;"></span>`;
+  }).join('');
+}
+function startHorrorLines(){
+  stopHorrorLines();
+  const el=document.getElementById('horrorLine'); if(!el)return;
+  const next=()=>{ el.textContent=HORROR_LINES[Math.floor(Math.random()*HORROR_LINES.length)]; };
+  next();
+  _horrorLineItv=setInterval(next, 2600);
+}
+function stopHorrorLines(){ if(_horrorLineItv){clearInterval(_horrorLineItv);_horrorLineItv=null;} }
 
 // ══ 안젤리나: 장바구니(카트)에 여러 개 담아서 한번에 결제 ══
 let _fruitBasket={};
@@ -772,38 +1389,33 @@ function checkoutFruitBasket(btn){
   setTimeout(()=>renderMerchantShopContent(), 350);
 }
 
-// ══ 계란빵 아저씨: 꼬치를 뽑으면 즉석에서 바로 결제(원클릭 즉시구매) ══
-function renderPotScene(container, items, greeting){
-  const market=document.createElement('div'); market.className='merch-market mk-pot';
-  market.innerHTML='<div class="mm-pot-body"><div class="mm-broth"></div>'+
-    '<div class="mm-steam s1"></div><div class="mm-steam s2"></div><div class="mm-steam s3"></div><div class="mm-steam s4"></div>'+
-    '<div class="mm-items-arc"></div></div>';
+// ══ 계란빵 아저씨: 지글지글 철판 위 즉석 결제(원클릭 즉시구매) ══
+function renderGriddleScene(container, items, greeting){
+  const market=document.createElement('div'); market.className='merch-market mk-griddle';
+  const bubbles=Array.from({length:10}).map(()=>{
+    const left=(8+Math.random()*84).toFixed(1), top=(10+Math.random()*70).toFixed(1);
+    const delay=(-Math.random()*1.8).toFixed(2);
+    return `<span class="mg-bubble" style="left:${left}%;top:${top}%;animation-delay:${delay}s;"></span>`;
+  }).join('');
+  market.innerHTML='<div class="mg-banner">🍢 오늘의 분식</div>'+
+    '<div class="mg-pan"><div class="mg-sauce"></div>'+bubbles+'<div class="mg-items"></div></div>';
   container.appendChild(market);
-  const arc=market.querySelector('.mm-items-arc');
-  const n=items.length;
-  items.forEach((it,i)=>{
-    const t=n>1?i/(n-1):0.5;
-    const angle=-68+t*136;
-    const rad=angle*Math.PI/180;
-    const radius=40, cx=50, cy=50;
-    const x=cx+Math.sin(rad)*radius;
-    const y=cy-Math.cos(rad)*radius*0.62;
+  const itemsWrap=market.querySelector('.mg-items');
+  items.forEach(it=>{
     const owned=getItemOwned(it);
     const btn=document.createElement('button'); btn.className='mm-item';
-    btn.style.left=x+'%'; btn.style.top=y+'%'; btn.style.transform=`translate(-50%,-50%) rotate(${(angle*0.35).toFixed(1)}deg)`;
-    btn.innerHTML='<span class="mm-skewer"></span><span class="mm-food">'+it.icon+'</span>'+
-      `<span class="mm-tag">🪙${fmtShort(it.price)}</span>`+(owned?`<span class="mm-item-badge">${owned}</span>`:'');
+    btn.innerHTML=it.icon+`<span class="mm-tag">🪙${fmtShort(it.price)}</span>`+(owned?`<span class="mm-item-badge">${owned}</span>`:'');
     btn.onclick=()=>{
       btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop');
-      buyPotItemInstant(it, btn);
+      buyGriddleItemInstant(it, btn);
     };
-    arc.appendChild(btn);
+    itemsWrap.appendChild(btn);
   });
   const dlg=document.createElement('div'); dlg.className='merch-dialogue'; dlg.id='merchSceneDialogue';
   dlg.innerHTML=greeting;
   container.appendChild(dlg);
 }
-function buyPotItemInstant(it, btn){
+function buyGriddleItemInstant(it, btn){
   const dlg=document.getElementById('merchSceneDialogue');
   if(coins<it.price){
     if(dlg)dlg.innerHTML=`<div class="merch-scene-detail" style="color:#fca5a5;">🪙 코인이 부족해요! (${it.icon} ${it.name} · 🪙${it.price.toLocaleString()})</div>`;
@@ -1067,3 +1679,6 @@ recalcMerchEconMults();
 renderMerchantNpc();
 renderKevinBeg();
 renderSebastianCrewBadge();
+renderSpecialResidents();
+renderStarshipDock();
+renderAlienCube();
