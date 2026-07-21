@@ -629,19 +629,19 @@ function loseBackrooms(){
 
 // ── 레벨별 엔딩: 보상 지급 + 업적 마킹 + 전용 컷신 ──
 const BR_ENDINGS={
-  level0:{achFlag:'brRealExits',achSave:null,baseCoins:15000,baseEnergy:6000,
+  level0:{achFlag:'brRealExits',baseCoins:15000,baseEnergy:6000,style:'dark',titleClass:'',
     title:'ESCAPED',sub:'THE BACKROOMS',accent:'#7dd3fc',
     lines:['...문이 열렸다...','뒤에서는 이제, 아무 소리도 들리지 않는다','셀 수 없이 걸었던 그 모든 노란 방들이','이제는 흐릿한 꿈처럼 멀어진다','이곳은 곧, 기억이 될 것이다']},
-  fun:{achFlag:'brEndFun',baseCoins:40000,baseEnergy:15000,confetti:true,
+  fun:{achFlag:'brEndFun',baseCoins:40000,baseEnergy:15000,style:'party',titleClass:'title-bounce',confetti:true,
     title:'THE PARTY IS OVER',sub:'LEVEL FUN=)',accent:'#f472b6',
     lines:['세 개의 케이크, 세 번의 생일','아무도 축하해주지 않던 파티에','당신이 촛불을 켜주었다','파티고어가 처음으로, 진짜로 웃는다','"와줘서 고마워요"','황금 문이 당신을 배웅한다']},
-  garage:{achFlag:'brEndGarage',baseCoins:25000,baseEnergy:10000,
+  garage:{achFlag:'brEndGarage',baseCoins:25000,baseEnergy:10000,style:'industrial',titleClass:'title-stencil',
     title:'B-∞',sub:'ENDLESS PARKING',accent:'#eab308',
     lines:['발전기 세 대가 낮게 울린다','수천 대의 차들, 그러나 운전자는 없었다','형광등이 하나씩 켜지며 길을 비춘다','셔터 너머로, 바깥 공기 냄새가 난다']},
-  pool:{achFlag:'brEndPool',baseCoins:30000,baseEnergy:12000,
+  pool:{achFlag:'brEndPool',baseCoins:30000,baseEnergy:12000,style:'water',titleClass:'title-ripple',
     title:'DRAINED',sub:'THE POOLROOMS',accent:'#38bdf8',
     lines:['마지막 밸브가 잠기는 소리','수면이 천천히 낮아진다','물결에 비친 것은 당신 혼자뿐이었다','배수구 아래에서, 빛이 새어나온다']},
-  field:{achFlag:'brEndField',baseCoins:20000,baseEnergy:8000,
+  field:{achFlag:'brEndField',baseCoins:20000,baseEnergy:8000,style:'sunrise',titleClass:'title-rise',
     title:'HORIZON',sub:'ENDLESS FIELDS',accent:'#a3e635',
     lines:['갈대가 바람에 눕는다','도시도, 수영장도, 노란 방도','이제는 등 뒤의 이야기','지평선이 처음으로, 가까워진다']},
 };
@@ -668,7 +668,53 @@ function brLevelEnding(kind){
   brPlayCutscene(brEndingOpts(kind,depth,rewardCoins,rewardEnergy),()=>{ stopGame(); go('sBackrooms'); });
 }
 
-// ── 엔딩 컷신: 어둠이 화면을 삼키는 드림코어풍 연출 (옵션으로 레벨별 커스텀) ──
+// ── 엔딩 컷신: 레벨마다 완전히 다른 연출 ──
+//   dark(레벨0)      : 어둠이 화면을 삼킴 → 글리치 스캔라인 → 글리치 타이틀
+//   party(FUN)       : 풍선이 떠오르는 파티 무대 → 바운스 무지개 타이틀 + 컨페티
+//   industrial(주차장): 캄캄한 어둠 속 형광등이 한 줄씩 켜짐 → 스텐실 타이틀
+//   water(수영장)     : 화면을 가득 채운 물이 서서히 빠짐 → 물결 타이틀
+//   sunrise(갈대밭)   : 새벽 하늘이 밝아오고 해가 떠오름 → 떠오르는 타이틀
+function brSpawnConfetti(confetti,n){
+  for(let i=0;i<n;i++){
+    const p=document.createElement('span');
+    p.className='br-confetti';
+    p.style.left=(Math.random()*100)+'%';
+    p.style.background=BR_BALLOON_COLORS[Math.floor(Math.random()*BR_BALLOON_COLORS.length)];
+    p.style.animationDelay=(Math.random()*1.4)+'s';
+    p.style.animationDuration=(2+Math.random()*2)+'s';
+    p.style.transform='rotate('+(Math.random()*360)+'deg)';
+    confetti.appendChild(p);
+  }
+}
+function brBuildCutsceneFx(fx,style){
+  if(style==='party'){
+    for(let i=0;i<14;i++){
+      const b=document.createElement('div');
+      b.className='br-fx-balloon';
+      b.style.left=(3+Math.random()*92)+'%';
+      b.style.background=BR_BALLOON_COLORS[Math.floor(Math.random()*BR_BALLOON_COLORS.length)];
+      b.style.animationDuration=(5+Math.random()*4)+'s';
+      b.style.animationDelay=(Math.random()*3)+'s';
+      fx.appendChild(b);
+    }
+  } else if(style==='industrial'){
+    for(let i=0;i<7;i++){
+      const s=document.createElement('div');
+      s.className='br-fx-strip';
+      s.style.top=(8+i*12)+'%';
+      s.style.animationDelay=(0.5+i*0.38)+'s';
+      fx.appendChild(s);
+    }
+  } else if(style==='water'){
+    const wtr=document.createElement('div');
+    wtr.className='br-fx-water';
+    fx.appendChild(wtr);
+  } else if(style==='sunrise'){
+    const sky=document.createElement('div');sky.className='br-fx-sky';fx.appendChild(sky);
+    const sun=document.createElement('div');sun.className='br-fx-sun';fx.appendChild(sun);
+    const reeds=document.createElement('div');reeds.className='br-fx-reeds';fx.appendChild(reeds);
+  }
+}
 function brPlayCutscene(opts,cb){
   const el=document.getElementById('brEscapeCutscene');
   if(!el){ cb(); return; }
@@ -681,57 +727,73 @@ function brPlayCutscene(opts,cb){
   const sub=document.getElementById('brCsSub');
   const stats=document.getElementById('brCsStats');
   const confetti=document.getElementById('brCsConfetti');
+  const fx=document.getElementById('brCsFx');
+  const style=opts.style||'dark';
   el.style.transition='';el.style.opacity='';
-  el.classList.remove('shake');
+  el.classList.remove('shake','cs-party','cs-industrial','cs-water','cs-sunrise');
   [light,flash,vign,scan,lines,title,sub,stats].forEach(x=>x.classList.remove('go','show','run','grow'));
-  title.classList.remove('fun-title');
+  title.classList.remove('fun-title','title-bounce','title-stencil','title-ripple','title-rise');
   lines.textContent='';title.textContent='';sub.textContent='';stats.textContent='';
   if(confetti)confetti.innerHTML='';
+  if(fx)fx.innerHTML='';
   sub.style.color=opts.accent||'#7dd3fc';
+  if(style==='party')el.classList.add('cs-party');
+  else if(style==='industrial')el.classList.add('cs-industrial');
+  else if(style==='water')el.classList.add('cs-water');
+  else if(style==='sunrise')el.classList.add('cs-sunrise');
   el.classList.add('on');
   void el.offsetWidth;
+  if(fx)brBuildCutsceneFx(fx,style);
 
-  // 1) 어둠이 화면 중앙에서 자라나 모든 것을 삼킨다
-  light.classList.add('grow');
-  let t=1500;
-  setTimeout(()=>{ flash.classList.add('go'); },t);
-  t+=550;
-  setTimeout(()=>{
-    el.classList.add('shake');
-    vign.classList.add('show');
-    scan.classList.add('run');
-  },t);
+  // 1) 스타일별 도입부
+  let t;
+  if(style==='dark'){
+    // 어둠이 화면 중앙에서 자라나 모든 것을 삼킨다
+    light.classList.add('grow');
+    t=1500;
+    setTimeout(()=>{ flash.classList.add('go'); },t);
+    t+=550;
+    setTimeout(()=>{
+      el.classList.add('shake');
+      vign.classList.add('show');
+      scan.classList.add('run');
+    },t);
+    t+=450;
+  } else if(style==='party'){
+    // 풍선이 떠오르고 컨페티가 쏟아지는 무대
+    if(confetti)brSpawnConfetti(confetti,24);
+    t=900;
+  } else if(style==='industrial'){
+    // 캄캄한 어둠 속, 형광등이 위에서부터 한 줄씩 켜진다
+    t=2600;
+    setTimeout(()=>{ el.classList.add('shake'); },600);
+    setTimeout(()=>{ el.classList.remove('shake'); },1100);
+  } else if(style==='water'){
+    // 물이 화면을 가득 채운 채 시작해 서서히 빠진다
+    t=1400;
+  } else {
+    // sunrise: 어둠 속에서 새벽 하늘이 열린다
+    t=1600;
+  }
 
-  // 2) 어둠 속, 회상하듯 대사가 하나씩 떠오른다
+  // 2) 회상하듯 대사가 하나씩 떠오른다
   const LINES=opts.lines||[];
-  t+=450;
   LINES.forEach(txt=>{
     const at=t;
-    setTimeout(()=>{ lines.textContent=txt; lines.classList.add('show'); el.classList.add('shake'); },at);
-    setTimeout(()=>{ lines.classList.remove('show'); el.classList.remove('shake'); },at+1000);
+    setTimeout(()=>{ lines.textContent=txt; lines.classList.add('show'); if(style==='dark')el.classList.add('shake'); },at);
+    setTimeout(()=>{ lines.classList.remove('show'); if(style==='dark')el.classList.remove('shake'); },at+1000);
     t+=1300;
   });
 
-  // 3) 글리치와 함께 타이틀이 강렬하게 떠오른다 (FUN은 무지개 글로우 + 컨페티)
+  // 3) 스타일별 타이틀 등장
   setTimeout(()=>{
     scan.classList.remove('run');
     title.textContent=opts.title||'ESCAPED';
-    if(opts.confetti)title.classList.add('fun-title');
+    if(opts.titleClass)title.classList.add(opts.titleClass);
     title.classList.add('show');
     sub.textContent=opts.sub||'';
     sub.classList.add('show');
-    if(opts.confetti&&confetti){
-      for(let i=0;i<48;i++){
-        const p=document.createElement('span');
-        p.className='br-confetti';
-        p.style.left=(Math.random()*100)+'%';
-        p.style.background=BR_BALLOON_COLORS[Math.floor(Math.random()*BR_BALLOON_COLORS.length)];
-        p.style.animationDelay=(Math.random()*1.4)+'s';
-        p.style.animationDuration=(2+Math.random()*2)+'s';
-        p.style.transform='rotate('+(Math.random()*360)+'deg)';
-        confetti.appendChild(p);
-      }
-    }
+    if(opts.confetti&&confetti)brSpawnConfetti(confetti,48);
   },t);
   t+=1800;
   setTimeout(()=>{
@@ -745,9 +807,10 @@ function brPlayCutscene(opts,cb){
   },t);
   t+=1150;
   setTimeout(()=>{
-    el.classList.remove('on');
+    el.classList.remove('on','cs-party','cs-industrial','cs-water','cs-sunrise');
     el.style.opacity='';el.style.transition='';
     if(confetti)confetti.innerHTML='';
+    if(fx)fx.innerHTML='';
     cb();
   },t);
 }

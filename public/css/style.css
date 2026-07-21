@@ -899,6 +899,49 @@ button:active{transform:scale(.95);}
   0%{transform:translateY(0) rotate(0deg);opacity:1;}
   100%{transform:translateY(112vh) rotate(680deg);opacity:.7;}
 }
+
+/* ── 컷신 스타일별 배경/이펙트 ── */
+.br-cutscene.cs-party{background:radial-gradient(circle at 50% 38%,#3d0a2e,#12030d 78%);}
+.br-cutscene.cs-industrial{background:#040404;}
+.br-cutscene.cs-water{background:linear-gradient(180deg,#02121f,#03304d 60%,#032033);}
+.br-cutscene.cs-sunrise{background:linear-gradient(180deg,#020208,#0a0a18);}
+#brCsFx{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+/* FUN: 떠오르는 풍선들 */
+.br-fx-balloon{position:absolute;bottom:-14%;width:26px;height:34px;border-radius:50% 50% 48% 48%;opacity:.92;animation:brFxBalloonRise linear forwards;}
+.br-fx-balloon::after{content:'';position:absolute;left:50%;top:100%;width:1px;height:36px;background:rgba(255,255,255,.45);}
+@keyframes brFxBalloonRise{0%{transform:translateY(0) rotate(-4deg);}100%{transform:translateY(-135vh) rotate(7deg);}}
+/* 주차장: 하나씩 켜지는 형광등 스트립 */
+.br-fx-strip{position:absolute;left:7%;width:86%;height:9px;border-radius:4px;background:#fff7cf;
+  box-shadow:0 0 24px 7px rgba(255,240,180,.7);opacity:0;animation:brFxStripOn .55s steps(3,end) forwards;}
+@keyframes brFxStripOn{0%{opacity:0;}40%{opacity:.9;}55%{opacity:.12;}75%{opacity:1;}100%{opacity:1;}}
+/* 수영장: 서서히 빠지는 수면 */
+.br-fx-water{position:absolute;left:0;right:0;bottom:0;height:100%;
+  background:linear-gradient(180deg,rgba(56,189,248,.5),rgba(3,54,84,.92));animation:brFxDrain 8s ease-in-out forwards;}
+.br-fx-water::before{content:'';position:absolute;top:-14px;left:0;right:0;height:16px;
+  background:radial-gradient(circle at 12px 9px,rgba(125,211,252,.9) 8px,transparent 9px) repeat-x;
+  background-size:28px 16px;animation:brFxWave 1.5s linear infinite;}
+@keyframes brFxDrain{0%{height:100%;}100%{height:6%;}}
+@keyframes brFxWave{0%{background-position-x:0;}100%{background-position-x:28px;}}
+/* 갈대밭: 일출 + 갈대 실루엣 */
+.br-fx-sky{position:absolute;inset:0;background:linear-gradient(180deg,#1b2a4a 0%,#7a3c1e 55%,#d97706 80%,#fbbf24 100%);
+  opacity:0;animation:brFxSkyIn 6.5s ease forwards;}
+@keyframes brFxSkyIn{0%{opacity:0;}100%{opacity:1;}}
+.br-fx-sun{position:absolute;left:50%;bottom:4%;width:130px;height:130px;margin-left:-65px;border-radius:50%;
+  background:radial-gradient(circle,#fff7d6,#fbbf24 58%,rgba(251,191,36,0) 74%);
+  box-shadow:0 0 90px 34px rgba(251,191,36,.45);transform:translateY(150%);animation:brFxSunRise 7.5s ease-out forwards;}
+@keyframes brFxSunRise{0%{transform:translateY(150%);}100%{transform:translateY(-55%);}}
+.br-fx-reeds{position:absolute;left:0;right:0;bottom:0;height:17%;
+  background:repeating-linear-gradient(84deg,transparent 0 9px,#0d1405 9px 12px);
+  transform-origin:bottom;animation:brFxReedsSway 3.4s ease-in-out infinite alternate;}
+@keyframes brFxReedsSway{0%{transform:skewX(-2deg);}100%{transform:skewX(2.6deg);}}
+/* 타이틀 변형: 스타일마다 등장 방식이 다르다 */
+.br-cs-title.title-bounce.show{animation:brTitleBounce .8s cubic-bezier(.34,1.56,.64,1),brFunRainbow 2.4s linear infinite !important;}
+@keyframes brTitleBounce{0%{transform:scale(.15);opacity:0;}60%{transform:scale(1.16);opacity:1;}100%{transform:scale(1);opacity:1;}}
+.br-cs-title.title-stencil.show{color:#fbbf24;animation:brCsTitleGlitch .35s steps(2,end) 3 !important;text-shadow:0 0 20px rgba(251,191,36,.65);}
+.br-cs-title.title-ripple.show{color:#bae6fd;animation:brTitleRipple 2.6s ease-in-out infinite !important;text-shadow:0 0 26px rgba(56,189,248,.8);}
+@keyframes brTitleRipple{0%,100%{transform:scaleY(1);}50%{transform:scaleY(1.07) translateY(-3px);}}
+.br-cs-title.title-rise.show{color:#fde68a;animation:brTitleRise 2.2s ease forwards !important;text-shadow:0 0 30px rgba(251,191,36,.85);}
+@keyframes brTitleRise{0%{transform:translateY(46px);opacity:0;}100%{transform:translateY(0);opacity:1;}}
 .br-cs-vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle,transparent 30%,rgba(120,0,0,.55) 100%);opacity:0;}
 .br-cs-vignette.show{animation:brCsVignetteFade 1.6s ease-out forwards;}
 @keyframes brCsVignetteFade{0%{opacity:1;}100%{opacity:0;}}
