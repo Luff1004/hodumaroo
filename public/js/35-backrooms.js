@@ -733,8 +733,86 @@ function brBuildCutsceneFx(fx,style){
 }
 
 // ── 주차장 전용 엔딩: 탈출한 줄 알았지만 차에 치이고, 병상에서 깨어난다 ──
+// 눈을 감은 채 옆으로 쓰러진 1인칭 시점에서, 횡단보도를 따라 다가오는 차를 원근 3D로 그린다
+let _brCrashRafId=null;
+function brDrawCrashApproachFrame(cctx,w,h,t){
+  cctx.save();
+  cctx.clearRect(0,0,w,h);
+  cctx.fillStyle='#000';
+  cctx.fillRect(0,0,w,h);
+
+  // 옆으로 쓰러진 시점: 화면 전체를 크게 기울인 채로 원근 장면을 그린다
+  cctx.translate(w/2,h*0.58);
+  cctx.rotate(-78*Math.PI/180);
+
+  const blur=13*(1-t);
+  cctx.filter='blur('+blur.toFixed(1)+'px)';
+
+  // 아스팔트 + 소실점을 향해 좁아지는 횡단보도 흰 줄무늬
+  const roadW=w*1.7, roadLen=h*2.4;
+  cctx.fillStyle='#0d0f13';
+  cctx.fillRect(-roadW/2,-roadLen,roadW,roadLen*1.3);
+  const stripes=7;
+  for(let i=0;i<stripes;i++){
+    const d0=i/stripes, d1=(i+0.6)/stripes;
+    const y0=-roadLen*d0, y1=-roadLen*d1;
+    const s0=1-d0*0.85, s1=1-d1*0.85;
+    cctx.fillStyle='rgba(225,225,220,'+(0.7-d0*0.48).toFixed(2)+')';
+    cctx.beginPath();
+    cctx.moveTo(-roadW*0.32*s0,y0);cctx.lineTo(roadW*0.32*s0,y0);
+    cctx.lineTo(roadW*0.28*s1,y1);cctx.lineTo(-roadW*0.28*s1,y1);
+    cctx.closePath();cctx.fill();
+  }
+
+  // 다가오는 차: 거리(depth)가 t^2로 줄어들며 가속하듯 원근 스케일이 커진다
+  const K=150;
+  const depth=Math.max(2,320*(1-t*t));
+  const scale=K/(K+depth);
+  const carW=200*scale, carH=100*scale;
+  const cy=-roadLen*0.02;
+  cctx.fillStyle='#040404';
+  cctx.fillRect(-carW/2,cy-carH*0.7,carW,carH*0.7);
+  const lightR=carW*0.15;
+  [-1,1].forEach(side=>{
+    const lx=side*carW*0.27, ly=cy-carH*0.32;
+    const glow=cctx.createRadialGradient(lx,ly,0,lx,ly,lightR*3.2);
+    glow.addColorStop(0,'rgba(255,255,235,.98)');
+    glow.addColorStop(1,'rgba(255,255,200,0)');
+    cctx.fillStyle=glow;
+    cctx.beginPath();cctx.arc(lx,ly,lightR*3.2,0,Math.PI*2);cctx.fill();
+  });
+
+  cctx.filter='none';
+  cctx.restore();
+
+  // 눈꺼풀: 점점 넓어지는 실눈 틈 사이로만 장면이 보인다
+  const slit=h*(0.025+0.36*t);
+  const centerY=h*0.5;
+  cctx.fillStyle='#000';
+  cctx.fillRect(0,0,w,centerY-slit/2);
+  cctx.fillRect(0,centerY+slit/2,w,h-(centerY+slit/2));
+}
+function brStartCrashApproach(canvas,durationMs,onDone){
+  canvas.classList.add('on');
+  canvas.width=canvas.clientWidth;canvas.height=canvas.clientHeight;
+  const cctx=canvas.getContext('2d');
+  const start=performance.now();
+  function frame(now){
+    const t=Math.min(1,(now-start)/durationMs);
+    brDrawCrashApproachFrame(cctx,canvas.width,canvas.height,t);
+    if(t<1){ _brCrashRafId=requestAnimationFrame(frame); }
+    else { _brCrashRafId=null; onDone(); }
+  }
+  _brCrashRafId=requestAnimationFrame(frame);
+}
+function brStopCrashApproach(canvas){
+  if(_brCrashRafId){ cancelAnimationFrame(_brCrashRafId); _brCrashRafId=null; }
+  canvas.classList.remove('on');
+}
+
 function brPlayCrashCutscene(opts,cb,refs){
   const {el,flash,vign,scan,lines,title,sub,stats,fx}=refs;
+  const canvas=document.getElementById('brCsCanvas');
   el.classList.add('cs-crash');
   const heartbeat=document.createElement('div');heartbeat.className='br-fx-heartbeat';fx.appendChild(heartbeat);
 
@@ -747,65 +825,70 @@ function brPlayCrashCutscene(opts,cb,refs){
     t+=1150;
   });
 
-  // 2) 헤드라이트가 어둠 속에서 덮쳐온다
-  t+=200;
+  // 2) 횡단보도에 쓰러져 실눈을 뜨며, 다가오는 차를 3D 원근으로 마주한다
+  t+=250;
   setTimeout(()=>{
-    const hl1=document.createElement('div');hl1.className='br-fx-headlight l approach';fx.appendChild(hl1);
-    const hl2=document.createElement('div');hl2.className='br-fx-headlight r approach';hl2.style.animationDelay='.08s';fx.appendChild(hl2);
+    lines.classList.remove('show');
+    if(canvas){
+      brStartCrashApproach(canvas,2300,()=>{
+        brStopCrashApproach(canvas);
+        brAfterCrashImpact();
+      });
+    } else brAfterCrashImpact();
   },t);
-  t+=1450;
-  // 3) 충돌: 화이트-레드 임팩트 플래시 + 강한 흔들림
-  setTimeout(()=>{
+
+  function brAfterCrashImpact(){
+    // 3) 충돌: 화이트-레드 임팩트 플래시 + 강한 흔들림
     el.classList.add('impact-flash','impact-shake');
-  },t);
-  t+=500;
-  setTimeout(()=>{
-    el.classList.remove('impact-flash','impact-shake');
-    const hl=fx.querySelectorAll('.br-fx-headlight'); hl.forEach(x=>x.remove());
-    heartbeat.classList.add('on');
-  },t);
+    setTimeout(()=>{
+      el.classList.remove('impact-flash','impact-shake');
+      heartbeat.classList.add('on');
+      brRunCrashAftermath();
+    },520);
+  }
 
-  // 4) 정적 속, 심장박동과 함께 목소리가 들려온다
-  t+=700;
-  (opts.postLines||[]).forEach(txt=>{
-    const at=t;
-    setTimeout(()=>{ lines.textContent=txt; lines.classList.add('show'); },at);
-    setTimeout(()=>{ lines.classList.remove('show'); },at+1100);
-    t+=1350;
-  });
-
-  // 5) 눈을 뜨는 순간: 새하얗게 번지는 원이 화면을 뒤덮는다
-  t+=200;
-  setTimeout(()=>{
-    heartbeat.classList.remove('on');
-    const wake=document.createElement('div');wake.className='br-fx-wake open';fx.appendChild(wake);
-    scan.classList.remove('run');
-  },t);
-  t+=1500;
-  setTimeout(()=>{
-    title.textContent=opts.title||'AWAKEN';
-    if(opts.titleClass)title.classList.add(opts.titleClass);
-    title.classList.add('show');
-    sub.textContent=opts.sub||'';
-    sub.classList.add('show');
-  },t);
-  t+=1900;
-  setTimeout(()=>{
-    stats.textContent=opts.statsText||'';
-    stats.classList.add('show');
-  },t);
-  t+=2300;
-  setTimeout(()=>{
-    el.style.transition='opacity 1.3s ease';
-    el.style.opacity='0';
-  },t);
-  t+=1250;
-  setTimeout(()=>{
-    el.classList.remove('on','cs-crash');
-    el.style.opacity='';el.style.transition='';
-    fx.innerHTML='';
-    cb();
-  },t);
+  function brRunCrashAftermath(){
+    // 4) 정적 속, 심장박동과 함께 목소리가 들려온다
+    let t2=650;
+    (opts.postLines||[]).forEach(txt=>{
+      const at=t2;
+      setTimeout(()=>{ lines.textContent=txt; lines.classList.add('show'); },at);
+      setTimeout(()=>{ lines.classList.remove('show'); },at+1100);
+      t2+=1350;
+    });
+    // 5) 눈을 뜨는 순간: 새하얗게 번지는 원이 화면을 뒤덮는다
+    t2+=200;
+    setTimeout(()=>{
+      heartbeat.classList.remove('on');
+      const wake=document.createElement('div');wake.className='br-fx-wake open';fx.appendChild(wake);
+      scan.classList.remove('run');
+    },t2);
+    t2+=1500;
+    setTimeout(()=>{
+      title.textContent=opts.title||'AWAKEN';
+      if(opts.titleClass)title.classList.add(opts.titleClass);
+      title.classList.add('show');
+      sub.textContent=opts.sub||'';
+      sub.classList.add('show');
+    },t2);
+    t2+=1900;
+    setTimeout(()=>{
+      stats.textContent=opts.statsText||'';
+      stats.classList.add('show');
+    },t2);
+    t2+=2300;
+    setTimeout(()=>{
+      el.style.transition='opacity 1.3s ease';
+      el.style.opacity='0';
+    },t2);
+    t2+=1250;
+    setTimeout(()=>{
+      el.classList.remove('on','cs-crash');
+      el.style.opacity='';el.style.transition='';
+      fx.innerHTML='';
+      cb();
+    },t2);
+  }
 }
 function brPlayCutscene(opts,cb){
   const el=document.getElementById('brEscapeCutscene');
@@ -820,6 +903,8 @@ function brPlayCutscene(opts,cb){
   const stats=document.getElementById('brCsStats');
   const confetti=document.getElementById('brCsConfetti');
   const fx=document.getElementById('brCsFx');
+  const crashCanvas=document.getElementById('brCsCanvas');
+  if(crashCanvas)brStopCrashApproach(crashCanvas);
   const style=opts.style||'dark';
   el.style.transition='';el.style.opacity='';
   el.classList.remove('shake','cs-party','cs-industrial','cs-water','cs-sunrise','cs-crash','impact-flash','impact-shake');

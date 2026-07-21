@@ -945,13 +945,8 @@ button:active{transform:scale(.95);}
 
 /* ── 주차장 전용: 차에 치이고 병상에서 깨어나는 엔딩 ── */
 .br-cutscene.cs-crash{background:#000;}
-.br-fx-headlight{position:absolute;top:36%;width:240px;height:100px;border-radius:50%;
-  background:radial-gradient(ellipse,rgba(255,255,240,.98),rgba(255,255,200,.45) 55%,transparent 76%);
-  filter:blur(2px);opacity:0;}
-.br-fx-headlight.l{top:32%;}
-.br-fx-headlight.r{top:44%;}
-.br-fx-headlight.approach{animation:brFxHeadlightApproach 1.45s cubic-bezier(.4,0,.85,1) forwards;}
-@keyframes brFxHeadlightApproach{0%{opacity:0;left:-45%;transform:scale(.25);}65%{opacity:1;}100%{opacity:1;left:58%;transform:scale(2.8);}}
+#brCsCanvas{position:absolute;inset:0;width:100%;height:100%;display:none;z-index:1;}
+#brCsCanvas.on{display:block;}
 .br-cutscene.impact-flash{animation:brImpactFlash .5s ease-out;}
 @keyframes brImpactFlash{0%{background:#fff;}12%{background:#fff;}30%{background:#7f1d1d;}60%{background:#000;}100%{background:#000;}}
 .br-cutscene.impact-shake{animation:brImpactShake .55s cubic-bezier(.36,.07,.19,.97);}
