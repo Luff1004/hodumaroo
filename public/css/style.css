@@ -877,12 +877,28 @@ button:active{transform:scale(.95);}
 .br-cutscene.on{display:flex;}
 .br-cutscene.shake{animation:brCsShake .5s ease-in-out;}
 @keyframes brCsShake{0%,100%{transform:translate(0,0);}20%{transform:translate(-6px,3px);}40%{transform:translate(5px,-4px);}60%{transform:translate(-4px,-2px);}80%{transform:translate(3px,4px);}}
-.br-cs-light{position:absolute;left:50%;top:50%;width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 40px 20px rgba(255,255,255,.9);transform:translate(-50%,-50%);opacity:0;pointer-events:none;}
+.br-cs-light{position:absolute;left:50%;top:50%;width:10px;height:10px;border-radius:50%;background:#000;box-shadow:0 0 60px 30px rgba(0,0,0,.95);transform:translate(-50%,-50%);opacity:0;pointer-events:none;z-index:1;}
 .br-cs-light.grow{animation:brCsLightGrow 2s ease-in forwards;}
-@keyframes brCsLightGrow{0%{width:6px;height:6px;opacity:.35;}100%{width:220vw;height:220vw;opacity:1;}}
-.br-cs-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;}
+@keyframes brCsLightGrow{0%{width:6px;height:6px;opacity:.4;}100%{width:220vw;height:220vw;opacity:1;}}
+.br-cs-flash{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;z-index:1;}
 .br-cs-flash.go{animation:brCsFlash .6s ease-out forwards;}
 @keyframes brCsFlash{0%{opacity:1;}100%{opacity:0;}}
+/* FUN 엔딩 전용: 무지개 글로우 타이틀 + 컨페티 */
+.br-cs-title.fun-title{animation:brCsTitleGlitch .35s steps(2,end) 3,brFunRainbow 2.4s linear infinite !important;}
+@keyframes brFunRainbow{
+  0%{text-shadow:0 0 24px #ef4444,0 0 46px rgba(239,68,68,.5);}
+  20%{text-shadow:0 0 24px #eab308,0 0 46px rgba(234,179,8,.5);}
+  40%{text-shadow:0 0 24px #22c55e,0 0 46px rgba(34,197,94,.5);}
+  60%{text-shadow:0 0 24px #3b82f6,0 0 46px rgba(59,130,246,.5);}
+  80%{text-shadow:0 0 24px #a855f7,0 0 46px rgba(168,85,247,.5);}
+  100%{text-shadow:0 0 24px #ec4899,0 0 46px rgba(236,72,153,.5);}
+}
+#brCsConfetti{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1;}
+.br-confetti{position:absolute;top:-4%;width:9px;height:14px;border-radius:2px;opacity:.95;animation:brConfettiFall 3s linear forwards;}
+@keyframes brConfettiFall{
+  0%{transform:translateY(0) rotate(0deg);opacity:1;}
+  100%{transform:translateY(112vh) rotate(680deg);opacity:.7;}
+}
 .br-cs-vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle,transparent 30%,rgba(120,0,0,.55) 100%);opacity:0;}
 .br-cs-vignette.show{animation:brCsVignetteFade 1.6s ease-out forwards;}
 @keyframes brCsVignetteFade{0%{opacity:1;}100%{opacity:0;}}
@@ -925,6 +941,9 @@ button:active{transform:scale(.95);}
 .backrooms-replay-btn{position:relative;z-index:1;margin-top:16px;padding:8px 18px;border:1.5px solid #4ade80;border-radius:10px;
   background:rgba(0,0,0,.4);color:#4ade80;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:1px;}
 .backrooms-replay-btn:hover{background:rgba(74,222,128,.15);}
+.br-dev-btn{padding:5px 10px;border:1px solid #7c3aed;border-radius:8px;background:rgba(30,10,60,.6);
+  color:#e9d5ff;font-size:11px;font-weight:700;cursor:pointer;}
+.br-dev-btn:hover{background:rgba(124,58,237,.4);}
 
 /* 차원 진입/이탈 시 화면을 덮는 붉은 글리치 포탈 플래시 */
 #alienPortalFx{position:fixed;inset:0;z-index:9730;pointer-events:none;opacity:0;background:#000;}

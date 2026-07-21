@@ -1,22 +1,28 @@
 // ══════════════ 더 백룸스: 무한 절차 생성 레이캐스팅 1인칭 탐험 ══════════════
 // 백룸은 "출구를 찾는 미로"가 아니라 "끝없이 반복되는 노란 방"이다.
 // 청크 단위로 무한히 생성되는 공간(기둥+칸막이 배치)을 자유롭게 걸어다니며 멀리 갈수록 위험해진다.
-// LEVEL 0(1레벨)에는 두 가지 갈림길이 숨어있다:
-//   - 드라이버를 찾아 환풍구를 열면 → 끝없는 지하주차장 (층별로 무한히 내려간다)
-//   - 바닥의 구멍에 빠지면 → 수영장 → 파란 미끄럼틀 → 끝없는 도시 → (멀리 걸으면) 끝없는 갈대밭
-// 그리고 분홍 문을 찾으면 완전히 다른 무한 차원 LEVEL FUN=)(생일파티룸+미로)으로 넘어간다.
-// 진짜 탈출구(EXIT 문)는 숨겨진 레버 2개를 모두 올려야만 세상에 나타난다.
+// 각 레벨은 서로 다른 탈출 조건과 서로 다른 엔딩 컷신을 가진다:
+//   LEVEL 0  : 숨겨진 레버 2개 → EXIT 문 → ESCAPED 엔딩
+//   FUN=)    : 생일 케이크 3개 수집 → 황금 문 → 최고급 파티 엔딩
+//   주차장    : 같은 층의 발전기 3개 ON → EXIT 문 → 지하 탈출 엔딩
+//   수영장    : 밸브 3개 잠금 → EXIT 문 → 배수 엔딩 (계단으로 상층 이동 가능)
+//   갈대밭    : 지평선을 향해 120m → 지평선 엔딩
 const BR_R=0.24;            // 플레이어 충돌 반경 (셀 단위)
 const BR_SPEED=0.058;       // 이동 속도 (셀/프레임)
 const BR_MOUSE_SENS=0.0026;
 const BR_FOV=1.15;          // 시야각(라디안) ≈ 66°
 const BR_MAX_DEPTH=22;      // 레이캐스팅 최대 탐색 거리(셀)
-const BR_WALL_SCALE=0.5;    // 벽 높이 축소 비율 - 낮을수록 천장이 더 높아 보임
 const BR_CH=16;             // 청크 크기(셀)
 const BR_GEN_RADIUS=2;      // 플레이어 주변 몇 청크까지 미리 생성할지
 const BR_DEPTH_KEY='hd_brMaxDepth';
 const BR_FUN_KEY='hd_brFunVisited';
 let br=null;
+
+// 레벨별 벽 높이 스케일 - 낮을수록 천장이 높아 보인다 (레벨0은 특히 높게)
+function brWallScale(){
+  if(!br)return 0.5;
+  return br.mode==='level0'?0.38:0.5;
+}
 
 function brBestDepth(){ return parseInt(localStorage.getItem(BR_DEPTH_KEY)||'0',10); }
 function brSaveBestDepth(d){ if(d>brBestDepth())localStorage.setItem(BR_DEPTH_KEY,String(d)); }
@@ -29,14 +35,26 @@ function renderBackroomsHub(){
   el.textContent=(best>0?('최고 도달 거리: '+best+'m'):'아직 도달한 기록이 없다')+(fun?' · 🎉 LEVEL FUN 발견':'');
   const replayBtn=document.getElementById('brEscapeReplayBtn');
   if(replayBtn)replayBtn.style.display=(typeof achData!=='undefined'&&achData['br_realexit'])?'inline-block':'none';
+  const devPanel=document.getElementById('brDevPanel');
+  if(devPanel)devPanel.style.display=(typeof devModeUnlocked!=='undefined'&&devModeUnlocked)?'flex':'none';
 }
 function replayBackroomsEscapeCutscene(){
-  const foundFun=localStorage.getItem(BR_FUN_KEY)==='1';
-  playBackroomsEscapeCutscene(brBestDepth(),foundFun,0,0,()=>{});
+  brPlayCutscene(brEndingOpts('level0',brBestDepth(),0,0),()=>{});
 }
 
-function devEnterBackrooms(){
+// ── 개발자 전용: 레벨 바로가기 / 엔딩 재생 ──
+function devEnterBackrooms(){ startBackroomsRun(); }
+function devBrGoto(mode){
   startBackroomsRun();
+  if(mode==='fun')brEnterFun();
+  else if(mode==='garage')brEnterGarage();
+  else if(mode==='pool')brEnterPool();
+  else if(mode==='pool2')brEnterPool2();
+  else if(mode==='city')brEnterCity();
+  else if(mode==='field')brEnterField();
+}
+function devBrEnding(kind){
+  brPlayCutscene(brEndingOpts(kind,77,0,0),()=>{});
 }
 
 function startBackroomsRun(){
@@ -76,7 +94,7 @@ function brPlaceGuaranteedAt(wallsSet,ensureChunkFn,distMin,distRange){
   for(let oy=-1;oy<=1;oy++)for(let ox=-1;ox<=1;ox++)wallsSet.delete((gx+ox)+','+(gy+oy));
   return {x:gx+0.5,y:gy+0.5};
 }
-// 벽 부착형 오브젝트(환풍구/레버): 셀 한쪽에 벽을 세우고, 그 벽면에 밀착된 좌표+방향을 돌려준다
+// 벽 부착형 오브젝트(환풍구/레버/발전기/밸브): 셀 한쪽에 벽을 세우고, 그 벽면에 밀착된 좌표+방향을 돌려준다
 function brPlaceWallMounted(wallsSet,ensureChunkFn,distMin,distRange){
   const pos=brPlaceGuaranteedAt(wallsSet,ensureChunkFn,distMin,distRange);
   const gx=Math.floor(pos.x), gy=Math.floor(pos.y);
@@ -198,26 +216,32 @@ function brPlaceGuaranteedFunDoor(){ br.funDoors.push(brPlaceGuaranteedAt(br.fun
 function brEnsureFunWorld(){
   if(br.funWalls)return;
   br.funWalls=new Set();br.funDoneChunks=new Set();br.funDoors=[];br.funProps=[];
+  br.funCakes=[];br.funCakesGot=0;br.funGoldDoor=null;
   brEnsureFunChunk(0,0);
   brPlaceGuaranteedFunDoor();
+  // 탈출 조건: 생일 케이크 3개 (거리를 달리해서 흩뿌린다)
+  for(const [dm,dr] of [[8,6],[13,7],[18,8]]){
+    br.funCakes.push({...brPlaceGuaranteedAt(br.funWalls,brEnsureFunChunk,dm,dr),taken:false});
+  }
   localStorage.setItem(BR_FUN_KEY,'1');
 }
 
-// ── 신규 레벨(주차장/수영장/도시/갈대밭) 공용 무한 청크 생성기 ──
+// ── 신규 레벨(주차장/수영장/수영장상층/도시/갈대밭) 공용 무한 청크 생성기 ──
 const BR_LEVEL_THEME={
   level0:{floor:[96,80,42], ceil:[52,42,18], wallLo:[120,98,52], wallHi:[184,152,80], fog:'rgba(20,15,4,'},
   garage:{floor:[40,40,46], ceil:[24,24,28], wallLo:[86,88,96],  wallHi:[128,130,140],fog:'rgba(6,6,9,'},
   pool:  {floor:[18,95,150],ceil:[200,225,240],wallLo:[150,180,195],wallHi:[205,228,238],fog:'rgba(8,30,45,'},
+  pool2: {floor:[226,234,238],ceil:[238,246,250],wallLo:[168,196,208],wallHi:[222,238,244],fog:'rgba(30,55,70,'},
   city:  {floor:[46,46,50], ceil:[120,165,215],wallLo:[38,38,44],wallHi:[60,60,70],   fog:'rgba(8,10,16,'},
   field: {floor:[95,135,60],ceil:[150,190,235],wallLo:[80,120,55],wallHi:[110,160,80],fog:'rgba(18,26,12,'},
 };
-const BR_MODE_SALT={garage:0x2545F491,pool:0x27D4EB2F,city:0x165667B1,field:0x85EBCA6B};
-const BR_MODE_PILLAR_PROB={garage:0.55,pool:0.14,city:0.4,field:0.02};
+const BR_MODE_SALT={garage:0x2545F491,pool:0x27D4EB2F,pool2:0x3C6EF372,city:0x165667B1,field:0x85EBCA6B};
+const BR_MODE_PILLAR_PROB={garage:0.55,pool:0.14,pool2:0.2,city:0.4,field:0.02};
 const BR_WORLD_PROP_CAP=180;
 function brWorldKey(mode){ return mode==='garage'?('garage_'+(br.garageFloor||1)):mode; }
 function brGetWorld(mode){
   const key=brWorldKey(mode);
-  if(!br.worlds[key])br.worlds[key]={walls:new Set(),doneChunks:new Set(),slides:[],ramps:[],props:[]};
+  if(!br.worlds[key])br.worlds[key]={walls:new Set(),doneChunks:new Set(),slides:[],ramps:[],props:[],generators:[],gensOn:0,valves:[],valvesOn:0,stairs:[],exitDoors:[]};
   return br.worlds[key];
 }
 function brEnsureGenericChunk(mode,cx,cy){
@@ -231,10 +255,35 @@ function brEnsureGenericChunk(mode,cx,cy){
   const baseX=cx*BR_CH, baseY=cy*BR_CH;
   const pillarProb=BR_MODE_PILLAR_PROB[mode]||0.4;
   if(mode==='garage'){
-    // 주차장: 규칙적인 격자 기둥(아파트 지하주차장처럼 4칸 간격 정렬)
+    // 주차장: 3칸 간격 격자 기둥(통로가 좁아 아파트 지하주차장 특유의 답답한 느낌)
     for(let ly=0;ly<BR_CH;ly++)for(let lx=0;lx<BR_CH;lx++){
       const gx=baseX+lx, gy=baseY+ly;
-      if(((gx%4+4)%4===0)&&((gy%4+4)%4===0))w.walls.add(gx+','+gy);
+      if(((gx%3+3)%3===0)&&((gy%3+3)%3===0))w.walls.add(gx+','+gy);
+    }
+  } else if(mode==='pool'||mode==='pool2'){
+    // 수영장: 청크마다 구조가 다르다 - 탁 트인 풀 / 기둥 홀 / 좁은 복도 구역이 뒤섞임
+    const variant=brHashCell(cx,cy)%3;
+    if(variant===0){
+      // 탁 트인 풀 구역 (테두리 일부만)
+      for(let i=0;i<BR_CH;i+=5){ if(rnd()<0.5)w.walls.add((baseX+i)+','+(baseY)); if(rnd()<0.5)w.walls.add((baseX)+','+(baseY+i)); }
+    } else if(variant===1){
+      // 기둥 홀
+      const spacing=4;
+      for(let ly=1;ly<BR_CH;ly+=spacing)for(let lx=1;lx<BR_CH;lx+=spacing){
+        if(rnd()<0.7)w.walls.add((baseX+lx)+','+(baseY+ly));
+      }
+    } else {
+      // 좁은 복도 구역
+      const partitions=2+Math.floor(rnd()*2);
+      for(let p=0;p<partitions;p++){
+        const horiz=rnd()<0.5, len=5+Math.floor(rnd()*5), gapAt=Math.floor(rnd()*len);
+        const sx=Math.floor(rnd()*Math.max(1,BR_CH-len)), sy=Math.floor(rnd()*BR_CH);
+        for(let i=0;i<len;i++){
+          if(i===gapAt)continue;
+          const gx=horiz?baseX+sx+i:baseX+sx, gy=horiz?baseY+sy:baseY+sy+i;
+          w.walls.add(gx+','+gy);
+        }
+      }
     }
   } else {
     const spacing=3;
@@ -263,6 +312,25 @@ function brEnsureGenericChunk(mode,cx,cy){
         if(!w.walls.has(gx+','+gy)){ w.slides.push({x:gx+0.5,y:gy+0.5}); break; }
       }
     }
+    // 상층으로 올라가는 계단
+    if(chunkDist>=1&&w.stairs.length<2&&rnd()<0.06){
+      for(let tries=0;tries<20;tries++){
+        const lx=1+Math.floor(rnd()*(BR_CH-2)), ly=1+Math.floor(rnd()*(BR_CH-2));
+        const gx=baseX+lx, gy=baseY+ly;
+        if(!w.walls.has(gx+','+gy)){ w.stairs.push({x:gx+0.5,y:gy+0.5,dir:'up'}); break; }
+      }
+    }
+  }
+  if(mode==='pool2'){
+    // 상층에서 다시 내려가는 계단
+    const chunkDist=Math.hypot(cx,cy);
+    if(chunkDist>=1&&w.stairs.length<2&&rnd()<0.08){
+      for(let tries=0;tries<20;tries++){
+        const lx=1+Math.floor(rnd()*(BR_CH-2)), ly=1+Math.floor(rnd()*(BR_CH-2));
+        const gx=baseX+lx, gy=baseY+ly;
+        if(!w.walls.has(gx+','+gy)){ w.stairs.push({x:gx+0.5,y:gy+0.5,dir:'down'}); break; }
+      }
+    }
   }
   if(mode==='garage'){
     // 주차된 차들: 주차칸 안에 정렬 배치 (색상 랜덤)
@@ -272,7 +340,7 @@ function brEnsureGenericChunk(mode,cx,cy){
       for(let i=0;i<carCount&&w.props.length<BR_WORLD_PROP_CAP;i++){
         const lx=1+Math.floor(rnd()*(BR_CH-2)), ly=1+Math.floor(rnd()*(BR_CH-2));
         const gx=baseX+lx, gy=baseY+ly;
-        if(!w.walls.has(gx+','+gy)&&((gx%4+4)%4)!==0){
+        if(!w.walls.has(gx+','+gy)&&((gx%3+3)%3)!==0){
           w.props.push({x:gx+0.5,y:gy+0.5,kind:'car',color:carColors[Math.floor(rnd()*carColors.length)]});
         }
       }
@@ -315,23 +383,28 @@ function brEnterFun(){
 }
 function brExitFun(){
   br.mode='level0';
-  br.px=br.savedLevel0.px;br.py=br.savedLevel0.py;br.angle=br.savedLevel0.angle;
+  br.px=br.savedLevel0?br.savedLevel0.px:2.5;br.py=br.savedLevel0?br.savedLevel0.py:2.5;br.angle=br.savedLevel0?br.savedLevel0.angle:0.4;
   br.entity=null;br.entityTimer=brNextEntityDelay();
   showMerchantToast('🚪 다시 백룸으로...');
   achStats.brFunEscapes=(achStats.brFunEscapes||0)+1;saveAch();checkAchievements();
 }
-function brGuaranteeGarageRamp(){
+function brGuaranteeGarageContent(){
   const w=brGetWorld('garage');
-  if(!w._guaranteedRamp){
-    w._guaranteedRamp=true;
-    w.ramps.push(brPlaceGuaranteedAt(w.walls,(cx,cy)=>brEnsureGenericChunk('garage',cx,cy),16,10));
+  if(w._guaranteed)return;
+  w._guaranteed=true;
+  const ensure=(cx,cy)=>brEnsureGenericChunk('garage',cx,cy);
+  // 경사로는 조금만 걸어가면 보이도록 가까이 보장
+  w.ramps.push(brPlaceGuaranteedAt(w.walls,ensure,7,6));
+  // 탈출 조건: 발전기 3개 (같은 층에서 모두 켜야 한다)
+  for(const [dm,dr] of [[6,5],[11,6],[16,7]]){
+    w.generators.push({...brPlaceWallMounted(w.walls,ensure,dm,dr),on:false});
   }
 }
 function brEnterGarage(){
   br.mode='garage';br.garageFloor=1;br.px=2.5;br.py=2.5;br.angle=Math.PI*0.25;
   br.entity=null;br.entityTimer=260;
   brEnsureGenericArea('garage',br.px,br.py);
-  brGuaranteeGarageRamp();
+  brGuaranteeGarageContent();
   showMerchantToast('🔧 환풍구를 열고 기어들어갔다... 끝없는 주차장 B1');
 }
 function brDescendGarage(){
@@ -339,18 +412,38 @@ function brDescendGarage(){
   br.px=2.5;br.py=2.5;br.angle=Math.PI*0.25;
   br.entity=null;br.entityTimer=Math.max(140,260-br.garageFloor*12);
   brEnsureGenericArea('garage',br.px,br.py);
-  brGuaranteeGarageRamp();
+  brGuaranteeGarageContent();
   showMerchantToast('🅿️ 경사로를 따라 내려갔다... B'+br.garageFloor);
+}
+function brGuaranteePoolContent(){
+  const w=brGetWorld('pool');
+  if(w._guaranteed)return;
+  w._guaranteed=true;
+  const ensure=(cx,cy)=>brEnsureGenericChunk('pool',cx,cy);
+  w.slides.push(brPlaceGuaranteedAt(w.walls,ensure,18,10));
+  w.stairs.push({...brPlaceGuaranteedAt(w.walls,ensure,9,6),dir:'up'});
+  // 탈출 조건: 배수 밸브 3개
+  for(const [dm,dr] of [[7,5],[12,6],[17,7]]){
+    w.valves.push({...brPlaceWallMounted(w.walls,ensure,dm,dr),on:false});
+  }
 }
 function brEnterPool(){
   br.mode='pool';br.px=2.5;br.py=2.5;br.angle=Math.PI*0.25;
   br.entity=null;br.entityTimer=260;
-  const w=brGetWorld('pool');
-  if(!w._guaranteedSlide){
-    w._guaranteedSlide=true;
-    w.slides.push(brPlaceGuaranteedAt(w.walls,(cx,cy)=>brEnsureGenericChunk('pool',cx,cy),18,10));
-  }
+  brEnsureGenericArea('pool',br.px,br.py);
+  brGuaranteePoolContent();
   showMerchantToast('🕳️ 끝없이 떨어지다... 물속에 빠졌다');
+}
+function brEnterPool2(){
+  br.mode='pool2';br.px=2.5;br.py=2.5;br.angle=Math.PI*0.25;
+  br.entity=null;br.entityTimer=300;
+  brEnsureGenericArea('pool2',br.px,br.py);
+  const w=brGetWorld('pool2');
+  if(!w._guaranteed){
+    w._guaranteed=true;
+    w.stairs.push({...brPlaceGuaranteedAt(w.walls,(cx,cy)=>brEnsureGenericChunk('pool2',cx,cy),8,6),dir:'down'});
+  }
+  showMerchantToast('🪜 계단을 올라 상층에 도착했다');
 }
 function brEnterCity(){
   br.mode='city';br.px=2.5;br.py=2.5;br.angle=Math.PI*0.25;
@@ -370,6 +463,7 @@ function initBackroomsMode(){
     walls:new Set(),doneChunks:new Set(),doors:[],realExits:[],
     vents:[],pits:[],screwdrivers:[],levers:[],leversUp:0,hasScrewdriver:false,
     worlds:{},fieldTriggered:false,garageFloor:1,
+    funCakes:[],funCakesGot:0,funGoldDoor:null,
     entity:null,entityTimer:240,frame:0,depthMax:0,
   };
   brEnsureChunk(0,0);
@@ -444,7 +538,7 @@ function updateBackroomsMode(){
     const depth=Math.hypot(br.px-2.5,br.py-2.5);
     if(depth>br.depthMax){br.depthMax=depth;brSaveBestDepth(Math.floor(depth));}
     for(const d of br.doors)if(Math.hypot(d.x-br.px,d.y-br.py)<0.6){ brEnterFun(); return; }
-    for(const r of br.realExits)if(Math.hypot(r.x-br.px,r.y-br.py)<0.6){ brRealExit(); return; }
+    for(const r of br.realExits)if(Math.hypot(r.x-br.px,r.y-br.py)<0.6){ brLevelEnding('level0'); return; }
     for(const v of br.vents){
       if(Math.hypot(v.x-br.px,v.y-br.py)<0.75){
         if(br.hasScrewdriver){ brEnterGarage(); return; }
@@ -468,20 +562,60 @@ function updateBackroomsMode(){
   } else if(br.mode==='fun'){
     brEnsureFunArea(br.px,br.py);
     for(const d of br.funDoors)if(Math.hypot(d.x-br.px,d.y-br.py)<0.6){ brExitFun(); return; }
+    for(const c of br.funCakes){
+      if(!c.taken&&Math.hypot(c.x-br.px,c.y-br.py)<0.55){
+        c.taken=true; br.funCakesGot=(br.funCakesGot||0)+1;
+        showMerchantToast('🎂 생일 케이크를 찾았다 ('+br.funCakesGot+'/3)');
+        if(br.funCakesGot>=3&&!br.funGoldDoor){
+          br.funGoldDoor=brPlaceGuaranteedAt(br.funWalls,brEnsureFunChunk,10,8);
+          showMerchantToast('✨ 촛불이 모두 켜지자... 황금 문이 나타났다');
+        }
+      }
+    }
+    if(br.funGoldDoor&&Math.hypot(br.funGoldDoor.x-br.px,br.funGoldDoor.y-br.py)<0.6){ brLevelEnding('fun'); return; }
   } else if(br.mode==='pool'){
     brEnsureGenericArea('pool',br.px,br.py);
     const w=brGetWorld('pool');
     for(const s of w.slides)if(Math.hypot(s.x-br.px,s.y-br.py)<0.6){ brEnterCity(); return; }
+    for(const st of w.stairs)if(Math.hypot(st.x-br.px,st.y-br.py)<0.6){ brEnterPool2(); return; }
+    for(const v of w.valves){
+      if(!v.on&&Math.hypot(v.x-br.px,v.y-br.py)<0.7){
+        v.on=true; w.valvesOn=(w.valvesOn||0)+1;
+        showMerchantToast('🔵 밸브를 잠갔다 ('+w.valvesOn+'/3)');
+        if(w.valvesOn>=3&&w.exitDoors.length===0){
+          w.exitDoors.push(brPlaceGuaranteedAt(w.walls,(cx,cy)=>brEnsureGenericChunk('pool',cx,cy),9,7));
+          showMerchantToast('🌀 물이 소용돌이치며 빠진다... 배수구 문이 열렸다');
+        }
+      }
+    }
+    for(const e of w.exitDoors)if(Math.hypot(e.x-br.px,e.y-br.py)<0.6){ brLevelEnding('pool'); return; }
+  } else if(br.mode==='pool2'){
+    brEnsureGenericArea('pool2',br.px,br.py);
+    const w=brGetWorld('pool2');
+    for(const st of w.stairs)if(Math.hypot(st.x-br.px,st.y-br.py)<0.6){ brEnterPool(); return; }
   } else if(br.mode==='garage'){
     brEnsureGenericArea('garage',br.px,br.py);
     const w=brGetWorld('garage');
     for(const rp of w.ramps)if(Math.hypot(rp.x-br.px,rp.y-br.py)<0.6){ brDescendGarage(); return; }
+    for(const g of w.generators){
+      if(!g.on&&Math.hypot(g.x-br.px,g.y-br.py)<0.7){
+        g.on=true; w.gensOn=(w.gensOn||0)+1;
+        showMerchantToast('⚙️ 발전기 가동 ('+w.gensOn+'/3)');
+        if(w.gensOn>=3&&w.exitDoors.length===0){
+          w.exitDoors.push(brPlaceGuaranteedAt(w.walls,(cx,cy)=>brEnsureGenericChunk('garage',cx,cy),8,6));
+          showMerchantToast('💡 셔터가 올라가는 소리가 들린다... EXIT 문이 열렸다');
+        }
+      }
+    }
+    for(const e of w.exitDoors)if(Math.hypot(e.x-br.px,e.y-br.py)<0.6){ brLevelEnding('garage'); return; }
   } else if(br.mode==='city'){
     brEnsureGenericArea('city',br.px,br.py);
     const depth=Math.hypot(br.px-2.5,br.py-2.5);
     if(depth>55&&!br.fieldTriggered){ br.fieldTriggered=true; brEnterField(); return; }
   } else if(br.mode==='field'){
     brEnsureGenericArea('field',br.px,br.py);
+    const depth=Math.hypot(br.px-2.5,br.py-2.5);
+    if(depth>120){ brLevelEnding('field'); return; }
   }
   brUpdateEntity();
 }
@@ -492,22 +626,50 @@ function loseBackrooms(){
   showMerchantToast(msg);
   setTimeout(()=>{ if(document.exitPointerLock)document.exitPointerLock(); stopGame(); go('sBackrooms'); },900);
 }
-function brRealExit(){
+
+// ── 레벨별 엔딩: 보상 지급 + 업적 마킹 + 전용 컷신 ──
+const BR_ENDINGS={
+  level0:{achFlag:'brRealExits',achSave:null,baseCoins:15000,baseEnergy:6000,
+    title:'ESCAPED',sub:'THE BACKROOMS',accent:'#7dd3fc',
+    lines:['...문이 열렸다...','뒤에서는 이제, 아무 소리도 들리지 않는다','셀 수 없이 걸었던 그 모든 노란 방들이','이제는 흐릿한 꿈처럼 멀어진다','이곳은 곧, 기억이 될 것이다']},
+  fun:{achFlag:'brEndFun',baseCoins:40000,baseEnergy:15000,confetti:true,
+    title:'THE PARTY IS OVER',sub:'LEVEL FUN=)',accent:'#f472b6',
+    lines:['세 개의 케이크, 세 번의 생일','아무도 축하해주지 않던 파티에','당신이 촛불을 켜주었다','파티고어가 처음으로, 진짜로 웃는다','"와줘서 고마워요"','황금 문이 당신을 배웅한다']},
+  garage:{achFlag:'brEndGarage',baseCoins:25000,baseEnergy:10000,
+    title:'B-∞',sub:'ENDLESS PARKING',accent:'#eab308',
+    lines:['발전기 세 대가 낮게 울린다','수천 대의 차들, 그러나 운전자는 없었다','형광등이 하나씩 켜지며 길을 비춘다','셔터 너머로, 바깥 공기 냄새가 난다']},
+  pool:{achFlag:'brEndPool',baseCoins:30000,baseEnergy:12000,
+    title:'DRAINED',sub:'THE POOLROOMS',accent:'#38bdf8',
+    lines:['마지막 밸브가 잠기는 소리','수면이 천천히 낮아진다','물결에 비친 것은 당신 혼자뿐이었다','배수구 아래에서, 빛이 새어나온다']},
+  field:{achFlag:'brEndField',baseCoins:20000,baseEnergy:8000,
+    title:'HORIZON',sub:'ENDLESS FIELDS',accent:'#a3e635',
+    lines:['갈대가 바람에 눕는다','도시도, 수영장도, 노란 방도','이제는 등 뒤의 이야기','지평선이 처음으로, 가까워진다']},
+};
+function brEndingOpts(kind,depth,rewardCoins,rewardEnergy){
+  const e=BR_ENDINGS[kind]||BR_ENDINGS.level0;
+  let stats='도달 거리 '+depth+'m';
+  if(kind==='garage')stats='B'+(br&&br.garageFloor||1)+' 층에서 탈출';
+  if(kind==='fun')stats='케이크 3/3 · 파티 종료';
+  if(rewardCoins)stats+='  ·  🪙+'+rewardCoins.toLocaleString()+' ⚡+'+rewardEnergy.toLocaleString();
+  return {...e,statsText:stats};
+}
+function brLevelEnding(kind){
   running=false;window._needLastDraw=true;
-  achStats.brRealExits=(achStats.brRealExits||0)+1;saveAch();checkAchievements();
+  const e=BR_ENDINGS[kind];
   const depth=Math.floor(Math.hypot(br.px-2.5,br.py-2.5));
-  const foundFun=localStorage.getItem(BR_FUN_KEY)==='1';
-  // 탈출 성공 보상: 매번 지급, 도달 거리가 멀수록 더 큰 보상
-  const rewardCoins=15000+depth*250;
-  const rewardEnergy=6000+depth*120;
+  if(kind==='level0'){ achStats.brRealExits=(achStats.brRealExits||0)+1; }
+  else { achStats[e.achFlag]=1; }
+  saveAch();checkAchievements();
+  const rewardCoins=e.baseCoins+depth*250;
+  const rewardEnergy=e.baseEnergy+depth*120;
   coins+=rewardCoins; energy+=rewardEnergy;
   sv('hd_c',coins); sv('hd_e',energy); updRes();
   if(document.exitPointerLock)document.exitPointerLock();
-  playBackroomsEscapeCutscene(depth,foundFun,rewardCoins,rewardEnergy,()=>{ stopGame(); go('sBackrooms'); });
+  brPlayCutscene(brEndingOpts(kind,depth,rewardCoins,rewardEnergy),()=>{ stopGame(); go('sBackrooms'); });
 }
 
-// ── 진짜 탈출구 컷신: 드림코어풍 연출 ──
-function playBackroomsEscapeCutscene(depth,foundFun,rewardCoins,rewardEnergy,cb){
+// ── 엔딩 컷신: 어둠이 화면을 삼키는 드림코어풍 연출 (옵션으로 레벨별 커스텀) ──
+function brPlayCutscene(opts,cb){
   const el=document.getElementById('brEscapeCutscene');
   if(!el){ cb(); return; }
   const light=document.getElementById('brCsLight');
@@ -518,14 +680,18 @@ function playBackroomsEscapeCutscene(depth,foundFun,rewardCoins,rewardEnergy,cb)
   const title=document.getElementById('brCsTitle');
   const sub=document.getElementById('brCsSub');
   const stats=document.getElementById('brCsStats');
+  const confetti=document.getElementById('brCsConfetti');
   el.style.transition='';el.style.opacity='';
   el.classList.remove('shake');
   [light,flash,vign,scan,lines,title,sub,stats].forEach(x=>x.classList.remove('go','show','run','grow'));
+  title.classList.remove('fun-title');
   lines.textContent='';title.textContent='';sub.textContent='';stats.textContent='';
+  if(confetti)confetti.innerHTML='';
+  sub.style.color=opts.accent||'#7dd3fc';
   el.classList.add('on');
   void el.offsetWidth;
 
-  // 1) 빛을 향해 걸어들어가는 느낌으로 화면 전체가 서서히 빛에 잠식됨
+  // 1) 어둠이 화면 중앙에서 자라나 모든 것을 삼킨다
   light.classList.add('grow');
   let t=1500;
   setTimeout(()=>{ flash.classList.add('go'); },t);
@@ -537,13 +703,7 @@ function playBackroomsEscapeCutscene(depth,foundFun,rewardCoins,rewardEnergy,cb)
   },t);
 
   // 2) 어둠 속, 회상하듯 대사가 하나씩 떠오른다
-  const LINES=[
-    '...문이 열렸다...',
-    '뒤에서는 이제, 아무 소리도 들리지 않는다',
-    '셀 수 없이 걸었던 그 모든 노란 방들이',
-    '이제는 흐릿한 꿈처럼 멀어진다',
-    '이곳은 곧, 기억이 될 것이다',
-  ];
+  const LINES=opts.lines||[];
   t+=450;
   LINES.forEach(txt=>{
     const at=t;
@@ -552,19 +712,30 @@ function playBackroomsEscapeCutscene(depth,foundFun,rewardCoins,rewardEnergy,cb)
     t+=1300;
   });
 
-  // 3) 글리치와 함께 타이틀이 강렬하게 떠오른다
+  // 3) 글리치와 함께 타이틀이 강렬하게 떠오른다 (FUN은 무지개 글로우 + 컨페티)
   setTimeout(()=>{
     scan.classList.remove('run');
-    title.textContent='ESCAPED';
+    title.textContent=opts.title||'ESCAPED';
+    if(opts.confetti)title.classList.add('fun-title');
     title.classList.add('show');
-    sub.textContent='THE BACKROOMS';
+    sub.textContent=opts.sub||'';
     sub.classList.add('show');
+    if(opts.confetti&&confetti){
+      for(let i=0;i<48;i++){
+        const p=document.createElement('span');
+        p.className='br-confetti';
+        p.style.left=(Math.random()*100)+'%';
+        p.style.background=BR_BALLOON_COLORS[Math.floor(Math.random()*BR_BALLOON_COLORS.length)];
+        p.style.animationDelay=(Math.random()*1.4)+'s';
+        p.style.animationDuration=(2+Math.random()*2)+'s';
+        p.style.transform='rotate('+(Math.random()*360)+'deg)';
+        confetti.appendChild(p);
+      }
+    }
   },t);
   t+=1800;
   setTimeout(()=>{
-    let s='도달 거리 '+depth+'m'+(foundFun?' · LEVEL FUN=) 발견':'');
-    if(rewardCoins)s+='  ·  🪙+'+rewardCoins.toLocaleString()+' ⚡+'+rewardEnergy.toLocaleString();
-    stats.textContent=s;
+    stats.textContent=opts.statsText||'';
     stats.classList.add('show');
   },t);
   t+=2200;
@@ -576,6 +747,7 @@ function playBackroomsEscapeCutscene(depth,foundFun,rewardCoins,rewardEnergy,cb)
   setTimeout(()=>{
     el.classList.remove('on');
     el.style.opacity='';el.style.transition='';
+    if(confetti)confetti.innerHTML='';
     cb();
   },t);
 }
@@ -618,7 +790,7 @@ function brCastRay(px,py,angle){
 }
 
 // ── 바닥/천장 텍스처 캐스팅: 저해상도 오프스크린 ImageData에 그린 뒤 확대 (fillRect 대비 수 배 빠름) ──
-const BR_PLANE_W=220,BR_PLANE_H=128;
+const BR_PLANE_W=300,BR_PLANE_H=172;
 let _brPlaneCv=null,_brPlaneCtx=null,_brPlaneImg=null,_brPlaneDirX=null,_brPlaneDirY=null,_brPlaneInvCos=null,_brPlaneAngle=null;
 function brDrawPlanesLowRes(w,h,ceilFn,floorFn,flick){
   if(!_brPlaneCv){
@@ -660,20 +832,21 @@ function brDrawPlanesLowRes(w,h,ceilFn,floorFn,flick){
   ctx.imageSmoothingEnabled=true;
   ctx.drawImage(_brPlaneCv,0,0,w,h);
 }
-// FUN: 체크무늬 파티 바닥 + 파스텔 천장
-function brFunFloorColor(wx,wy){
-  return BR_FUN_FLOOR_COLORS[brHashCell(Math.floor(wx),Math.floor(wy))%BR_FUN_FLOOR_COLORS.length];
-}
-function brFunCeilColor(){ return BR_FUN_THEME.ceil; }
 // 플레인 색상 함수용 공용 상수/스크래치 (픽셀당 배열 할당 방지)
 const BR_C_LANE=[230,190,40],BR_C_STALL=[225,225,230],BR_C_ASPHALT=[44,44,50];
 const BR_C_LIGHT_ON=[255,248,214],BR_C_LIGHT_OFF=[70,70,66],BR_C_CONCRETE=[30,30,36];
 const BR_C_GROUT=[150,168,178],BR_C_TILE=[216,228,234];
 const BR_C_SKYLIGHT=[235,245,252],BR_C_POOLCEIL=[188,214,228];
+const BR_C_TILE2=[232,240,244],BR_C_GROUT2=[176,200,210],BR_C_LANE2=[80,160,200];
 const _brWater=[0,0,0];
 // 물 일렁임용 sin 룩업 테이블 (픽셀당 Math.sin 호출 방지)
 const BR_SIN_LUT=new Float32Array(256);
 for(let i=0;i<256;i++)BR_SIN_LUT[i]=Math.sin(i/256*Math.PI*2);
+// FUN: 체크무늬 파티 바닥 + 파스텔 천장
+function brFunFloorColor(wx,wy){
+  return BR_FUN_FLOOR_COLORS[brHashCell(Math.floor(wx),Math.floor(wy))%BR_FUN_FLOOR_COLORS.length];
+}
+function brFunCeilColor(){ return BR_FUN_THEME.ceil; }
 // 주차장: 아스팔트 + 노란 차선 + 흰 주차칸 라인
 function brGarageFloorColor(wx,wy){
   const laneFrac=((wy%6)+6)%6;
@@ -708,6 +881,18 @@ function brPoolCeilColor(wx,wy){
   const panel=brHashCell(Math.floor(wx/2),Math.floor(wy/2))%4;
   return panel===0?BR_C_SKYLIGHT:BR_C_POOLCEIL;
 }
+// 수영장 상층: 물 없는 밝은 타일 홀 + 파란 안내선
+function brPool2FloorColor(wx,wy){
+  const laneFrac=((wy%5)+5)%5;
+  if(laneFrac<0.12)return BR_C_LANE2;
+  const gx=((wx%1)+1)%1, gy=((wy%1)+1)%1;
+  if(gx<0.05||gy<0.05)return BR_C_GROUT2;
+  return BR_C_TILE2;
+}
+function brPool2CeilColor(wx,wy){
+  const panel=brHashCell(Math.floor(wx/2),Math.floor(wy/2))%5;
+  return panel===0?BR_C_SKYLIGHT:BR_C_TILE2;
+}
 
 // ── 진짜 3D 도어: 벽에 밀착된 문틀+문짝을 그리고, 가까이 가면 열리는 애니메이션 ──
 function brDrawDoor(sxp,groundY,size,dist,style){
@@ -719,6 +904,7 @@ function brDrawDoor(sxp,groundY,size,dist,style){
   let panelColor,knobColor;
   if(style==='entry'){panelColor='#8a5a2b';knobColor='#fde68a';}
   else if(style==='fun-exit'){panelColor='#7f1d1d';knobColor='#fecaca';}
+  else if(style==='gold'){panelColor='#d4a017';knobColor='#fff7d6';}
   else{panelColor='#71717a';knobColor='#e5e7eb';}
   ctx.save();
   ctx.translate(sxp-w/2,0);
@@ -730,6 +916,14 @@ function brDrawDoor(sxp,groundY,size,dist,style){
   if(style==='real-exit'){
     ctx.fillStyle='#d1d5db';
     ctx.fillRect(doorW*0.08,groundY-h*0.46,doorW*0.84,h*0.055);
+  } else if(style==='gold'){
+    ctx.fillStyle='#fff7d6';
+    ctx.font='bold '+Math.round(h*0.16)+'px sans-serif';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('★',doorW*0.5,groundY-h*0.72);
+    ctx.textAlign='left';ctx.textBaseline='alphabetic';
+    ctx.fillStyle=knobColor;
+    ctx.beginPath();ctx.arc(doorW*0.85,groundY-h*0.5,Math.max(2,size*0.022),0,Math.PI*2);ctx.fill();
   } else {
     ctx.fillStyle=knobColor;
     ctx.beginPath();ctx.arc(doorW*0.85,groundY-h*0.5,Math.max(2,size*0.022),0,Math.PI*2);ctx.fill();
@@ -756,11 +950,10 @@ function brDraw3DBoxFace(sxp,cy,fw,fh,depth,frontFill,sideFill,topFill){
   const perspX=(sxp-w/2)/w; // -0.5 ~ 0.5
   const sideW=-perspX*depth*2;
   const topH=depth*0.5;
-  // 옆면
   if(Math.abs(sideW)>0.5){
     ctx.fillStyle=sideFill;
     ctx.beginPath();
-    if(sideW>0){ // 오른쪽 면 노출
+    if(sideW>0){
       ctx.moveTo(sxp+fw/2,cy-fh/2);ctx.lineTo(sxp+fw/2+sideW,cy-fh/2-topH*0.4);
       ctx.lineTo(sxp+fw/2+sideW,cy+fh/2-topH*0.4);ctx.lineTo(sxp+fw/2,cy+fh/2);
     } else {
@@ -769,31 +962,27 @@ function brDraw3DBoxFace(sxp,cy,fw,fh,depth,frontFill,sideFill,topFill){
     }
     ctx.closePath();ctx.fill();
   }
-  // 윗면
   ctx.fillStyle=topFill;
   ctx.beginPath();
   ctx.moveTo(sxp-fw/2,cy-fh/2);ctx.lineTo(sxp-fw/2+sideW*0.6,cy-fh/2-topH);
   ctx.lineTo(sxp+fw/2+sideW*0.6,cy-fh/2-topH);ctx.lineTo(sxp+fw/2,cy-fh/2);
   ctx.closePath();ctx.fill();
-  // 앞면
   ctx.fillStyle=frontFill;
   ctx.fillRect(sxp-fw/2,cy-fh/2,fw,fh);
 }
 // 환풍구: 벽 하단에 붙은 입체 금속 그릴 (나사 4개 + 슬랫)
 function brDrawVent(sxp,cy0,size){
   const fw=size*0.46,fh=size*0.34;
-  const cy=cy0+size*0.14; // 벽 하단부에 부착
+  const cy=cy0+size*0.14;
   brDraw3DBoxFace(sxp,cy,fw,fh,size*0.05,'#52525b','#3f3f46','#71717a');
   ctx.strokeStyle='#27272a';ctx.lineWidth=Math.max(1,size*0.012);
   ctx.strokeRect(sxp-fw/2,cy-fh/2,fw,fh);
-  // 슬랫(가로 통풍구 날)
   ctx.fillStyle='#1c1917';
   const slats=5;
   for(let i=0;i<slats;i++){
     const yy=cy-fh/2+fh*(i+0.5)/slats;
     ctx.fillRect(sxp-fw/2+fw*0.09,yy-fh*0.045,fw*0.82,fh*0.09);
   }
-  // 모서리 나사
   ctx.fillStyle='#a1a1aa';
   const sr=Math.max(1.5,size*0.014);
   [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([qx,qy])=>{
@@ -807,7 +996,6 @@ function brDrawLever(sxp,cy0,size,up){
   brDraw3DBoxFace(sxp,cy,fw,fh,size*0.06,'#57534e','#44403c','#78716c');
   ctx.strokeStyle='#292524';ctx.lineWidth=Math.max(1,size*0.01);
   ctx.strokeRect(sxp-fw/2,cy-fh/2,fw,fh);
-  // 손잡이 축
   ctx.fillStyle='#292524';
   ctx.beginPath();ctx.arc(sxp,cy,Math.max(2,size*0.028),0,Math.PI*2);ctx.fill();
   const col=up?'#4ade80':'#dc2626';
@@ -816,12 +1004,107 @@ function brDrawLever(sxp,cy0,size,up){
   ctx.beginPath();ctx.moveTo(sxp,cy);ctx.lineTo(sxp+hx,cy+hy);ctx.stroke();
   ctx.fillStyle=col;
   ctx.beginPath();ctx.arc(sxp+hx,cy+hy,Math.max(2.5,size*0.038),0,Math.PI*2);ctx.fill();
-  // 상태 라벨
   ctx.fillStyle=col;
   ctx.font='bold '+Math.round(size*0.07)+'px monospace';
   ctx.textAlign='center';
   ctx.fillText(up?'ON':'OFF',sxp,cy+fh/2+size*0.09);
   ctx.textAlign='left';
+}
+// 발전기: 벽에 붙은 대형 기계 + 상태등 + 케이블
+function brDrawGenerator(sxp,cy0,size,on){
+  const fw=size*0.42,fh=size*0.44;
+  const cy=cy0+size*0.08;
+  brDraw3DBoxFace(sxp,cy,fw,fh,size*0.07,'#374151','#1f2937','#4b5563');
+  ctx.strokeStyle='#111827';ctx.lineWidth=Math.max(1,size*0.012);
+  ctx.strokeRect(sxp-fw/2,cy-fh/2,fw,fh);
+  // 환기 그릴
+  ctx.fillStyle='#111827';
+  for(let i=0;i<3;i++){
+    ctx.fillRect(sxp-fw*0.36,cy-fh*0.3+i*fh*0.16,fw*0.44,fh*0.07);
+  }
+  // 상태등
+  const lampCol=on?'#4ade80':'#dc2626';
+  ctx.fillStyle=lampCol;
+  ctx.beginPath();ctx.arc(sxp+fw*0.28,cy-fh*0.26,Math.max(2.5,size*0.035),0,Math.PI*2);ctx.fill();
+  if(on){
+    const glow=ctx.createRadialGradient(sxp+fw*0.28,cy-fh*0.26,0,sxp+fw*0.28,cy-fh*0.26,size*0.12);
+    glow.addColorStop(0,'rgba(74,222,128,.6)');glow.addColorStop(1,'rgba(74,222,128,0)');
+    ctx.fillStyle=glow;
+    ctx.fillRect(sxp+fw*0.28-size*0.12,cy-fh*0.26-size*0.12,size*0.24,size*0.24);
+  }
+  // 케이블
+  ctx.strokeStyle='#0f172a';ctx.lineWidth=Math.max(1.5,size*0.02);
+  ctx.beginPath();
+  ctx.moveTo(sxp+fw*0.1,cy+fh/2);
+  ctx.quadraticCurveTo(sxp+fw*0.3,cy+fh*0.75,sxp+fw*0.55,cy+fh*0.72);
+  ctx.stroke();
+  ctx.fillStyle=on?'#4ade80':'#9ca3af';
+  ctx.font='bold '+Math.round(size*0.07)+'px monospace';
+  ctx.textAlign='center';
+  ctx.fillText(on?'RUN':'OFF',sxp,cy+fh/2+size*0.1);
+  ctx.textAlign='left';
+}
+// 밸브: 벽에 붙은 파이프 + 돌림 휠
+function brDrawValve(sxp,cy0,size,on){
+  const cy=cy0;
+  // 파이프
+  ctx.fillStyle='#475569';
+  ctx.fillRect(sxp-size*0.035,cy-size*0.3,size*0.07,size*0.6);
+  ctx.fillStyle='#334155';
+  ctx.fillRect(sxp-size*0.09,cy-size*0.32,size*0.18,size*0.06);
+  ctx.fillRect(sxp-size*0.09,cy+size*0.26,size*0.18,size*0.06);
+  // 휠
+  const r=size*0.14;
+  const col=on?'#4ade80':'#f87171';
+  ctx.strokeStyle=col;ctx.lineWidth=Math.max(2,size*0.03);
+  ctx.beginPath();ctx.arc(sxp,cy,r,0,Math.PI*2);ctx.stroke();
+  const spin=on?Math.PI*0.25:0;
+  for(let i=0;i<4;i++){
+    const a=spin+i*Math.PI/2;
+    ctx.beginPath();ctx.moveTo(sxp,cy);ctx.lineTo(sxp+Math.cos(a)*r,cy+Math.sin(a)*r);ctx.stroke();
+  }
+  ctx.fillStyle=col;
+  ctx.beginPath();ctx.arc(sxp,cy,Math.max(2,size*0.03),0,Math.PI*2);ctx.fill();
+  ctx.font='bold '+Math.round(size*0.07)+'px monospace';
+  ctx.textAlign='center';
+  ctx.fillText(on?'잠김':'열림',sxp,cy+r+size*0.1);
+  ctx.textAlign='left';
+}
+// 계단: 위/아래로 이어지는 입체 계단
+function brDrawStairs(sxp,groundY,size,dirUp){
+  const w=size*0.5;
+  const steps=5;
+  for(let i=0;i<steps;i++){
+    const t=i/steps;
+    const stepW=w*(1-t*0.35);
+    const stepH=size*0.075;
+    const yy=dirUp?groundY-i*stepH*1.15:groundY-size*0.42+i*stepH*1.15;
+    const shade=dirUp?(0.9-t*0.35):(0.55+t*0.35);
+    ctx.fillStyle=brShade([170,190,200],shade);
+    ctx.fillRect(sxp-stepW/2,yy-stepH,stepW,stepH);
+    ctx.strokeStyle='rgba(30,50,60,.5)';ctx.lineWidth=1;
+    ctx.strokeRect(sxp-stepW/2,yy-stepH,stepW,stepH);
+  }
+  ctx.fillStyle='#0ea5e9';
+  ctx.font='bold '+Math.round(size*0.1)+'px monospace';
+  ctx.textAlign='center';
+  ctx.fillText(dirUp?'↑':'↓',sxp,groundY-size*0.5);
+  ctx.textAlign='left';
+}
+// 케이크: 촛불 켜진 생일 케이크
+function brDrawCake(sxp,groundY,size){
+  const w=size*0.3,h=size*0.16;
+  ctx.fillStyle='rgba(0,0,0,.3)';
+  ctx.beginPath();ctx.ellipse(sxp,groundY,w*0.65,size*0.03,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#fbcfe8';
+  ctx.fillRect(sxp-w/2,groundY-h,w,h);
+  ctx.fillStyle='#f9a8d4';
+  ctx.fillRect(sxp-w/2,groundY-h,w,h*0.3);
+  ctx.fillStyle='#fff';
+  ctx.fillRect(sxp-w*0.03,groundY-h-size*0.09,w*0.06,size*0.09);
+  const flick2=0.8+Math.sin(Date.now()*0.02)*0.2;
+  ctx.fillStyle='rgba(251,191,36,'+flick2+')';
+  ctx.beginPath();ctx.ellipse(sxp,groundY-h-size*0.11,size*0.02,size*0.032,0,0,Math.PI*2);ctx.fill();
 }
 function brDrawPit(sxp,cy,size){
   const g=ctx.createRadialGradient(sxp,cy,0,sxp,cy,size*0.32);
@@ -846,7 +1129,6 @@ function brDrawRamp(sxp,groundY,size,nextFloor){
   g.addColorStop(0,'#0a0a0c');g.addColorStop(1,'#26262c');
   ctx.fillStyle=g;
   ctx.fillRect(sxp-w/2,groundY-h,w,h);
-  // 상단 위험 스트라이프 (노랑/검정)
   const sh=size*0.06;
   for(let i=0;i<8;i++){
     ctx.fillStyle=i%2===0?'#eab308':'#1c1917';
@@ -862,10 +1144,8 @@ function brDrawRamp(sxp,groundY,size,nextFloor){
 function brDrawCar(sxp,groundY,size,color){
   const w=size*0.72,h=size*0.24;
   ctx.save();
-  // 그림자
   ctx.fillStyle='rgba(0,0,0,.4)';
   ctx.beginPath();ctx.ellipse(sxp,groundY,w*0.55,size*0.035,0,0,Math.PI*2);ctx.fill();
-  // 차체
   ctx.fillStyle=color;
   ctx.beginPath();
   ctx.moveTo(sxp-w/2,groundY);
@@ -875,7 +1155,6 @@ function brDrawCar(sxp,groundY,size,color){
   ctx.quadraticCurveTo(sxp+w*0.32,groundY-h*0.6,sxp+w/2,groundY-h*0.5);
   ctx.lineTo(sxp+w/2,groundY);
   ctx.closePath();ctx.fill();
-  // 창문
   ctx.fillStyle='rgba(160,200,230,.85)';
   ctx.beginPath();
   ctx.moveTo(sxp-w*0.18,groundY-h*0.92);
@@ -883,7 +1162,6 @@ function brDrawCar(sxp,groundY,size,color){
   ctx.lineTo(sxp+w*0.24,groundY-h*0.58);
   ctx.lineTo(sxp-w*0.26,groundY-h*0.58);
   ctx.closePath();ctx.fill();
-  // 바퀴
   ctx.fillStyle='#111';
   const wr=h*0.28;
   ctx.beginPath();ctx.arc(sxp-w*0.3,groundY,wr,0,Math.PI*2);ctx.fill();
@@ -973,13 +1251,23 @@ function brBuildSprites(){
     for(const l of br.levers){const dd=Math.hypot(l.x-br.px,l.y-br.py);if(dd<BR_MAX_DEPTH)list.push({x:l.x,y:l.y,dist:dd,kind:'lever',up:l.up});}
   } else if(br.mode==='fun'){
     for(const d of br.funDoors){const dd=Math.hypot(d.x-br.px,d.y-br.py);if(dd<BR_MAX_DEPTH)list.push({x:d.x,y:d.y,dist:dd,kind:'door-exit'});}
+    if(br.funGoldDoor){const dd=Math.hypot(br.funGoldDoor.x-br.px,br.funGoldDoor.y-br.py);if(dd<BR_MAX_DEPTH)list.push({x:br.funGoldDoor.x,y:br.funGoldDoor.y,dist:dd,kind:'door-gold'});}
+    for(const c of br.funCakes){if(c.taken)continue;const dd=Math.hypot(c.x-br.px,c.y-br.py);if(dd<BR_MAX_DEPTH)list.push({x:c.x,y:c.y,dist:dd,kind:'cake'});}
     for(const p of br.funProps){const dd=Math.hypot(p.x-br.px,p.y-br.py);if(dd<12)list.push({x:p.x,y:p.y,dist:dd,kind:p.kind,color:p.color});}
   } else if(br.mode==='pool'){
     const w=brGetWorld('pool');
     for(const s of w.slides){const dd=Math.hypot(s.x-br.px,s.y-br.py);if(dd<BR_MAX_DEPTH)list.push({x:s.x,y:s.y,dist:dd,kind:'slide'});}
+    for(const st of w.stairs){const dd=Math.hypot(st.x-br.px,st.y-br.py);if(dd<BR_MAX_DEPTH)list.push({x:st.x,y:st.y,dist:dd,kind:'stairs',dir:st.dir});}
+    for(const v of w.valves){const dd=Math.hypot(v.x-br.px,v.y-br.py);if(dd<BR_MAX_DEPTH)list.push({x:v.x,y:v.y,dist:dd,kind:'valve',on:v.on});}
+    for(const e of w.exitDoors){const dd=Math.hypot(e.x-br.px,e.y-br.py);if(dd<BR_MAX_DEPTH)list.push({x:e.x,y:e.y,dist:dd,kind:'door-real-exit'});}
+  } else if(br.mode==='pool2'){
+    const w=brGetWorld('pool2');
+    for(const st of w.stairs){const dd=Math.hypot(st.x-br.px,st.y-br.py);if(dd<BR_MAX_DEPTH)list.push({x:st.x,y:st.y,dist:dd,kind:'stairs',dir:st.dir});}
   } else if(br.mode==='garage'){
     const w=brGetWorld('garage');
     for(const rp of w.ramps){const dd=Math.hypot(rp.x-br.px,rp.y-br.py);if(dd<BR_MAX_DEPTH)list.push({x:rp.x,y:rp.y,dist:dd,kind:'ramp'});}
+    for(const g of w.generators){const dd=Math.hypot(g.x-br.px,g.y-br.py);if(dd<BR_MAX_DEPTH)list.push({x:g.x,y:g.y,dist:dd,kind:'generator',on:g.on});}
+    for(const e of w.exitDoors){const dd=Math.hypot(e.x-br.px,e.y-br.py);if(dd<BR_MAX_DEPTH)list.push({x:e.x,y:e.y,dist:dd,kind:'door-real-exit'});}
     for(const p of w.props){const dd=Math.hypot(p.x-br.px,p.y-br.py);if(dd<14)list.push({x:p.x,y:p.y,dist:dd,kind:p.kind,color:p.color});}
   }
   if(br.entity){const dd=Math.hypot(br.entity.x-br.px,br.entity.y-br.py);list.push({x:br.entity.x,y:br.entity.y,dist:dd,kind:'entity'});}
@@ -990,6 +1278,7 @@ function brBuildSprites(){
 function drawBackroomsMode(){
   if(!br)return;
   const w=VW(),h=VH();
+  const wallScale=brWallScale();
   let flick=1.15+Math.sin(Date.now()*0.01)*0.06+(Math.random()<0.02?-0.15:0);
   if(br.mode==='level0'){
     // 1레벨 형광등: 노란빛이 지속적으로 반짝거린다
@@ -999,18 +1288,18 @@ function drawBackroomsMode(){
   if(br.mode==='fun'){
     brDrawPlanesLowRes(w,h,brFunCeilColor,brFunFloorColor,flick);
   } else if(br.mode==='garage'){
-    // 아파트 지하주차장: 형광등 스트립 천장 + 차선/주차칸 바닥
     brDrawPlanesLowRes(w,h,brGarageCeilColor,brGarageFloorColor,flick);
   } else if(br.mode==='pool'){
-    // 수영장: 채광창 천장 + 물/타일 바닥
     brDrawPlanesLowRes(w,h,brPoolCeilColor,brPoolFloorColor,flick);
+  } else if(br.mode==='pool2'){
+    brDrawPlanesLowRes(w,h,brPool2CeilColor,brPool2FloorColor,flick);
   } else {
     const theme=brCurTheme();
     ctx.fillStyle=brShade(theme.ceil,flick);ctx.fillRect(0,0,w,h/2);
     ctx.fillStyle=brShade(theme.floor,flick);ctx.fillRect(0,h/2,w,h/2);
   }
 
-  const rays=Math.max(220,Math.min(480,Math.floor(w*0.5)));
+  const rays=Math.max(260,Math.min(640,Math.floor(w*0.6)));
   const colW=w/rays;
   const zbuf=new Float32Array(rays);
 
@@ -1020,7 +1309,7 @@ function drawBackroomsMode(){
     const hit=brCastRay(br.px,br.py,rayAngle);
     const perpDist=hit.dist*Math.cos(rel);
     zbuf[i]=perpDist;
-    const lineH=Math.min(h*3,h/perpDist*BR_WALL_SCALE);
+    const lineH=Math.min(h*3,h/perpDist*wallScale);
     const sx=i*colW;
     const sy=(h-lineH)/2;
     const shadeF=Math.max(0.38,1-perpDist/BR_MAX_DEPTH)*flick*(hit.side===1?0.8:1);
@@ -1038,10 +1327,10 @@ function drawBackroomsMode(){
     if(sp.dist>zbuf[col]+0.3)continue;
     const sxp=(relAng+BR_FOV/2)/BR_FOV*w;
     let size=Math.min(h*0.95,h/sp.dist*0.62);
-    if(sp.kind==='entity'&&br.mode==='level0')size*=1.55;
+    if(sp.kind==='entity'&&br.mode!=='fun')size*=1.55;
+    if(sp.kind==='car')size*=1.45;
     const alpha=Math.max(0.4,1-sp.dist/(BR_MAX_DEPTH*0.7));
-    // 벽 높이 축소(BR_WALL_SCALE)에 맞춰 바닥 기준선 계산
-    const wallH=Math.min(h*3,h/sp.dist*BR_WALL_SCALE);
+    const wallH=Math.min(h*3,h/sp.dist*wallScale);
     const groundY=h/2+wallH/2;
     if(sp.kind==='door-entry'){
       const glow=ctx.createRadialGradient(sxp,h/2,0,sxp,h/2,size*0.55);
@@ -1050,6 +1339,12 @@ function drawBackroomsMode(){
       brDrawDoor(sxp,groundY,size,sp.dist,'entry');
     } else if(sp.kind==='door-exit'){
       brDrawDoor(sxp,groundY,size,sp.dist,'fun-exit');
+    } else if(sp.kind==='door-gold'){
+      const pulse=0.4+Math.sin(Date.now()*0.006)*0.2;
+      const glow=ctx.createRadialGradient(sxp,h/2,0,sxp,h/2,size*0.8);
+      glow.addColorStop(0,'rgba(251,191,36,'+pulse+')');glow.addColorStop(1,'rgba(251,191,36,0)');
+      ctx.fillStyle=glow;ctx.fillRect(sxp-size*0.8,h/2-size*0.8,size*1.6,size*1.6);
+      brDrawDoor(sxp,groundY,size,sp.dist,'gold');
     } else if(sp.kind==='door-real-exit'){
       const glow=ctx.createRadialGradient(sxp,h/2,0,sxp,h/2,size*0.6);
       glow.addColorStop(0,'rgba(74,222,128,.4)');glow.addColorStop(1,'rgba(74,222,128,0)');
@@ -1064,6 +1359,14 @@ function drawBackroomsMode(){
       ctx.fillText('🔧',sxp,groundY-size*0.2);ctx.textAlign='left';ctx.textBaseline='alphabetic';
     } else if(sp.kind==='lever'){
       brDrawLever(sxp,h/2,size,sp.up);
+    } else if(sp.kind==='generator'){
+      brDrawGenerator(sxp,h/2,size,sp.on);
+    } else if(sp.kind==='valve'){
+      brDrawValve(sxp,h/2,size,sp.on);
+    } else if(sp.kind==='stairs'){
+      brDrawStairs(sxp,groundY,size,sp.dir==='up');
+    } else if(sp.kind==='cake'){
+      brDrawCake(sxp,groundY-size*0.05,size);
     } else if(sp.kind==='slide'){
       brDrawSlide(sxp,groundY-size*0.2,size);
     } else if(sp.kind==='ramp'){
@@ -1110,15 +1413,17 @@ function drawBackroomsMode(){
 
   ctx.fillStyle='#fbbf24';
   ctx.font='bold 16px monospace';
-  const modeLabel={level0:'LEVEL 0',fun:'🎉 LEVEL FUN=)',garage:'🅿️ 끝없는 주차장 B'+(br.garageFloor||1),pool:'🏊 수영장',city:'🏙️ 끝없는 도시',field:'🌾 끝없는 갈대밭'}[br.mode]||br.mode;
-  const depthTxt=(br.mode==='level0'||br.mode==='city')?(' · '+Math.floor(Math.hypot(br.px-2.5,br.py-2.5))+'m'):'';
+  const modeLabel={level0:'LEVEL 0',fun:'🎉 LEVEL FUN=)',garage:'🅿️ 끝없는 주차장 B'+(br.garageFloor||1),pool:'🏊 수영장',pool2:'🏊 수영장 상층',city:'🏙️ 끝없는 도시',field:'🌾 끝없는 갈대밭'}[br.mode]||br.mode;
+  const depthTxt=(br.mode==='level0'||br.mode==='city'||br.mode==='field')?(' · '+Math.floor(Math.hypot(br.px-2.5,br.py-2.5))+'m'):'';
   ctx.fillText(modeLabel+depthTxt,14,26);
   ctx.fillStyle='rgba(255,255,255,.6)';
   ctx.font='12px monospace';
   let hint='WASD 이동 · 마우스 시점';
   if(br.mode==='level0')hint+=' · 레버 '+(br.leversUp||0)+'/2';
-  else if(br.mode==='fun')hint+=' · 🚪 빨간 EXIT을 찾아라';
-  else if(br.mode==='garage')hint+=' · ↓ 경사로를 찾아 더 깊이';
+  else if(br.mode==='fun')hint+=' · 🎂 케이크 '+(br.funCakesGot||0)+'/3';
+  else if(br.mode==='garage')hint+=' · ⚙️ 발전기 '+(brGetWorld('garage').gensOn||0)+'/3 · ↓ 경사로';
+  else if(br.mode==='pool')hint+=' · 🔵 밸브 '+(brGetWorld('pool').valvesOn||0)+'/3 · 🪜 계단';
+  else if(br.mode==='field')hint+=' · 지평선을 향해 걸어라 (120m)';
   ctx.fillText(hint,14,46);
 }
 
@@ -1147,10 +1452,21 @@ function brDrawMinimap(){
     for(const p of br.pits)markers.push({x:p.x,y:p.y,color:'#111827'});
   } else if(br.mode==='fun'){
     for(const d of br.funDoors)markers.push({x:d.x,y:d.y,color:'#ef4444'});
+    if(br.funGoldDoor)markers.push({x:br.funGoldDoor.x,y:br.funGoldDoor.y,color:'#fbbf24'});
+    for(const c of br.funCakes)if(!c.taken)markers.push({x:c.x,y:c.y,color:'#f9a8d4'});
   } else if(br.mode==='pool'){
-    for(const s of brGetWorld('pool').slides)markers.push({x:s.x,y:s.y,color:'#0ea5e9'});
+    const w=brGetWorld('pool');
+    for(const s of w.slides)markers.push({x:s.x,y:s.y,color:'#0ea5e9'});
+    for(const st of w.stairs)markers.push({x:st.x,y:st.y,color:'#a5f3fc'});
+    for(const v of w.valves)markers.push({x:v.x,y:v.y,color:v.on?'#4ade80':'#f87171'});
+    for(const e of w.exitDoors)markers.push({x:e.x,y:e.y,color:'#4ade80'});
+  } else if(br.mode==='pool2'){
+    for(const st of brGetWorld('pool2').stairs)markers.push({x:st.x,y:st.y,color:'#a5f3fc'});
   } else if(br.mode==='garage'){
-    for(const rp of brGetWorld('garage').ramps)markers.push({x:rp.x,y:rp.y,color:'#eab308'});
+    const w=brGetWorld('garage');
+    for(const rp of w.ramps)markers.push({x:rp.x,y:rp.y,color:'#eab308'});
+    for(const g of w.generators)markers.push({x:g.x,y:g.y,color:g.on?'#4ade80':'#f87171'});
+    for(const e of w.exitDoors)markers.push({x:e.x,y:e.y,color:'#4ade80'});
   }
   if(br.entity)markers.push({x:br.entity.x,y:br.entity.y,color:'#dc2626'});
   for(const m of markers){

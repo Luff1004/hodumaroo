@@ -213,6 +213,7 @@
 <div id="brEscapeCutscene" class="br-cutscene">
   <div class="br-cs-light" id="brCsLight"></div>
   <div class="br-cs-flash" id="brCsFlash"></div>
+  <div id="brCsConfetti"></div>
   <div class="br-cs-vignette" id="brCsVignette"></div>
   <div class="br-cs-scanline" id="brCsScanline"></div>
   <div class="br-cs-lines" id="brCsLines"></div>
@@ -233,6 +234,26 @@
     <button class="lb backrooms-btn" onclick="go('sLobby')">🏠 로비로 돌아가기</button>
   </div>
   <button id="brEscapeReplayBtn" class="backrooms-replay-btn" style="display:none;" onclick="replayBackroomsEscapeCutscene()">🎬 탈출 컷신 다시보기</button>
+  <div id="brDevPanel" style="display:none;position:relative;z-index:1;flex-direction:column;gap:6px;margin-top:18px;padding:10px 14px;background:rgba(0,0,0,.45);border:1.5px dashed #a855f7;border-radius:12px;max-width:min(92vw,560px);">
+    <div style="font-size:11px;font-weight:800;color:#c4b5fd;letter-spacing:1px;">🛠️ DEV: 레벨 바로가기</div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px;">
+      <button class="br-dev-btn" onclick="devBrGoto('level0')">LEVEL 0</button>
+      <button class="br-dev-btn" onclick="devBrGoto('fun')">FUN=)</button>
+      <button class="br-dev-btn" onclick="devBrGoto('garage')">주차장</button>
+      <button class="br-dev-btn" onclick="devBrGoto('pool')">수영장</button>
+      <button class="br-dev-btn" onclick="devBrGoto('pool2')">수영장 상층</button>
+      <button class="br-dev-btn" onclick="devBrGoto('city')">도시</button>
+      <button class="br-dev-btn" onclick="devBrGoto('field')">갈대밭</button>
+    </div>
+    <div style="font-size:11px;font-weight:800;color:#c4b5fd;letter-spacing:1px;margin-top:4px;">🎬 DEV: 엔딩 재생</div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px;">
+      <button class="br-dev-btn" onclick="devBrEnding('level0')">LEVEL 0</button>
+      <button class="br-dev-btn" onclick="devBrEnding('fun')">FUN=)</button>
+      <button class="br-dev-btn" onclick="devBrEnding('garage')">주차장</button>
+      <button class="br-dev-btn" onclick="devBrEnding('pool')">수영장</button>
+      <button class="br-dev-btn" onclick="devBrEnding('field')">갈대밭</button>
+    </div>
+  </div>
 </div>
 
 <!-- 데일리 보상 결과 연출 -->
