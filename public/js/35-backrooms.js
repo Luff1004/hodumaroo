@@ -651,7 +651,7 @@ const BR_ENDINGS={
   garage:{achFlag:'brEndGarage',baseCoins:35000,baseEnergy:15000,style:'crash',titleClass:'title-crash',accent:'#fecaca',
     title:'AWAKEN',sub:'다시, 눈을 뜨다',
     preLines:['발전기 세 대가 낮게 울리다 멈췄다','셔터가 천천히 올라간다','저 앞에... 빛이 보인다','한 걸음, 두 걸음','밖이다'],
-    postLines:['...쿵.','......','아무 소리도 들리지 않는다','저 멀리서, 누군가 부르는 목소리가 들린다','"...정신이 들어? 내 목소리 들려?"','손을 꽉 잡아주는 온기가 느껴진다','눈을 떠야 해','지금, 당장','다시,']},
+    postLines:['...쿵.','......','아무 소리도 들리지 않는다','사이렌 소리가 점점 가까워진다','누군가 어깨를 흔든다','"저기요! 저기요! 일어나세요!"','"괜찮아요, 제 목소리 들리세요? OK?"','눈을 떠야 해','지금, 당장']},
   pool:{achFlag:'brEndPool',baseCoins:30000,baseEnergy:12000,style:'water',titleClass:'title-ripple',
     title:'DRAINED',sub:'THE POOLROOMS',accent:'#38bdf8',
     lines:['마지막 밸브가 잠기는 소리','수면이 천천히 낮아진다','물결에 비친 것은 당신 혼자뿐이었다','배수구 아래에서, 빛이 새어나온다']},
@@ -735,62 +735,193 @@ function brBuildCutsceneFx(fx,style){
 // ── 주차장 전용 엔딩: 탈출한 줄 알았지만 차에 치이고, 병상에서 깨어난다 ──
 // 눈을 감은 채 옆으로 쓰러진 1인칭 시점에서, 횡단보도를 따라 다가오는 차를 원근 3D로 그린다
 let _brCrashRafId=null;
+// 깊이(depth, 0=바로 앞 ~ 큼=저 멀리)를 화면상의 원근 스케일/위치로 변환 (호러 코리도어와 같은 K/(K+depth) 공식)
+const BR_CRASH_K=170, BR_CRASH_VANISH=460;
+function brCrashProject(depth){
+  const scale=BR_CRASH_K/(BR_CRASH_K+depth);
+  return {scale, ly:-BR_CRASH_VANISH*(1-scale)};
+}
 function brDrawCrashApproachFrame(cctx,w,h,t){
   cctx.save();
   cctx.clearRect(0,0,w,h);
   cctx.fillStyle='#000';
   cctx.fillRect(0,0,w,h);
 
-  // 옆으로 쓰러진 시점: 화면 전체를 크게 기울인 채로 원근 장면을 그린다
-  cctx.translate(w/2,h*0.58);
-  cctx.rotate(-78*Math.PI/180);
+  const carDepth=Math.max(1.5,300*(1-t*t)); // 가속하며 다가오는 차의 현재 거리
+  const nearness=1-Math.min(1,carDepth/300); // 0(멀다)~1(코앞)
+  const shakeMag=nearness*nearness*9;
+  const jx=(Math.random()-0.5)*shakeMag, jy=(Math.random()-0.5)*shakeMag;
 
-  const blur=13*(1-t);
+  // 뺨을 대고 쓰러진 시점: 고개가 옆으로 완전히 돌아간 각도로 도로를 올려본다
+  cctx.translate(w*0.52+jx,h*0.56+jy);
+  cctx.rotate(-74*Math.PI/180);
+
+  const blur=11*(1-t);
   cctx.filter='blur('+blur.toFixed(1)+'px)';
 
-  // 아스팔트 + 소실점을 향해 좁아지는 횡단보도 흰 줄무늬
-  const roadW=w*1.7, roadLen=h*2.4;
-  cctx.fillStyle='#0d0f13';
-  cctx.fillRect(-roadW/2,-roadLen,roadW,roadLen*1.3);
-  const stripes=7;
-  for(let i=0;i<stripes;i++){
-    const d0=i/stripes, d1=(i+0.6)/stripes;
-    const y0=-roadLen*d0, y1=-roadLen*d1;
-    const s0=1-d0*0.85, s1=1-d1*0.85;
-    cctx.fillStyle='rgba(225,225,220,'+(0.7-d0*0.48).toFixed(2)+')';
+  // 밤하늘
+  const roadHalfW=w*0.62;
+  cctx.fillStyle='#03050a';
+  cctx.fillRect(-w*1.4,-BR_CRASH_VANISH-h*0.5,w*2.8,h*0.62);
+
+  // 아스팔트 - 깊이별로 미세한 명암을 넣어 질감을 준다
+  for(let i=0;i<26;i++){
+    const d0=i*(320/26), d1=(i+1)*(320/26);
+    const p0=brCrashProject(d0), p1=brCrashProject(d1);
+    const grain=((i*97)%13)/13*0.05;
+    cctx.fillStyle='rgb('+Math.round(14+grain*40)+','+Math.round(15+grain*40)+','+Math.round(18+grain*40)+')';
     cctx.beginPath();
-    cctx.moveTo(-roadW*0.32*s0,y0);cctx.lineTo(roadW*0.32*s0,y0);
-    cctx.lineTo(roadW*0.28*s1,y1);cctx.lineTo(-roadW*0.28*s1,y1);
+    cctx.moveTo(-roadHalfW*p0.scale,p0.ly);cctx.lineTo(roadHalfW*p0.scale,p0.ly);
+    cctx.lineTo(roadHalfW*p1.scale,p1.ly);cctx.lineTo(-roadHalfW*p1.scale,p1.ly);
     cctx.closePath();cctx.fill();
   }
 
-  // 다가오는 차: 거리(depth)가 t^2로 줄어들며 가속하듯 원근 스케일이 커진다
-  const K=150;
-  const depth=Math.max(2,320*(1-t*t));
-  const scale=K/(K+depth);
-  const carW=200*scale, carH=100*scale;
-  const cy=-roadLen*0.02;
-  cctx.fillStyle='#040404';
-  cctx.fillRect(-carW/2,cy-carH*0.7,carW,carH*0.7);
-  const lightR=carW*0.15;
+  // 인도 경계석 (좌/우 라인)
+  cctx.strokeStyle='rgba(210,200,160,.35)';cctx.lineWidth=3;
   [-1,1].forEach(side=>{
-    const lx=side*carW*0.27, ly=cy-carH*0.32;
-    const glow=cctx.createRadialGradient(lx,ly,0,lx,ly,lightR*3.2);
-    glow.addColorStop(0,'rgba(255,255,235,.98)');
-    glow.addColorStop(1,'rgba(255,255,200,0)');
-    cctx.fillStyle=glow;
-    cctx.beginPath();cctx.arc(lx,ly,lightR*3.2,0,Math.PI*2);cctx.fill();
+    cctx.beginPath();
+    for(let d=0;d<=320;d+=20){
+      const p=brCrashProject(d);
+      const x=side*roadHalfW*p.scale;
+      if(d===0)cctx.moveTo(x,p.ly);else cctx.lineTo(x,p.ly);
+    }
+    cctx.stroke();
   });
+
+  // 가로등: 인도 바깥쪽에 드문드문, 깊이가 멀수록 작고 흐릿하게
+  [90,190,280].forEach((d,idx)=>{
+    const p=brCrashProject(d);
+    const side=idx%2===0?-1:1;
+    const px=side*roadHalfW*p.scale*1.22;
+    const poleH=120*p.scale;
+    cctx.strokeStyle='rgba(20,18,16,.9)';cctx.lineWidth=Math.max(1,5*p.scale);
+    cctx.beginPath();cctx.moveTo(px,p.ly);cctx.lineTo(px,p.ly-poleH);cctx.stroke();
+    const lampGlow=cctx.createRadialGradient(px,p.ly-poleH,0,px,p.ly-poleH,42*p.scale);
+    lampGlow.addColorStop(0,'rgba(255,214,140,.85)');
+    lampGlow.addColorStop(1,'rgba(255,214,140,0)');
+    cctx.fillStyle=lampGlow;
+    cctx.beginPath();cctx.arc(px,p.ly-poleH,42*p.scale,0,Math.PI*2);cctx.fill();
+  });
+
+  // 횡단보도 흰 줄무늬 (근거리, 지금 쓰러져 있는 바로 그 자리)
+  for(let i=0;i<6;i++){
+    const d0=8+i*11, d1=d0+7;
+    const p0=brCrashProject(d0), p1=brCrashProject(d1);
+    cctx.fillStyle='rgba(220,220,214,.82)';
+    cctx.beginPath();
+    cctx.moveTo(-roadHalfW*0.7*p0.scale,p0.ly);cctx.lineTo(roadHalfW*0.7*p0.scale,p0.ly);
+    cctx.lineTo(roadHalfW*0.7*p1.scale,p1.ly);cctx.lineTo(-roadHalfW*0.7*p1.scale,p1.ly);
+    cctx.closePath();cctx.fill();
+  }
+  // 중앙 노란 점선 (횡단보도 너머)
+  for(let d=130;d<310;d+=26){
+    const p0=brCrashProject(d), p1=brCrashProject(d+11);
+    cctx.fillStyle='rgba(230,180,40,.8)';
+    cctx.beginPath();
+    cctx.moveTo(-6*p0.scale,p0.ly);cctx.lineTo(6*p0.scale,p0.ly);
+    cctx.lineTo(6*p1.scale,p1.ly);cctx.lineTo(-6*p1.scale,p1.ly);
+    cctx.closePath();cctx.fill();
+  }
+
+  // 전조등이 도로를 비추는 빛 웅덩이
+  {
+    const p=brCrashProject(carDepth);
+    const beam=cctx.createRadialGradient(0,p.ly,0,0,p.ly,roadHalfW*1.4*Math.max(p.scale,0.3));
+    beam.addColorStop(0,'rgba(255,250,220,'+(0.22+nearness*0.35)+')');
+    beam.addColorStop(1,'rgba(255,250,220,0)');
+    cctx.fillStyle=beam;
+    cctx.beginPath();cctx.arc(0,p.ly,roadHalfW*1.4*Math.max(p.scale,0.3),0,Math.PI*2);cctx.fill();
+  }
+
+  // 달려오는 차: 진짜 차체 형태(보닛/그릴/범퍼/바퀴/헤드라이트 플레어)
+  {
+    const p=brCrashProject(carDepth);
+    const s=p.scale;
+    const carW=260*s, carH=132*s, cy0=p.ly;
+    cctx.save();
+    cctx.translate(0,cy0);
+    // 그림자
+    cctx.fillStyle='rgba(0,0,0,.5)';
+    cctx.beginPath();cctx.ellipse(0,carH*0.06,carW*0.52,carH*0.09,0,0,Math.PI*2);cctx.fill();
+    // 차체(보닛+캐빈)
+    cctx.fillStyle='#0a0c10';
+    cctx.beginPath();
+    cctx.moveTo(-carW*0.5,0);
+    cctx.lineTo(-carW*0.5,-carH*0.42);
+    cctx.quadraticCurveTo(-carW*0.5,-carH*0.62,-carW*0.34,-carH*0.62);
+    cctx.lineTo(carW*0.34,-carH*0.62);
+    cctx.quadraticCurveTo(carW*0.5,-carH*0.62,carW*0.5,-carH*0.42);
+    cctx.lineTo(carW*0.5,0);
+    cctx.closePath();cctx.fill();
+    // 그릴
+    cctx.fillStyle='#1c1f26';
+    cctx.fillRect(-carW*0.28,-carH*0.22,carW*0.56,carH*0.14);
+    for(let i=-2;i<=2;i++){
+      cctx.strokeStyle='rgba(70,74,84,.9)';cctx.lineWidth=Math.max(1,carW*0.01);
+      cctx.beginPath();cctx.moveTo(-carW*0.26,-carH*0.2+i*carH*0.024);cctx.lineTo(carW*0.26,-carH*0.2+i*carH*0.024);cctx.stroke();
+    }
+    // 범퍼
+    cctx.fillStyle='#2a2d33';
+    cctx.fillRect(-carW*0.52,-carH*0.1,carW*1.04,carH*0.1);
+    // 바퀴
+    cctx.fillStyle='#050505';
+    cctx.beginPath();cctx.ellipse(-carW*0.34,carH*0.02,carW*0.09,carH*0.06,0,0,Math.PI*2);cctx.fill();
+    cctx.beginPath();cctx.ellipse(carW*0.34,carH*0.02,carW*0.09,carH*0.06,0,0,Math.PI*2);cctx.fill();
+    // 헤드라이트 (렌즈 + 방사형 플레어)
+    [-1,1].forEach(side=>{
+      const lx=side*carW*0.4, ly=-carH*0.3, lr=carW*0.075;
+      for(let f=0;f<7;f++){
+        const ang=Math.PI*2*f/7+t*4;
+        const flareLen=lr*(3.4+nearness*2.6);
+        const grad=cctx.createLinearGradient(lx,ly,lx+Math.cos(ang)*flareLen,ly+Math.sin(ang)*flareLen);
+        grad.addColorStop(0,'rgba(255,255,235,.55)');
+        grad.addColorStop(1,'rgba(255,255,235,0)');
+        cctx.strokeStyle=grad;cctx.lineWidth=lr*0.5;
+        cctx.beginPath();cctx.moveTo(lx,ly);cctx.lineTo(lx+Math.cos(ang)*flareLen,ly+Math.sin(ang)*flareLen);cctx.stroke();
+      }
+      const glow=cctx.createRadialGradient(lx,ly,0,lx,ly,lr*3.6);
+      glow.addColorStop(0,'rgba(255,255,240,1)');
+      glow.addColorStop(0.4,'rgba(255,250,210,.9)');
+      glow.addColorStop(1,'rgba(255,250,200,0)');
+      cctx.fillStyle=glow;
+      cctx.beginPath();cctx.arc(lx,ly,lr*3.6,0,Math.PI*2);cctx.fill();
+      cctx.fillStyle='#fffef2';
+      cctx.beginPath();cctx.arc(lx,ly,lr,0,Math.PI*2);cctx.fill();
+    });
+    // 윈드실드 반사광
+    cctx.fillStyle='rgba(180,200,220,.28)';
+    cctx.beginPath();
+    cctx.moveTo(-carW*0.22,-carH*0.6);cctx.lineTo(carW*0.22,-carH*0.6);
+    cctx.lineTo(carW*0.14,-carH*0.44);cctx.lineTo(-carW*0.14,-carH*0.44);
+    cctx.closePath();cctx.fill();
+    cctx.restore();
+  }
 
   cctx.filter='none';
   cctx.restore();
 
+  // 극단적으로 가까운 전경: 뺨이 닿은 바닥면이 시야 아래쪽을 흐릿하게 가린다
+  const fg=cctx.createRadialGradient(w*0.18,h*0.92,0,w*0.18,h*0.92,w*0.55);
+  fg.addColorStop(0,'rgba(6,5,4,.96)');
+  fg.addColorStop(0.55,'rgba(6,5,4,.7)');
+  fg.addColorStop(1,'rgba(6,5,4,0)');
+  cctx.fillStyle=fg;
+  cctx.fillRect(0,h*0.62,w,h*0.38);
+
   // 눈꺼풀: 점점 넓어지는 실눈 틈 사이로만 장면이 보인다
-  const slit=h*(0.025+0.36*t);
-  const centerY=h*0.5;
+  const slit=h*(0.02+0.3*t);
+  const centerY=h*0.46;
   cctx.fillStyle='#000';
   cctx.fillRect(0,0,w,centerY-slit/2);
   cctx.fillRect(0,centerY+slit/2,w,h-(centerY+slit/2));
+  // 눈꺼풀 가장자리 속눈썹 그림자로 경계를 부드럽게
+  const edge=Math.max(4,10*(1-t));
+  const g1=cctx.createLinearGradient(0,centerY-slit/2-edge,0,centerY-slit/2);
+  g1.addColorStop(0,'rgba(0,0,0,0)');g1.addColorStop(1,'rgba(0,0,0,.9)');
+  cctx.fillStyle=g1;cctx.fillRect(0,centerY-slit/2-edge,w,edge);
+  const g2=cctx.createLinearGradient(0,centerY+slit/2,0,centerY+slit/2+edge);
+  g2.addColorStop(0,'rgba(0,0,0,.9)');g2.addColorStop(1,'rgba(0,0,0,0)');
+  cctx.fillStyle=g2;cctx.fillRect(0,centerY+slit/2,w,edge);
 }
 function brStartCrashApproach(canvas,durationMs,onDone){
   canvas.classList.add('on');
