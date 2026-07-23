@@ -42,6 +42,7 @@ const ARMORS=[
   {id:'rainbow',rarity:'epic',name:'무지개',icon:'🌈',price:2000000,def:38,bc:'#fbbf24',ac:'#f59e0b',desc:'방어+38%, 모든 특성 강화+1',bonus:{perkBoost:1}},
   {id:'nightmare',rarity:'legendary',name:'악몽',icon:'😱',price:4000000,def:45,bc:'#1c1917',ac:'#0c0a09',desc:'방어+45%, 적 처치 시 HP+5, 데미지+3',bonus:{lifesteal:5,dmg:3}},
   {id:'omnipotent',rarity:'mythic',name:'전능',icon:'⭐',price:9990000,def:70,bc:'#fbbf24',ac:'#f59e0b',desc:'방어+70%, 모든 능력치 최대',bonus:{spd:2,hp:300,dmg:10,regen:10,crit:30,dodge:25,lifesteal:8}},
+  {id:'storm_worksuit',rarity:'transcendent',name:'폭풍 작업복',icon:'🌪️',price:800000000,def:65,bc:'#8b5cf6',ac:'#7c3aed',desc:'방어+65%, 이동속도+2, 공격 시 보라색 연기 오라',bonus:{spd:2,dmg:5},aura:'purple_smoke'},
   // ── 시즌패스 전용 갑옷 6종 (짝수월 Lv25) ──
   {id:'sp_armor_feb',name:'[시즌] 눈꽃 갑옷',icon:'❄️',price:0,def:70,bc:'#bae6fd',ac:'#7dd3fc',desc:'2월 시즌Lv.25. 방어+70%, 냉기오라, HP+200',bonus:{hp:200,coldAura:true,regen:5},spOnly:true,rarity:'legendary',spMonth:2,spLv:25},
   {id:'sp_armor_apr',name:'[시즌] 봄꽃 갑옷',icon:'🌸',price:0,def:72,bc:'#fbcfe8',ac:'#f9a8d4',desc:'4월 시즌Lv.25. 방어+72%, HP+250, 재생+8',bonus:{hp:250,regen:8,dodge:15},spOnly:true,rarity:'legendary',spMonth:4,spLv:25},
