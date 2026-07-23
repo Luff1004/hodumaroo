@@ -1267,6 +1267,7 @@ button:active{transform:scale(.95);}
 .rar-divine{border-color:#0ea5e9!important;box-shadow:0 0 20px #0ea5e980;animation:glow-epic 1.2s infinite;}
 .rar-ethereal{border-color:#67e8f9!important;box-shadow:0 0 22px #67e8f990;animation:glow-rainbow 1s infinite;}
 .rar-transcendent{border-color:#f472b6!important;box-shadow:0 0 26px #f472b6a0;animation:glow-rainbow .8s infinite;}
+.rar-transcendent .snm,.rar-transcendent .sds{color:#f87171!important;}
 .rar-absolute{border-color:#ffffff!important;box-shadow:0 0 32px #ffffffcc;animation:glow-rainbow .6s infinite;}
 .rar-event{border-color:#22d3ee!important;box-shadow:0 0 22px #22d3ee90;animation:glow-rainbow 1s infinite;}
 .rar-secret{border-color:#000!important;background:linear-gradient(135deg,#0a0a0f,#1a0a24)!important;box-shadow:0 0 24px #00000090;animation:glow-secret 1.6s infinite;}

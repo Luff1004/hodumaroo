@@ -1466,6 +1466,7 @@ function openPotatoContract(it){
 function buyStormWorksuit(id){
   if(coins<STORM_WORKSUIT.price)return;
   coins-=STORM_WORKSUIT.price; sv('hd_c',coins); updRes();
+  owned['ar_storm_worksuit']=true; sv('hd_ow',owned);
   eqArmor='storm_worksuit'; sv('hd_ea',eqArmor);
   renderMerchantShopContent();
 }
