@@ -880,6 +880,7 @@ button:active{transform:scale(.95);}
 .br-cs-light{position:absolute;left:50%;top:50%;width:10px;height:10px;border-radius:50%;background:#000;box-shadow:0 0 60px 30px rgba(0,0,0,.95);transform:translate(-50%,-50%);opacity:0;pointer-events:none;z-index:1;}
 .br-cs-light.grow{animation:brCsLightGrow 2s ease-in forwards;}
 @keyframes brCsLightGrow{0%{width:6px;height:6px;opacity:.4;}100%{width:220vw;height:220vw;opacity:1;}}
+.br-cs-light.grow.hide{animation:none;opacity:0;transition:opacity .45s ease;}
 .br-cs-flash{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;z-index:1;}
 .br-cs-flash.go{animation:brCsFlash .6s ease-out forwards;}
 @keyframes brCsFlash{0%{opacity:1;}100%{opacity:0;}}
@@ -930,10 +931,11 @@ button:active{transform:scale(.95);}
   background:radial-gradient(circle,#fff7d6,#fbbf24 58%,rgba(251,191,36,0) 74%);
   box-shadow:0 0 90px 34px rgba(251,191,36,.45);transform:translateY(150%);animation:brFxSunRise 7.5s ease-out forwards;}
 @keyframes brFxSunRise{0%{transform:translateY(150%);}100%{transform:translateY(-55%);}}
-.br-fx-reeds{position:absolute;left:0;right:0;bottom:0;height:17%;
-  background:repeating-linear-gradient(84deg,transparent 0 9px,#0d1405 9px 12px);
+.br-fx-reeds{position:absolute;left:0;right:0;bottom:0;height:32%;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='246' height='240' viewBox='0 0 246 240'><defs><linearGradient id='rg' x1='0' y1='1' x2='0' y2='0'><stop offset='0' stop-color='%23120c04'/><stop offset='1' stop-color='%232c1f0e'/></linearGradient></defs><g fill='url(%23rg)'><path d='M9,240 Q20,136 28,50 Q22,136 19,240 Z'/><path d='M26,240 Q24,163 20,100 Q26,163 34,240 Z'/><path d='M42,240 Q38,116 30,15 Q40,116 54,240 Z'/><path d='M61,240 Q67,180 72,130 Q69,180 67,240 Z'/><path d='M76,240 Q87,146 96,70 Q89,146 84,240 Z'/><path d='M95,240 Q92,127 86,35 Q94,127 105,240 Z'/><path d='M114,240 Q122,168 128,110 Q124,168 122,240 Z'/><path d='M135,240 Q131,133 124,45 Q133,133 145,240 Z'/><path d='M154,240 Q163,158 170,90 Q165,158 162,240 Z'/><path d='M172,240 Q167,119 158,20 Q169,119 184,240 Z'/><path d='M193,240 Q200,177 205,125 Q201,177 199,240 Z'/><path d='M210,240 Q221,141 229,60 Q222,141 218,240 Z'/><path d='M228,240 Q226,152 221,80 Q227,152 236,240 Z'/></g><g fill='%23d6a860' opacity='.5'><ellipse cx='28' cy='50' rx='7' ry='14'/><ellipse cx='30' cy='15' rx='8' ry='17'/><ellipse cx='96' cy='70' rx='6' ry='13'/><ellipse cx='86' cy='35' rx='7' ry='15'/><ellipse cx='124' cy='45' rx='7' ry='15'/><ellipse cx='158' cy='20' rx='8' ry='16'/><ellipse cx='229' cy='60' rx='6' ry='14'/></g></svg>");
+  background-repeat:repeat-x;background-position:bottom left;background-size:auto 100%;
   transform-origin:bottom;animation:brFxReedsSway 3.4s ease-in-out infinite alternate;}
-@keyframes brFxReedsSway{0%{transform:skewX(-2deg);}100%{transform:skewX(2.6deg);}}
+@keyframes brFxReedsSway{0%{transform:skewX(-1.4deg);}100%{transform:skewX(1.8deg);}}
 /* 타이틀 변형: 스타일마다 등장 방식이 다르다 */
 .br-cs-title.title-bounce.show{animation:brTitleBounce .8s cubic-bezier(.34,1.56,.64,1),brFunRainbow 2.4s linear infinite !important;}
 @keyframes brTitleBounce{0%{transform:scale(.15);opacity:0;}60%{transform:scale(1.16);opacity:1;}100%{transform:scale(1);opacity:1;}}
@@ -958,10 +960,11 @@ button:active{transform:scale(.95);}
 .br-fx-heartbeat{position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 50%,rgba(220,38,38,.4),transparent 68%);}
 .br-fx-heartbeat.on{animation:brHeartbeat 1.15s ease-in-out infinite;}
 @keyframes brHeartbeat{0%,100%{opacity:.14;}8%{opacity:.55;}16%{opacity:.14;}25%{opacity:.4;}33%{opacity:.1;}}
-.br-fx-wake{position:absolute;left:50%;top:50%;width:6px;height:6px;border-radius:50%;background:#fff;
+.br-fx-wake{position:absolute;left:50%;top:50%;width:6px;height:6px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.85) 0%,rgba(255,255,255,.35) 45%,rgba(255,255,255,0) 72%);
   transform:translate(-50%,-50%);opacity:0;}
 .br-fx-wake.open{animation:brWakeOpen 1.7s cubic-bezier(.2,.8,.3,1) forwards;}
-@keyframes brWakeOpen{0%{width:6px;height:6px;opacity:1;}100%{width:240vw;height:240vw;opacity:1;}}
+@keyframes brWakeOpen{0%{width:6px;height:6px;opacity:.9;}55%{width:90vw;height:90vw;opacity:.5;}100%{width:130vw;height:130vw;opacity:0;}}
 .br-cs-title.title-crash.show{animation:brTitleCrash 1.5s ease-out forwards !important;text-shadow:0 0 30px rgba(220,38,38,.55);}
 @keyframes brTitleCrash{0%{transform:scale(2.3);opacity:0;filter:blur(10px);}55%{transform:scale(.92);opacity:1;filter:blur(0);}100%{transform:scale(1);opacity:1;}}
 
@@ -1588,3 +1591,25 @@ button:active{transform:scale(.95);}
 .ach-desc{font-size:11px;color:#6b7280;margin-top:2px;}
 .ach-reward{font-size:10px;color:#fbbf24;margin-top:3px;}
 .ach-done{font-size:11px;color:#22c55e;font-weight:700;white-space:nowrap;}
+
+/* ── 백룸 모바일 이동 컨트롤러 ── */
+.br-ctrl-btn{
+  width:50px;height:50px;
+  background:rgba(255,215,0,.85);
+  border:2px solid rgba(255,180,0,.9);
+  border-radius:8px;
+  color:#000;
+  font-size:20px;
+  font-weight:900;
+  cursor:pointer;
+  transition:all .1s;
+  box-shadow:0 3px 8px rgba(0,0,0,.4);
+  user-select:none;
+  -webkit-user-select:none;
+  touch-action:manipulation;
+}
+.br-ctrl-btn:active{
+  transform:scale(.92);
+  box-shadow:0 1px 3px rgba(0,0,0,.5);
+  background:rgba(255,200,0,.95);
+}

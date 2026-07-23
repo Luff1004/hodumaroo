@@ -487,6 +487,18 @@
       
   <div id="itemBar" style="position:fixed;bottom:60px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:50;pointer-events:auto;"></div>
 
+  <!-- ── 백룸 모바일 이동 컨트롤러 ── -->
+  <div id="brMobileControls" style="position:fixed;bottom:16px;left:16px;display:none;z-index:50;pointer-events:auto;">
+    <div style="display:grid;grid-template-columns:repeat(3,50px);gap:6px;width:162px;">
+      <div></div>
+      <button class="br-ctrl-btn" data-key="w" style="grid-column:2;">↑</button>
+      <div></div>
+      <button class="br-ctrl-btn" data-key="a">←</button>
+      <button class="br-ctrl-btn" data-key="s" style="grid-column:2;">↓</button>
+      <button class="br-ctrl-btn" data-key="d">→</button>
+    </div>
+  </div>
+
   <div id="bossBar">
         <div class="bbg">
           <div class="btop"><div class="bname" id="bNm">👹 보스</div><div class="bhp" id="bHp">0/0</div></div>
