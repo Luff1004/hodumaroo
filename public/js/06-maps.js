@@ -264,6 +264,15 @@ function updExtremeBtn(){
 }
 function confirmMapSelect(){
   if(!selMap)return;
+  // 월드2 진입 시 필수 장비 확인: 폭풍 작업복 + 독성 AK 장착 필수
+  if(curWorld===2){
+    const hasStormArmor=eqArmor==='storm';
+    const hasToxicAK=eqWepId==='toxic_ak';
+    if(!hasStormArmor||!hasToxicAK){
+      setMapMsg('⚠️ 월드2 진입: 폭풍 작업복과 독성 AK를 장착해야 합니다');
+      return;
+    }
+  }
   if(selMap.noWeapons){startGame();return;}
   go('sWeapon');
 }

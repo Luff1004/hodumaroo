@@ -34,6 +34,7 @@ const WEPS={
   trident:{id:'trident',name:'삼지창',icon:'🔱',price:28000,ammo:999,max:999,rel:0,spd:0,dmg:11,r:0,life:0,knife:true,sg:false,desc:'3방향 동시 참격'},
   buster:{id:'buster',name:'버스터 건',icon:'💠',price:42000,ammo:8,max:8,rel:170,spd:11,dmg:22,r:7,life:100,knife:false,sg:false,explosive:true,desc:'대형 폭발탄'},
   needle:{id:'needle',name:'바늘총',icon:'📍',price:16000,ammo:40,max:40,rel:45,spd:18,dmg:1,r:3,life:120,knife:false,sg:false,auto:true,poison:true,desc:'초고속 독침 연사'},
+  toxic_ak:{id:'toxic_ak',name:'독성 AK',icon:'☠️',price:280000,ammo:60,max:60,rel:110,spd:17,dmg:7,r:5,life:160,knife:false,sg:false,auto:true,poison:true,rarity:'epic',desc:'자동 독성탄 연사. 월드2 진입 필수'},
   magnum:{id:'magnum',name:'매그넘',icon:'🔫',price:32000,ammo:6,max:6,rel:130,spd:20,dmg:16,r:5,life:200,knife:false,sg:false,desc:'강력한 리볼버. 관통'},
   boomerang:{id:'boomerang',name:'부메랑',icon:'🪃',price:25000,ammo:999,max:999,rel:0,spd:0,dmg:8,r:0,life:0,knife:true,sg:false,desc:'투척 후 돌아오는 무기'},
   autocannon:{id:'autocannon',name:'자동포',icon:'💣',price:800000,ammo:20,max:20,rel:100,spd:10,dmg:18,r:7,life:100,knife:false,sg:false,auto:true,explosive:true,rarity:'legendary',desc:'자동 폭발탄 20발'},
