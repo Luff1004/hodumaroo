@@ -74,6 +74,8 @@ const RICH_POTIONS = MB_CATS.map((cat,i)=>{
 });
 const RICH_SPOON={id:'rich_spoon', name:'부자의 숟가락', icon:'🥄', price:50000000,
   desc:'1회용 사치품. 사용하면 엄청난 빛과 함께 히든 업적과 "부자의 모자"를 얻는다.'};
+const STORM_WORKSUIT={id:'storm_worksuit', name:'폭풍 작업복', icon:'🌪️', price:800000000,
+  desc:'신비로운 보라색 연기 오라를 내뿜는 월드2 필수 장비. 방어+65%, 이동속도+2'};
 
 // ── 케빈: 음식물쓰레기 3종 + 폐지 10종 ──
 const KEVIN_TRASH=[
@@ -874,6 +876,7 @@ function renderMerchantShopContent(){
 function getItemOwned(it){
   if(it.kind==='star') return (typeof ownedStars!=='undefined'&&ownedStars[it.id])?1:0;
   if(it.kind==='spoon') return (merchInv.potion&&merchInv.potion['rich_spoon'])||0;
+  if(it.kind==='armor') return (eqArmor===it.id)?1:0;
   return (merchInv[it.kind]&&merchInv[it.kind][it.id])||0;
 }
 // 아이템 종류별 실제 구매 함수로 라우팅
@@ -882,6 +885,7 @@ function buyNormItem(kind,id){
   else if(kind==='trash'||kind==='paper') buyKevinItem(kind,id);
   else if(kind==='star') buyFairyStar(id);
   else if(kind==='spoon') buyRichSpoon();
+  else if(kind==='armor') buyStormWorksuit(id);
 }
 // 진열대에서 아이템을 클릭했을 때 대사창에 가격/효과를 띄우고 구매 버튼 표시 (별의 요정 전용으로 계속 사용)
 function showSceneItemDetail(it, dialogueId){
@@ -1434,7 +1438,7 @@ function buyGriddleItemInstant(it, btn){
 // ══ MR 감자씨: 계약서 두루마리에 인장을 찍어야 성사되는 거래 ══
 function renderPotatoShop(c){
   themedShopHeader(c, '💰 화려한 응접실, 황금빛 샹들리에가 번쩍인다', null);
-  const items=[...RICH_POTIONS.map(p=>({...p,kind:'potion'})), {...RICH_SPOON,kind:'spoon'}];
+  const items=[...RICH_POTIONS.map(p=>({...p,kind:'potion'})), {...RICH_SPOON,kind:'spoon'}, {...STORM_WORKSUIT,kind:'armor'}];
   const market=document.createElement('div'); market.className='merch-market mk-vault';
   const itemsWrap=document.createElement('div'); itemsWrap.className='mm-items';
   items.forEach(it=>{
@@ -1458,6 +1462,12 @@ function openPotatoContract(it){
     sealIcon:'💰', signLabel: cb?'날인하고 구매하기':'코인이 부족합니다', signDisabled: !cb,
     onConfirm:()=>{ buyNormItem(it.kind, it.id); showMerchantToast('📜 계약이 체결되었습니다: '+it.icon+' '+it.name); },
   });
+}
+function buyStormWorksuit(id){
+  if(coins<STORM_WORKSUIT.price)return;
+  coins-=STORM_WORKSUIT.price; sv('hd_c',coins); updRes();
+  eqArmor='storm_worksuit'; sv('hd_ea',eqArmor);
+  renderMerchantShopContent();
 }
 
 // ══ 케빈: 흥정(랜덤 협상) — 성공하면 할인, 실패하면 오히려 비싸짐 ══
