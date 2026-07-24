@@ -1098,21 +1098,353 @@ function szDie() {
 }
 
 // ── 엔딩 ──
-function szTriggerEnding() {
-  szSetMsg('🏆 폭풍구역 클리어! (엔딩 준비 중...)', 5000);
-  if (typeof localStorage !== 'undefined') {
-    localStorage.setItem('hd_storm_cleared', '1');
+// ══════════════════════════════════════════════════════
+//  폭풍구역 엔딩 시네마틱
+// ══════════════════════════════════════════════════════
+
+let _szEndRaf = null;
+let _szEndLightnings = []; // 사전계산 번개 볼트
+
+function _szLerp(a, b, t) { return a + (b - a) * t; }
+function _szClamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+
+function _szBuildLightnings(w, h) {
+  // 폭풍 구간(t=0~0.48) 에 등장할 번개 8개를 사전계산
+  const times = [0.04, 0.09, 0.15, 0.20, 0.26, 0.31, 0.37, 0.44];
+  _szEndLightnings = times.map((t, i) => {
+    const x0 = w * (0.15 + ((i * 137 + 53) % 70) / 100);
+    const pts = [];
+    let cx = x0, cy = 0;
+    for (let j = 0; j < 9; j++) {
+      cy += h * (0.09 + ((i * 7 + j * 13) % 5) * 0.01);
+      cx += (((i * 11 + j * 7) % 7) - 3) * (w * 0.035);
+      cx = _szClamp(cx, w * 0.05, w * 0.95);
+      pts.push([cx, cy]);
+    }
+    return { t, pts, a: 1 - i * 0.07 };
+  });
+}
+
+function _szDrawStormFrame(ctx, w, h, t) {
+  ctx.clearRect(0, 0, w, h);
+  // calm = 0(폭풍) → 1(새벽), 후반부에 빠르게 진행
+  const calm = _szClamp(Math.pow(_szClamp((t - 0.38) / 0.62, 0, 1), 0.65), 0, 1);
+  const storm = Math.max(0, 1 - calm * 1.7);
+
+  // ── 하늘 그라데이션 ──
+  const sg = ctx.createLinearGradient(0, 0, 0, h);
+  const sT = [_szLerp(8,18,calm),  _szLerp(2,6,calm),  _szLerp(28,45,calm)];
+  const sM = [_szLerp(22,200,calm),_szLerp(8,90,calm), _szLerp(55,40,calm)];
+  const sB = [_szLerp(14,255,calm),_szLerp(4,155,calm),_szLerp(28,55,calm)];
+  sg.addColorStop(0,   `rgb(${sT[0]|0},${sT[1]|0},${sT[2]|0})`);
+  sg.addColorStop(0.45,`rgb(${(sM[0]*.6)|0},${(sM[1]*.6)|0},${(sM[2]*.7)|0})`);
+  sg.addColorStop(0.75,`rgb(${sM[0]|0},${sM[1]|0},${sM[2]|0})`);
+  sg.addColorStop(1,   `rgb(${sB[0]|0},${sB[1]|0},${sB[2]|0})`);
+  ctx.fillStyle = sg;
+  ctx.fillRect(0, 0, w, h);
+
+  // ── 폭풍 구름 (3레이어) ──
+  if (storm > 0.01) {
+    const layers = [
+      { fy:0.04, fh:0.26, speed:t*0.035, a:0.93, col:[38,16,72] },
+      { fy:0.18, fh:0.24, speed:-t*0.055,a:0.88, col:[26,10,58] },
+      { fy:0.30, fh:0.22, speed:t*0.048, a:0.78, col:[48,22,80] },
+    ];
+    layers.forEach(ly => {
+      const [r,g,b] = ly.col;
+      const offX = (ly.speed * w * 0.18) % w;
+      // bumpy cloud silhouette
+      for (let pass = 0; pass < 2; pass++) {
+        const ox = pass === 0 ? offX : offX - w;
+        ctx.beginPath();
+        ctx.moveTo(ox - 60, h * (ly.fy + ly.fh));
+        const segs = 14;
+        for (let i = 0; i <= segs; i++) {
+          const px = ox + (w + 120) * i / segs - 60;
+          const bumpT = i / segs * Math.PI * 2;
+          const bump = (Math.sin(bumpT * 2.3 + ly.speed * 12) * 0.028 +
+                        Math.sin(bumpT * 5.1 + ly.speed * 7) * 0.012) * h;
+          ctx.lineTo(px, h * ly.fy + bump);
+        }
+        ctx.lineTo(ox + w + 60, h * (ly.fy + ly.fh));
+        ctx.closePath();
+        ctx.fillStyle = `rgba(${r},${g},${b},${ly.a * storm})`;
+        ctx.fill();
+      }
+    });
   }
-  // 업적용 기록
+
+  // ── 번개 볼트 ──
+  _szEndLightnings.forEach(bolt => {
+    const dt = Math.abs(t - bolt.t);
+    if (dt > 0.013) return;
+    const ba = (1 - dt / 0.013) * bolt.a;
+    // 화면 섬광
+    ctx.fillStyle = `rgba(210,170,255,${ba * 0.18})`;
+    ctx.fillRect(0, 0, w, h);
+    // 볼트 본체
+    ctx.save();
+    ctx.lineJoin = 'round';
+    // 외곽 glow
+    ctx.strokeStyle = `rgba(180,130,255,${ba * 0.7})`;
+    ctx.lineWidth = 5;
+    ctx.shadowBlur = 28;
+    ctx.shadowColor = 'rgba(200,140,255,.9)';
+    ctx.beginPath();
+    ctx.moveTo(bolt.pts[0][0], 0);
+    bolt.pts.forEach(([px,py]) => ctx.lineTo(px, py));
+    ctx.stroke();
+    // 내부 흰색 코어
+    ctx.strokeStyle = `rgba(240,220,255,${ba * 0.95})`;
+    ctx.lineWidth = 1.5;
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.moveTo(bolt.pts[0][0], 0);
+    bolt.pts.forEach(([px,py]) => ctx.lineTo(px, py));
+    ctx.stroke();
+    ctx.restore();
+  });
+
+  // ── 새벽 빛 (calm 구간) ──
+  if (calm > 0.05) {
+    const rA = _szClamp((calm - 0.05) / 0.95, 0, 1);
+    const sunY = h * _szLerp(0.52, 0.28, calm);
+    // 중심 광원
+    const rg = ctx.createRadialGradient(w*0.5,sunY,0, w*0.5,sunY, w*0.75);
+    rg.addColorStop(0,   `rgba(255,215,85,${rA * 0.72})`);
+    rg.addColorStop(0.28,`rgba(255,155,35,${rA * 0.35})`);
+    rg.addColorStop(0.65,`rgba(255,100,10,${rA * 0.10})`);
+    rg.addColorStop(1,   'rgba(255,80,0,0)');
+    ctx.fillStyle = rg;
+    ctx.fillRect(0, 0, w, h);
+    // 빛 줄기 (8개)
+    if (calm > 0.28) {
+      const rayA = _szClamp((calm - 0.28) / 0.72, 0, 1);
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      for (let i = 0; i < 8; i++) {
+        const ang = (i / 8) * Math.PI * 2 + t * 0.3;
+        const wid = 0.055 + (i % 3) * 0.02;
+        const len = w * 1.3;
+        const rg2 = ctx.createLinearGradient(w*0.5, sunY,
+          w*0.5 + Math.cos(ang)*len, sunY + Math.sin(ang)*len);
+        const baseA = rayA * (0.06 + (i%2)*0.03) * (0.7 + 0.3*Math.sin(t*1.8+i*1.1));
+        rg2.addColorStop(0,   `rgba(255,220,80,${baseA * 2.5})`);
+        rg2.addColorStop(0.25,`rgba(255,180,40,${baseA})`);
+        rg2.addColorStop(1,   'rgba(255,140,10,0)');
+        ctx.beginPath();
+        ctx.moveTo(w*0.5, sunY);
+        ctx.lineTo(w*0.5 + Math.cos(ang-wid)*len, sunY + Math.sin(ang-wid)*len);
+        ctx.lineTo(w*0.5 + Math.cos(ang+wid)*len, sunY + Math.sin(ang+wid)*len);
+        ctx.closePath();
+        ctx.fillStyle = rg2;
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+  }
+
+  // ── 섬 실루엣 ──
+  const silA = _szClamp(0.96 - calm * 0.28, 0.3, 0.96);
+  ctx.fillStyle = `rgba(7,2,16,${silA})`;
+  ctx.beginPath();
+  ctx.moveTo(0, h);
+  ctx.lineTo(0, h*0.87);
+  ctx.quadraticCurveTo(w*0.07,h*0.81, w*0.14,h*0.79);
+  ctx.quadraticCurveTo(w*0.21,h*0.77, w*0.27,h*0.78);
+  // 나무 실루엣
+  ctx.quadraticCurveTo(w*0.295,h*0.74,w*0.30,h*0.75);
+  ctx.quadraticCurveTo(w*0.315,h*0.71,w*0.33,h*0.73);
+  ctx.quadraticCurveTo(w*0.345,h*0.76,w*0.36,h*0.77);
+  // 중앙 건물 (플레이어가 들어간 건물)
+  ctx.lineTo(w*0.43, h*0.77);
+  ctx.lineTo(w*0.43, h*0.63);
+  ctx.lineTo(w*0.455,h*0.58);   // 지붕 왼쪽
+  ctx.lineTo(w*0.48, h*0.54);   // 첨탑
+  ctx.lineTo(w*0.505,h*0.58);   // 지붕 오른쪽
+  ctx.lineTo(w*0.52, h*0.63);
+  ctx.lineTo(w*0.52, h*0.77);
+  // 오른쪽 나무
+  ctx.quadraticCurveTo(w*0.545,h*0.76,w*0.57,h*0.77);
+  ctx.quadraticCurveTo(w*0.595,h*0.72,w*0.61,h*0.74);
+  ctx.quadraticCurveTo(w*0.625,h*0.70,w*0.64,h*0.73);
+  ctx.quadraticCurveTo(w*0.66,h*0.76, w*0.70,h*0.78);
+  ctx.quadraticCurveTo(w*0.78,h*0.80, w*0.86,h*0.82);
+  ctx.quadraticCurveTo(w*0.94,h*0.84, w,h*0.88);
+  ctx.lineTo(w, h);
+  ctx.closePath();
+  ctx.fill();
+  // 건물 창문 불빛 (calm 구간에 켜짐)
+  if (calm > 0.4) {
+    const winA = _szClamp((calm - 0.4) / 0.6, 0, 1);
+    [[w*0.455,h*0.665],[w*0.495,h*0.665],[w*0.455,h*0.70],[w*0.495,h*0.70]].forEach(([wx,wy]) => {
+      const wg = ctx.createRadialGradient(wx,wy,0, wx,wy, 18);
+      wg.addColorStop(0, `rgba(255,220,80,${winA*0.9})`);
+      wg.addColorStop(1, 'rgba(255,180,30,0)');
+      ctx.fillStyle = wg;
+      ctx.fillRect(wx-9, wy-7, 14, 10);
+    });
+  }
+
+  // ── 최종 골든 페이드 ──
+  if (t > 0.855) {
+    const fd = Math.pow((t - 0.855) / 0.145, 1.6);
+    ctx.fillStyle = `rgba(255,210,75,${fd * 0.8})`;
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = `rgba(255,255,240,${fd * 0.35})`;
+    ctx.fillRect(0, 0, w, h);
+  }
+}
+
+function _szRunEndingCanvas(duration, cb) {
+  const canvas = document.getElementById('szEndingCanvas');
+  if (!canvas) { cb(); return; }
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  _szBuildLightnings(canvas.width, canvas.height);
+  const ctx = canvas.getContext('2d');
+  const start = performance.now();
+  function frame(now) {
+    const t = _szClamp((now - start) / duration, 0, 1);
+    _szDrawStormFrame(ctx, canvas.width, canvas.height, t);
+    if (t < 1) { _szEndRaf = requestAnimationFrame(frame); }
+    else { _szEndRaf = null; cb(); }
+  }
+  _szEndRaf = requestAnimationFrame(frame);
+}
+
+function _szSpawnSparks(fx) {
+  for (let i = 0; i < 22; i++) {
+    const s = document.createElement('div');
+    s.className = 'sz-spark';
+    const x = 20 + Math.random() * 60, y = 10 + Math.random() * 80;
+    const tx = (Math.random() - 0.5) * 200, ty = (Math.random() - 0.5) * 160;
+    s.style.cssText = `left:${x}%;top:${y}%;width:${2+Math.random()*4}px;height:${2+Math.random()*4}px;`+
+      `background:rgba(${160+Math.random()*90|0},${100+Math.random()*80|0},255,${.7+Math.random()*.3});`+
+      `--sx:${tx}px;--sy:${ty}px;animation-duration:${.6+Math.random()*.8}s;animation-delay:${Math.random()*.4}s;`;
+    fx.appendChild(s);
+  }
+}
+
+function szPlayEnding(onDone) {
+  const modal = document.getElementById('szEndingModal');
+  const fx    = document.getElementById('szEndingFx');
+  const vign  = document.getElementById('szEndingVign');
+  const lines = document.getElementById('szEndingLines');
+  const title = document.getElementById('szEndingTitle');
+  const sub   = document.getElementById('szEndingSub');
+  const stats = document.getElementById('szEndingStats');
+  if (!modal) { onDone && onDone(); return; }
+
+  // 초기화
+  [lines,title,sub,stats].forEach(el => { el.textContent=''; el.className=el.className.replace(/\bshow\b/g,'').trim(); });
+  fx.innerHTML = '';
+  vign.classList.remove('show');
+  modal.classList.add('on');
+
+  const PRE  = ['마지막 봉인이 풀렸다','동쪽... 서쪽... 남쪽... 북쪽...','네 수호자가 무너졌다','폭풍이... 그친다'];
+  const POST = ['이 섬은 봉인된 땅이었다','폭풍은 감옥이 아니었다','그것은... 기억이었다','이제, 잊혀도 괜찮다','바람이 분다. 이번엔, 따뜻하다'];
+  const SHOW_DUR = 1050, LINE_GAP = 1280;
+
+  function showLine(txt, t) {
+    setTimeout(() => {
+      lines.textContent = txt;
+      lines.classList.add('show');
+    }, t);
+    setTimeout(() => lines.classList.remove('show'), t + SHOW_DUR);
+  }
+
+  // === 타임라인 ===
+  let cursor = 500;
+  vign.classList.add('show');
+
+  // 전기 파티클 (도입부)
+  setTimeout(() => _szSpawnSparks(fx), 200);
+
+  // 전반부 대사
+  PRE.forEach(txt => { showLine(txt, cursor); cursor += LINE_GAP; });
+
+  // 캔버스 시네마틱 (4.6초)
+  cursor += 300;
+  const canvasStart = cursor;
+  setTimeout(() => {
+    const flashEl = document.createElement('div');
+    flashEl.className = 'sz-flash';
+    fx.appendChild(flashEl);
+    void flashEl.offsetWidth;
+    flashEl.classList.add('go');
+    _szRunEndingCanvas(4600, afterCanvas);
+  }, canvasStart);
+  cursor += 4600;
+
+  function afterCanvas() {
+    // 황금빛 wake 효과
+    const wake = document.createElement('div');
+    wake.className = 'sz-wake';
+    fx.appendChild(wake);
+    void wake.offsetWidth;
+    wake.classList.add('expand');
+
+    // 후반부 대사
+    let t2 = 800;
+    POST.forEach(txt => { showLine(txt, t2); t2 += LINE_GAP; });
+
+    // 타이틀
+    setTimeout(() => {
+      title.textContent = "STORM'S END";
+      title.classList.add('show');
+    }, t2 + 200);
+    setTimeout(() => {
+      sub.textContent = '폭풍의 기억이 잠들었다';
+      sub.classList.add('show');
+    }, t2 + 600);
+
+    // 통계
+    setTimeout(() => {
+      const bossCleared = Object.values(sz ? (sz.bossState || {}) : {})
+        .filter(v => v === 'dead').length;
+      stats.textContent = `보스 ${bossCleared} / 4 · 폭풍구역 완전 클리어`;
+      stats.classList.add('show');
+    }, t2 + 2000);
+
+    // 페이드아웃
+    setTimeout(() => {
+      modal.style.transition = 'opacity 1.4s ease';
+      modal.style.opacity = '0';
+    }, t2 + 3800);
+    setTimeout(() => {
+      modal.style.opacity = '';
+      modal.style.transition = '';
+      modal.classList.remove('on');
+      fx.innerHTML = '';
+      vign.classList.remove('show');
+      if (_szEndRaf) { cancelAnimationFrame(_szEndRaf); _szEndRaf = null; }
+      onDone && onDone();
+    }, t2 + 5200);
+  }
+}
+
+function szTriggerEnding() {
+  // 업적·저장
+  if (typeof localStorage !== 'undefined') localStorage.setItem('hd_storm_cleared','1');
   if (typeof achStats !== 'undefined') {
     achStats.stormCleared = (achStats.stormCleared || 0) + 1;
     if (typeof saveAch === 'function') saveAch();
     if (typeof checkAchievements === 'function') checkAchievements();
   }
-  setTimeout(() => {
-    if (!sz) return;
+  // 보상 지급 (엔딩 달성 시)
+  if (typeof coins !== 'undefined') {
+    coins += 500000;
+    if (typeof sv === 'function') sv('hd_c', coins);
+    if (typeof energy !== 'undefined') { energy += 300000; if (typeof sv === 'function') sv('hd_e', energy); }
+    if (typeof updRes === 'function') updRes();
+  }
+  // 폭풍구역 루프 일시정지 (화면은 유지)
+  if (sz) sz._dying = true;
+  // 컷씬 재생 → 완료 후 로비
+  szPlayEnding(() => {
     exitStormZone(true);
-  }, 5000);
+  });
 }
 
 // ══════════════ 그리기 ══════════════
