@@ -2308,9 +2308,15 @@ function drawBackroomsMode(){
       brDrawTable(sxp,h/2+size*0.2,size,alpha);
     } else if(sp.kind==='entity'){
       if(br.mode==='fun')brDrawPartygoer(sxp,h/2+size*0.25,size,1);
-      else if(typeof hcEntityImg!=='undefined'){
-        const ew=size*1.05, eh=size*0.68;
-        ctx.drawImage(hcEntityImg,sxp-ew/2,h/2-eh/2,ew,eh);
+      else {
+        if(typeof hcEntityImg!=='undefined'&&typeof hcEntityImg.width==='number'&&hcEntityImg.width>0){
+          const ew=size*1.05, eh=size*0.68;
+          ctx.drawImage(hcEntityImg,sxp-ew/2,h/2-eh/2,ew,eh);
+        } else {
+          ctx.fillStyle='rgba(200,200,200,.9)';ctx.beginPath();ctx.arc(sxp,h/2,size*0.35,0,Math.PI*2);ctx.fill();
+          ctx.fillStyle='#000';ctx.beginPath();ctx.arc(sxp,h/2,size*0.15,0,Math.PI*2);ctx.fill();
+          ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(sxp-size*0.05,h/2-size*0.05,size*0.05,0,Math.PI*2);ctx.fill();
+        }
       }
     }
   }
