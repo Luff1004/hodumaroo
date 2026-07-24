@@ -153,6 +153,34 @@
   <div id="starshipDockEarth" class="starship-dock" onclick="event.stopPropagation()"></div>
   <!-- 에일리언 함선이 떨구고 간 정체불명의 큐브: 클릭하면 차원으로 진입 -->
   <div id="alienCubeEarth" class="alien-cube" onclick="event.stopPropagation()"></div>
+  <!-- 폭풍구역 헬기: 폭풍 작업복 착용 시 표시 -->
+  <div id="stormZoneHeliBtnWrap" style="display:none;position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:30;cursor:pointer;display:none;flex-direction:column;align-items:center;gap:6px;" onclick="onStormZoneHeliClick()">
+    <svg width="110" height="76" viewBox="0 0 70 48" xmlns="http://www.w3.org/2000/svg" class="sz-heli-svg">
+      <defs>
+        <radialGradient id="heliGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#a855f7" stop-opacity="0.6"/>
+          <stop offset="100%" stop-color="#7c3aed" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <ellipse cx="35" cy="28" rx="28" ry="14" fill="url(#heliGlow)"/>
+      <!-- 헬기 몸통 -->
+      <ellipse cx="35" cy="28" rx="18" ry="9" fill="#4c1d95" stroke="#7c3aed" stroke-width="1.5"/>
+      <!-- 앞부분 -->
+      <ellipse cx="48" cy="28" rx="7" ry="6" fill="#6d28d9"/>
+      <!-- 꼬리 -->
+      <line x1="17" y1="28" x2="5" y2="25" stroke="#4c1d95" stroke-width="3"/>
+      <ellipse cx="5" cy="24" rx="4" ry="2" fill="#6d28d9"/>
+      <!-- 메인 로터 -->
+      <line x1="10" y1="20" x2="60" y2="20" stroke="#a855f7" stroke-width="2.5" class="sz-heli-rotor"/>
+      <line x1="25" y1="14" x2="45" y2="26" stroke="#a855f7" stroke-width="2" class="sz-heli-rotor" style="transform-origin:35px 20px;transform:rotate(45deg)"/>
+      <!-- 랜딩기어 -->
+      <line x1="24" y1="37" x2="24" y2="44" stroke="#7c3aed" stroke-width="2"/>
+      <line x1="46" y1="37" x2="46" y2="44" stroke="#7c3aed" stroke-width="2"/>
+      <line x1="18" y1="44" x2="30" y2="44" stroke="#7c3aed" stroke-width="2"/>
+      <line x1="40" y1="44" x2="52" y2="44" stroke="#7c3aed" stroke-width="2"/>
+    </svg>
+    <div class="sz-heli-label" style="font-size:13px;font-weight:800;color:#a855f7;text-shadow:0 0 8px #7c3aed;white-space:nowrap;background:rgba(30,0,60,0.82);padding:4px 12px;border-radius:10px;border:1px solid #7c3aed;">⚡ 폭풍구역 진입</div>
+  </div>
   <div id="kevinBegBadge" style="display:none;position:fixed;left:14px;bottom:80px;z-index:24;background:rgba(0,0,0,.55);color:#fde68a;font-size:11px;font-weight:700;padding:5px 10px;border-radius:14px;align-items:center;gap:4px;">🧓 케빈이 구걸 중...</div>
   <div class="ver">호두마루 v1.0</div>
   <div style="position:fixed;bottom:10px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;z-index:25;background:rgba(255,255,255,0.85);padding:4px 14px;border-radius:20px;border:1px solid #e5e7eb;">
@@ -896,6 +924,7 @@
 <script src="/js/17-enchant.js"></script>
 <script src="/js/18-daily-quest.js"></script>
 <script src="/js/19-pets.js"></script>
+<script src="/js/20-storm-zone.js"></script>
 <script src="/js/21-events-game.js"></script>
 <script src="/js/22-mobile-controls.js"></script>
 <script src="/js/23-defense-mode.js"></script>

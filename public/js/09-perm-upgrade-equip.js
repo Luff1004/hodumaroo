@@ -56,7 +56,7 @@ function renderEquip(){
       const _rar=ar.rarity||'';
       const _rarCls=_rar?(' rarity-'+_rar):'';
       const d=document.createElement('div');d.className='ei'+(isEq?' eq':'')+(selEqId===eid?' sel':'')+_rarCls;
-      const _rarBadge={'rare':'<span class="rbadge rare">RARE</span>','epic':'<span class="rbadge epic">EPIC</span>','legendary':'<span class="rbadge legendary">✨ LEGEND</span>','mythic':'<span class="rbadge mythic">🌈 MYTHIC</span>','ancient':'<span class="rbadge ancient">🏛️ 전설</span>','divine':'<span class="rbadge divine">😇 초월</span>','absolute':'<span class="rbadge absolute">🌌 차원</span>'};
+      const _rarBadge={'rare':'<span class="rbadge rare">RARE</span>','epic':'<span class="rbadge epic">EPIC</span>','legendary':'<span class="rbadge legendary">✨ LEGEND</span>','mythic':'<span class="rbadge mythic">🌈 MYTHIC</span>','ancient':'<span class="rbadge ancient">🏛️ 전설</span>','divine':'<span class="rbadge divine">😇 초월</span>','absolute':'<span class="rbadge absolute">🌌 차원</span>','transcendent':'<span class="rbadge transcendent">虛空裂界</span>'};
       d.innerHTML=`<div class="eico">${ar.icon}</div><div><div class="enm">${ar.name}갑옷 ${_rarBadge[_rar]||''}</div><div class="elv">${lv>0?'Lv.'+lv:''} ${isEq?'<span style="font-size:8px;background:#14532d;color:#4ade80;padding:1px 5px;border-radius:5px">장착중</span>':''}</div>${enchantStatText('ar_'+ar.id,'armor')}</div>`;
       d.onclick=()=>{selEqId=eid;renderEquip();showED('ar',ar.id);};list.appendChild(d);
     });
@@ -74,7 +74,7 @@ function renderEquip(){
       const _rar=w.secret?'secret':(w.rarity||'');
       const _rarCls=_rar?(' rarity-'+_rar):'';
       const d=document.createElement('div');d.className='ei'+(isEq?' eq':'')+(selEqId===eid?' sel':'')+_rarCls;
-      const _rarBadge2={'rare':'<span class="rbadge rare">RARE</span>','epic':'<span class="rbadge epic">EPIC</span>','legendary':'<span class="rbadge legendary">✨ LEGEND</span>','mythic':'<span class="rbadge mythic">🌈 MYTHIC</span>','ancient':'<span class="rbadge ancient">🏛️ 전설</span>','divine':'<span class="rbadge divine">😇 초월</span>','absolute':'<span class="rbadge absolute">🌌 차원</span>','secret':'<span class="rbadge secret">❓ SECRET</span>'};
+      const _rarBadge2={'rare':'<span class="rbadge rare">RARE</span>','epic':'<span class="rbadge epic">EPIC</span>','legendary':'<span class="rbadge legendary">✨ LEGEND</span>','mythic':'<span class="rbadge mythic">🌈 MYTHIC</span>','ancient':'<span class="rbadge ancient">🏛️ 전설</span>','divine':'<span class="rbadge divine">😇 초월</span>','absolute':'<span class="rbadge absolute">🌌 차원</span>','secret':'<span class="rbadge secret">❓ SECRET</span>','transcendent':'<span class="rbadge transcendent">虛空裂界</span>'};
       const _dispName=w.secret?'???':w.name;
       d.innerHTML=`<div class="eico">${w.secret?'❓':w.icon}</div><div><div class="enm">${_dispName} ${_rarBadge2[_rar]||''}</div><div class="elv">${lv>0?'Lv.'+lv:''} ${isEq?'<span style="font-size:8px;background:#14532d;color:#4ade80;padding:1px 5px;border-radius:5px">장착중</span>':''}</div>${enchantStatText(id,'wep')}</div>`;
       d.onclick=()=>{selEqId=eid;renderEquip();showED('wep',id);};list.appendChild(d);
@@ -102,7 +102,7 @@ function showED(type,id){
     const curDef=ar.def+lv*5,nextDef=cost?ar.def+(lv+1)*5:null;
     edStatLine(`🛡️ 방어력 <b>${curDef}</b>`+(nextDef?` → 강화 시 <b style="color:#16a34a">${nextDef}</b>`:' (최대 강화)'));
     wB.textContent=eqArmor===id?'🔓 해제':'✅ 장착';
-    wB.onclick=()=>{eqArmor=eqArmor===id?null:id;saveAll();renderEquip();};
+    wB.onclick=()=>{eqArmor=eqArmor===id?null:id;saveAll();renderEquip();if(typeof updStormZoneHelicopter==='function')updStormZoneHelicopter();};
     uB.textContent=cost?`⚡ 강화 (${cost})`:'✅ 최대레벨';uB.disabled=!cost||energy<cost;
     uB.onclick=()=>{if(!cost||energy<cost)return;energy-=cost;arLv[id]=(lv+1);saveAll();updRes();renderEquip();showED('ar',id);};
   } else {
@@ -118,7 +118,7 @@ function showED(type,id){
       `⚡ 공격속도 <b>x${curSpd}</b>`+(nlv?` → <b style="color:#16a34a">x${nextSpd}</b>`:'')
     );
     wB.textContent=eqWepId===id?'🔓 해제':'✅ 장착';
-    wB.onclick=()=>{eqWepId=eqWepId===id?'minigun':id;saveAll();renderEquip();checkDreamUnlock();renderWepSel();};
+    wB.onclick=()=>{eqWepId=eqWepId===id?'minigun':id;saveAll();renderEquip();checkDreamUnlock();renderWepSel();if(typeof updStormZoneHelicopter==='function')updStormZoneHelicopter();};
     uB.textContent=cost?`⚡ 강화 (${cost})`:'✅ MG레벨';uB.disabled=!cost||energy<cost;
     uB.onclick=()=>{if(!cost||energy<cost)return;energy-=cost;wepLv[id]=(lv+1);saveAll();updRes();renderEquip();showED('wep',id);};
   }

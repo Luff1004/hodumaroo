@@ -214,7 +214,7 @@ function initGame(){
   if(shopLv['sh_multi'])perkLv['multi']=0;
   updBadges();
   zoms=[];buls=[];parts=[];effs=[];hpItems=[];
-  wave=1;score=0;kills=0;poison=0;
+  wave=1;score=0;kills=0;poison=0;_w2HazT=0;
   achStats.gamesPlayed=(achStats.gamesPlayed||0)+1;saveAch();
   if(typeof _eggWaveKills!=='undefined')_eggWaveKills=0;
   if(typeof trackSilentGame==='function')trackSilentGame();
@@ -291,6 +291,51 @@ function initGame(){
 function spawnHpItems(){
   const cnt=10+(pUpgLv['pl']||0)*2;
   for(let i=0;i<cnt;i++)hpItems.push({x:40+Math.random()*(MW-80),y:40+Math.random()*(MH-80),r:10,collected:false,bob:Math.random()*Math.PI*2});
+}
+
+// ── 월드2 환경 위험 효과 ──
+let _w2HazT=0;
+function tickW2MapHazards(){
+  if(!selMap||selMap.boss||betweenWave)return;
+  _w2HazT++;
+  const id=selMap.id;
+  // 독소 늪지대: 180프레임(3초)마다 독 구름 2개 스폰
+  if(id==='toxic_swamp'&&_w2HazT%180===0){
+    for(let i=0;i<2;i++){
+      const cx=80+Math.random()*(MW-160);
+      const cy=camY+40+Math.random()*(VH()-100);
+      effs.push({type:'cloud',x:cx,y:cy,l:360,ml:360,r:55+Math.random()*30,dmgMult:.6,dmgT:0});
+      parts.push({x:cx,y:cy,vx:(Math.random()-.5)*.5,vy:-.3,l:40,ml:40,r:20,col:'rgba(132,204,22,0.25)'});
+    }
+  }
+  // 핏빛 월식: 120프레임(2초)마다 1 피해 + 빨간 파티클 펄스
+  if(id==='blood_moon'&&_w2HazT%120===0){
+    takeDmg(1);
+    for(let i=0;i<6;i++)parts.push({x:P.x+(Math.random()-.5)*40,y:P.y+(Math.random()-.5)*40,vx:(Math.random()-.5)*2,vy:-1-Math.random()*2,l:30,ml:30,r:3,col:'#dc2626'});
+  }
+  // 네온 폐허: 240프레임(4초)마다 랜덤 위치서 네온 탄막 8발
+  if(id==='neon_ruins'&&_w2HazT%240===0){
+    const sx=80+Math.random()*(MW-160);
+    const sy=camY+40+Math.random()*(VH()-100);
+    effs.push({type:'warn',x:sx,y:sy,l:25,ml:25});
+    gTimeout(()=>{
+      if(!running)return;
+      for(let i=0;i<8;i++){const a=i/8*Math.PI*2;buls.push({x:sx,y:sy,vx:Math.cos(a)*4.5,vy:Math.sin(a)*4.5,r:6,l:160,en:true,dmg:8,col:'#ec4899'});}
+      for(let i=0;i<10;i++)parts.push({x:sx,y:sy,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5,l:20,ml:20,r:3,col:'#f472b6'});
+    },400);
+  }
+  // 붕괴한 메트로: 300프레임(5초)마다 잔해 낙하 (경고 후 폭발)
+  if(id==='ruin_metro'&&_w2HazT%300===0){
+    const rx=80+Math.random()*(MW-160);
+    const ry=camY+60+Math.random()*(VH()-140);
+    effs.push({type:'warn',x:rx,y:ry,l:35,ml:35});
+    gTimeout(()=>{
+      if(!running)return;
+      addExp(rx,ry,45,'#8B7355');
+      zoms.forEach(z=>{if(!z.dead&&d2(z.x,z.y,rx,ry)<(45+z.r)**2)hitZ(z,12);});
+      if(d2(P.x,P.y,rx,ry)<(45+P.r)**2)takeDmg(8);
+    },580);
+  }
 }
 
 // ── 특성 틱 ──
@@ -1505,6 +1550,7 @@ function triggerChallengeClear(){
 
 // ── UPDATE ──
 function update(){
+  if(typeof sz!=='undefined'&&sz&&sz.running){return;} // 폭풍구역이 자체 루프로 돌아감
   if(selMap&&selMap.campEngine){updateDefenseMode();return;}
   if(selMap&&selMap.corridorEngine){updateHorrorCorridor();return;}
   if(selMap&&selMap.shooterEngine){updateShooterMode();return;}
@@ -1572,6 +1618,7 @@ function update(){
   tickItems();
   if(typeof tickRelics==='function')tickRelics();
   if(selMap&&selMap.id==='tower'&&typeof tickTowerRelics==='function')tickTowerRelics();
+  tickW2MapHazards();
   hpItems.forEach(it=>{if(it.collected)return;it.bob+=.05;if(d2(P.x,P.y,it.x,it.y)<(P.r+it.r+4)**2){it.collected=true;const heal=Math.ceil(P.maxHp*.1);P.hp=Math.min(P.maxHp,P.hp+heal);setMsg(`❤️ +${heal}HP!`);setTimeout(()=>{if(running)setMsg('');},1500);for(let i=0;i<10;i++)parts.push({x:it.x,y:it.y,vx:(Math.random()-.5)*4,vy:-2-Math.random()*3,l:22,ml:22,r:4,col:'#ef4444'});}});
   if(!betweenWave){
     if(selMap.boss){if(spawnedCnt===0&&!activeBossMap){spawnWave();spawnT=0;}}
@@ -2277,7 +2324,16 @@ function doMelee(range,arc){
 function startRel(){if(P.ws.knife||P.reloading)return;P.reloading=true;P.ammo=0;relTimer=Math.max(20,P.ws.rel-P.reloadBonus);setMsg('🔄 재장전...');setTimeout(()=>{if(running)setMsg('');},relTimer/60*1000);}
 
 // ── DRAW ──
-const THEMES={city:{bg:'#7a7a7a',bd:'rgba(60,60,60,.6)'},forest:{bg:'#1a2e1a',bd:'rgba(20,83,45,.5)'},lab:{bg:'#0e1828',bd:'rgba(30,80,175,.4)'},desert:{bg:'#c4a050',bd:'rgba(120,80,0,.5)'},sun:{bg:'#2a1200',bd:'rgba(200,80,0,.4)'},machine:{bg:'#0e1e30',bd:'rgba(30,80,180,.4)'},bacteria:{bg:'#0a2010',bd:'rgba(20,120,50,.4)'},clock:{bg:'#18103a',bd:'rgba(80,30,180,.4)'},skeleton:{bg:'#202020',bd:'rgba(120,120,120,.4)'},reanimation:{bg:'#280808',bd:'rgba(180,0,0,.5)'},kraken:{bg:'#001828',bd:'rgba(0,100,160,.4)'},space:{bg:'#000010',bd:'rgba(80,0,150,.4)'},symphony:{bg:'#120018',bd:'rgba(180,130,0,.5)'},};
+const THEMES={city:{bg:'#7a7a7a',bd:'rgba(60,60,60,.6)'},forest:{bg:'#1a2e1a',bd:'rgba(20,83,45,.5)'},lab:{bg:'#0e1828',bd:'rgba(30,80,175,.4)'},desert:{bg:'#c4a050',bd:'rgba(120,80,0,.5)'},sun:{bg:'#2a1200',bd:'rgba(200,80,0,.4)'},machine:{bg:'#0e1e30',bd:'rgba(30,80,180,.4)'},bacteria:{bg:'#0a2010',bd:'rgba(20,120,50,.4)'},clock:{bg:'#18103a',bd:'rgba(80,30,180,.4)'},skeleton:{bg:'#202020',bd:'rgba(120,120,120,.4)'},reanimation:{bg:'#280808',bd:'rgba(180,0,0,.5)'},kraken:{bg:'#001828',bd:'rgba(0,100,160,.4)'},space:{bg:'#000010',bd:'rgba(80,0,150,.4)'},symphony:{bg:'#120018',bd:'rgba(180,130,0,.5)'},
+// 월드1 누락 맵
+apocalypse:{bg:'#1a0808',bd:'rgba(120,30,30,.4)'},dimension_heart:{bg:'#100020',bd:'rgba(120,50,200,.4)'},eternal_space:{bg:'#000008',bd:'rgba(60,0,100,.4)'},
+volcano:{bg:'#2a0a00',bd:'rgba(200,80,10,.4)'},frost:{bg:'#00141c',bd:'rgba(100,180,220,.4)'},void:{bg:'#080010',bd:'rgba(100,50,180,.4)'},
+// 월드2 웨이브/챌린지
+ruin_metro:{bg:'#0d1a08',bd:'rgba(50,100,10,.4)'},toxic_swamp:{bg:'#061208',bd:'rgba(30,80,10,.4)'},neon_ruins:{bg:'#0e0018',bd:'rgba(180,20,100,.4)'},blood_moon:{bg:'#1a0000',bd:'rgba(180,0,0,.5)'},
+quarantine_infinite:{bg:'#080f04',bd:'rgba(60,100,10,.4)'},abyss_experiment:{bg:'#08041a',bd:'rgba(80,30,180,.4)'},
+// 월드2 보스맵
+toxic_queen:{bg:'#0a1f00',bd:'rgba(100,160,10,.4)'},iron_warden:{bg:'#080c12',bd:'rgba(70,90,120,.4)'},plague_mother:{bg:'#061008',bd:'rgba(60,100,10,.5)'},storm_reaver:{bg:'#18100a',bd:'rgba(180,140,0,.4)'},neon_specter:{bg:'#1a0018',bd:'rgba(200,50,150,.4)'},blood_colossus:{bg:'#1a0404',bd:'rgba(160,20,20,.5)'},abyss_leviathan:{bg:'#001018',bd:'rgba(0,120,140,.4)'},gravity_rend:{bg:'#0a0018',bd:'rgba(100,50,200,.4)'},omega_zero:{bg:'#020204',bd:'rgba(200,200,200,.3)'},
+};
 
 function draw(){
   ctx.clearRect(0,0,VW(),VH());
@@ -3049,7 +3105,7 @@ function clearToLobby(){
     isDreamMode=true;
     enterDreamworld();
   } else {
-    if(bgmUnlocked)startBGM();go(curWorld===3?'sLobby3':'sLobby');
+    if(bgmUnlocked)startBGM();go('sLobby');curWorld=1;
   }
 }
 // 게임 로직은 60fps 기준으로 프레임당 고정값을 사용하므로, 화면 주사율이
@@ -3129,7 +3185,9 @@ gC.addEventListener('mousemove',e=>{
 });
 gC.addEventListener('mousedown',e=>{
   if(e.button!==0)return;
-  if(!running&&gC.style.display==='block'){go(curWorld===3?'sLobby3':'sLobby');return;}
+  // 폭풍구역이 실행 중이면 메인 게임 클릭 핸들러 무시
+  if(typeof sz!=='undefined'&&sz&&sz.running)return;
+  if(!running&&gC.style.display==='block'){go('sLobby');curWorld=1;return;}
   if(!P)return;
   if(selMap&&selMap.noWeapons){if(typeof swingTool==='function')swingTool();return;}
   if(fireMode==='semi'){P._semiOn=!P._semiOn;updSemiIndicator();return;}

@@ -90,17 +90,26 @@ function applyControlMode(){
   base.addEventListener('touchcancel',endJoyTouch);
 
   fireBtn.addEventListener('touchstart',e=>{
+    e.preventDefault();
+    // 폭풍구역 모드
+    if(typeof sz!=='undefined'&&sz&&sz.running){ sz._mdown=true; return; }
     if(getControlMode()==='simple')return;
     if(typeof selMap!=='undefined'&&selMap&&selMap.noWeapons)return;
-    e.preventDefault();
     if(!P) return;
     if(fireMode==='semi'){P._semiOn=!P._semiOn;updSemiIndicator();return;}
     if(fireMode==='auto')return;
     P._mdown=true;
     if(!P.ws.auto) fireWep();
   },{passive:false});
-  fireBtn.addEventListener('touchend',e=>{ e.preventDefault(); if(P)P._mdown=false; });
-  fireBtn.addEventListener('touchcancel',e=>{ if(P)P._mdown=false; });
+  fireBtn.addEventListener('touchend',e=>{
+    e.preventDefault();
+    if(typeof sz!=='undefined'&&sz&&sz.running){ sz._mdown=false; return; }
+    if(P) P._mdown=false;
+  });
+  fireBtn.addEventListener('touchcancel',e=>{
+    if(typeof sz!=='undefined'&&sz&&sz.running){ sz._mdown=false; return; }
+    if(P) P._mdown=false;
+  });
 })();
 
 // ── 간단 모드: 화면 아무 곳이나 터치해서 이동(터치 지점에 동적 가상패드 표시) ──
@@ -123,7 +132,31 @@ function applyControlMode(){
     touchDX=dx/FREE_RADIUS; touchDY=dy/FREE_RADIUS;
   }
 
+  // 폭풍구역 조준 (오른손 터치 → 조준 방향)
+  let szAimTouchId = null;
+  function szUpdateAim(clientX, clientY) {
+    if(typeof sz==='undefined'||!sz||!sz.running) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    sz._mouseX = (clientX - rect.left) * scaleX;
+    sz._mouseY = (clientY - rect.top) * scaleY;
+  }
+
   canvas.addEventListener('touchstart',e=>{
+    // 폭풍구역 모드: 오른쪽 터치 = 조준+발사
+    if(typeof sz!=='undefined'&&sz&&sz.running){
+      e.preventDefault();
+      for(const t of e.changedTouches){
+        const rect=canvas.getBoundingClientRect();
+        if(t.clientX > rect.left + rect.width*0.45){ // 화면 오른쪽 절반
+          szAimTouchId=t.identifier;
+          szUpdateAim(t.clientX,t.clientY);
+          sz._mdown=true;
+        }
+      }
+      return;
+    }
     if(!running||getControlMode()!=='simple')return;
     if(freeTouchId!==null)return;
     e.preventDefault();
@@ -133,12 +166,26 @@ function applyControlMode(){
     updateFree(t.clientX,t.clientY);
   },{passive:false});
   canvas.addEventListener('touchmove',e=>{
+    // 폭풍구역 조준 이동
+    if(typeof sz!=='undefined'&&sz&&sz.running){
+      for(const t of e.changedTouches){
+        if(t.identifier===szAimTouchId){ e.preventDefault(); szUpdateAim(t.clientX,t.clientY); }
+      }
+      return;
+    }
     if(freeTouchId===null)return;
     for(const t of e.changedTouches){
       if(t.identifier===freeTouchId){ e.preventDefault(); updateFree(t.clientX,t.clientY); }
     }
   },{passive:false});
   function endFree(e){
+    // 폭풍구역 발사 종료
+    if(typeof sz!=='undefined'&&sz&&sz.running){
+      for(const t of e.changedTouches){
+        if(t.identifier===szAimTouchId){ szAimTouchId=null; if(sz)sz._mdown=false; }
+      }
+      return;
+    }
     for(const t of e.changedTouches){
       if(t.identifier===freeTouchId){ freeTouchId=null; resetFreeJoystick(); }
     }

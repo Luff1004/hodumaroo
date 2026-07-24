@@ -173,13 +173,17 @@ function updWorld2Btn(){
     btn3.classList.toggle('locked',!unlocked3);
   }
 }
+function isStormCleared(){
+  return typeof localStorage!=='undefined'&&!!localStorage.getItem('hd_storm_cleared');
+}
 function setWorld(w){
-  if(w===2&&!isWorld2Unlocked()){
-    setMapMsg('🔒 보스맵을 모두 클리어해야 월드2가 열립니다');
+  if(w===2){
+    // 폭풍구역은 맵 선택 아닌 헬기로만 진입
+    setMapMsg('⚡ 폭풍구역은 로비에서 헬기로만 진입할 수 있습니다 (폭풍 작업복 + 독성 AK 장착 필요)');
     return;
   }
-  if(w===3&&!isWorld3Unlocked()){
-    setMapMsg('🔒 우주선을 매입해야 월드3가 열립니다');
+  if(w===3){
+    setMapMsg('🚀 월드3은 준비 중입니다 (폭풍구역 클리어 후 해금)');
     return;
   }
   curWorld=w;mapCategory='wave';mapIdx=0;

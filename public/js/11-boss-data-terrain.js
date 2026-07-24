@@ -260,6 +260,192 @@ function drawTerrain(ctx,m){
     // 성운 효과
     ctx.fillStyle='rgba(80,0,120,0.06)';ctx.fillRect(0,0,MW,MH);
     ctx.fillStyle='rgba(0,50,120,0.04)';ctx.fillRect(200,0,400,MH);
+
+  // ══ 월드2 웨이브맵 지형 ══
+
+  } else if(t==='ruin_metro'){
+    // 붕괴한 메트로: 지하철 터널 — 아치, 기둥, 철로, 잔해
+    for(let sy=0;sy<MH;sy+=400){
+      // 천장·바닥 콘크리트 띠
+      ctx.fillStyle='rgba(40,60,20,.25)';ctx.fillRect(0,sy,MW,28);ctx.fillRect(0,sy+372,MW,28);
+      // 지지 기둥 4개
+      [100,300,500,700].forEach(px=>{
+        ctx.fillStyle='#2a3a18';ctx.fillRect(px-10,sy+28,20,344);
+        ctx.fillStyle='#3a5020';ctx.fillRect(px-14,sy+24,28,14);ctx.fillRect(px-14,sy+362,28,14);
+      });
+      // 철로 (좌·우)
+      ctx.fillStyle='#3a2a10';ctx.fillRect(155,sy+358,14,42);ctx.fillRect(618,sy+358,14,42);
+      ctx.fillStyle='#5a4a22';ctx.fillRect(152,sy+360,20,4);ctx.fillRect(615,sy+360,20,4);
+      // 잔해 더미
+      [[45,sy+295,65,25],[340,sy+275,50,32],[645,sy+305,58,22]].forEach(([rx,ry,rw,rh])=>{
+        ctx.fillStyle='#222e10';ctx.fillRect(rx,ry,rw,rh);
+        ctx.fillStyle='#323f18';ctx.fillRect(rx+4,ry+4,rw-8,rh-8);
+      });
+      // 균열
+      ctx.strokeStyle='rgba(90,130,40,.15)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(175,sy+50);ctx.lineTo(195,sy+130);ctx.lineTo(165,sy+210);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(605,sy+75);ctx.lineTo(580,sy+155);ctx.lineTo(615,sy+245);ctx.stroke();
+    }
+    // 바닥 타일 세로선
+    ctx.strokeStyle='rgba(60,90,25,.18)';ctx.lineWidth=1;
+    for(let gx=0;gx<MW;gx+=80){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,MH);ctx.stroke();}
+
+  } else if(t==='toxic_swamp'){
+    // 독소 늪지대: 독 웅덩이, 갈대, 썩은 나무그루터기
+    const pools=[[120,150,70,28],[450,310,88,34],[660,185,62,25],[85,510,78,30],[555,490,72,28],
+      [205,760,82,32],[710,715,64,25],[355,960,88,36],[105,1110,68,27],[610,1060,78,30],
+      [255,1360,74,29],[705,1310,84,33],[155,1610,64,25],[505,1560,88,34],[725,1760,68,27],
+      [105,1910,82,31],[405,2010,74,29],[655,2110,60,25],[205,2310,78,32],[555,2260,68,27],
+      [355,2510,88,35],[705,2560,64,25],[155,2760,74,29],[505,2910,78,31]];
+    pools.forEach(([px,py,pr,pb])=>{
+      const g=ctx.createRadialGradient(px,py,0,px,py,pr);
+      g.addColorStop(0,'rgba(40,90,10,.55)');g.addColorStop(1,'rgba(20,50,5,.12)');
+      ctx.beginPath();ctx.ellipse(px,py,pr,pb,0,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
+      ctx.strokeStyle='rgba(60,130,20,.3)';ctx.lineWidth=1.5;ctx.stroke();
+    });
+    // 갈대
+    for(let i=0;i<90;i++){
+      const rx=(i*139+17)%MW,ry=(i*83+31)%(MH-120)+60;
+      ctx.strokeStyle='rgba(75,120,20,.35)';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(rx,ry+32);ctx.quadraticCurveTo(rx+(i%2?8:-8),ry+15,rx+(i%3-1)*5,ry);ctx.stroke();
+      ctx.fillStyle='rgba(95,150,28,.4)';ctx.beginPath();ctx.ellipse(rx+(i%3-1)*5,ry-5,3,8,0,0,Math.PI*2);ctx.fill();
+    }
+    // 썩은 나무
+    [[55,410],[725,620],[48,920],[735,1120],[75,1520],[710,1820],[55,2220],[730,2630]].forEach(([tx,ty])=>{
+      ctx.fillStyle='#201808';ctx.beginPath();ctx.arc(tx,ty,18,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='#403018';ctx.lineWidth=2;ctx.stroke();
+      ctx.fillStyle='#18100a';ctx.fillRect(tx-5,ty-32,10,32);
+    });
+    // 독 안개 얼룩
+    for(let i=0;i<35;i++){
+      ctx.fillStyle=`rgba(70,140,18,${.018+.012*(i%3)})`;
+      ctx.beginPath();ctx.arc((i*181)%MW,(i*97+i*53)%MH,38+i%28,0,Math.PI*2);ctx.fill();
+    }
+
+  } else if(t==='neon_ruins'){
+    // 네온 폐허: 사이버도시 잔해 + 네온 불빛
+    // 무너진 건물 실루엣
+    [[20,0,100,500],[170,300,80,700],[300,100,90,600],[460,0,70,450],[570,200,110,800],[700,50,80,600],
+     [20,900,90,600],[180,1100,80,700],[320,800,100,500],[480,900,70,550],[590,1000,100,800],[720,800,70,600],
+     [20,1800,90,600],[180,1900,80,700],[320,1700,100,500],[480,1800,70,550],[590,1900,100,800],[720,1700,70,600],
+     [20,2700,90,400],[180,2800,80,300],[320,2600,100,400],[480,2700,70,400],[590,2800,100,300],[720,2600,70,400]].forEach(([x,y,w,h])=>{
+      ctx.fillStyle='#0e0015';ctx.fillRect(x,y,w,h);
+      ctx.strokeStyle='rgba(120,0,80,.25)';ctx.lineWidth=1;ctx.strokeRect(x,y,w,h);
+      for(let wy=y+40;wy<y+h-30;wy+=75){
+        for(let wx=x+12;wx<x+w-12;wx+=28){
+          if((wx+wy)%3!==0){ctx.fillStyle='rgba(200,30,140,.10)';ctx.fillRect(wx,wy,14,18);}
+        }
+      }
+    });
+    // 네온 사인
+    const neons=[[60,280,'#ec4899'],[360,120,'#22d3ee'],[580,380,'#f472b6'],[140,620,'#a78bfa'],
+      [500,560,'#ec4899'],[700,200,'#22d3ee'],[250,850,'#f472b6'],[620,820,'#a78bfa'],
+      [80,1100,'#ec4899'],[420,1050,'#22d3ee'],[680,1200,'#f472b6'],[180,1400,'#a78bfa'],
+      [550,1380,'#ec4899'],[730,1550,'#22d3ee'],[120,1600,'#f472b6'],[400,1750,'#a78bfa'],
+      [640,1700,'#ec4899'],[200,1950,'#22d3ee'],[500,1920,'#f472b6'],[100,2100,'#a78bfa'],
+      [720,2200,'#ec4899'],[300,2350,'#22d3ee'],[600,2300,'#f472b6'],[150,2500,'#a78bfa'],
+      [480,2550,'#ec4899'],[700,2700,'#22d3ee'],[200,2800,'#f472b6'],[550,2850,'#a78bfa']];
+    neons.forEach(([nx,ny,nc])=>{
+      ctx.save();ctx.globalAlpha=0.55;ctx.strokeStyle=nc;ctx.lineWidth=3;
+      ctx.beginPath();ctx.moveTo(nx,ny);ctx.lineTo(nx+55+((nx*7)%45),ny);ctx.stroke();
+      ctx.globalAlpha=0.25;ctx.lineWidth=8;ctx.stroke();
+      ctx.restore();
+    });
+    // 사이버 바닥 격자
+    ctx.strokeStyle='rgba(200,50,150,.05)';ctx.lineWidth=1;
+    for(let gx=0;gx<MW;gx+=55){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,MH);ctx.stroke();}
+    for(let gy=0;gy<MH;gy+=55){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(MW,gy);ctx.stroke();}
+
+  } else if(t==='blood_moon'){
+    // 핏빛 월식: 달빛 글로우 + 크레이터 + 피 웅덩이
+    for(let sy=0;sy<MH;sy+=800){
+      const g=ctx.createRadialGradient(MW/2,sy+400,20,MW/2,sy+400,340);
+      g.addColorStop(0,'rgba(180,0,0,.13)');g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=g;ctx.fillRect(0,sy,MW,800);
+    }
+    // 크레이터
+    [[150,200,50],[600,350,40],[300,600,55],[700,800,42],[100,1000,48],[500,1100,52],
+     [250,1350,44],[680,1500,50],[120,1700,46],[450,1900,54],[700,2050,40],
+     [200,2200,52],[550,2400,48],[100,2600,44],[680,2750,50],[350,2900,46]].forEach(([cx,cy,cr])=>{
+      ctx.fillStyle='rgba(60,0,0,.32)';ctx.beginPath();ctx.ellipse(cx,cy,cr,cr*.5,0,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='rgba(110,0,0,.3)';ctx.lineWidth=2;ctx.stroke();
+      ctx.strokeStyle='rgba(80,10,10,.4)';ctx.lineWidth=3;
+      ctx.beginPath();ctx.ellipse(cx,cy,cr+4,cr*.5+2,0,0,Math.PI*2);ctx.stroke();
+    });
+    // 피 웅덩이
+    [[200,450,36,14],[500,250,46,17],[700,700,38,14],[80,950,42,16],[600,1200,40,15],
+     [300,1500,36,14],[720,1800,44,17],[150,2100,38,15],[520,2300,42,16],[280,2700,36,14]].forEach(([bx,by,br,bry])=>{
+      const bg=ctx.createRadialGradient(bx,by,0,bx,by,br);
+      bg.addColorStop(0,'rgba(140,0,0,.65)');bg.addColorStop(1,'rgba(80,0,0,.12)');
+      ctx.beginPath();ctx.ellipse(bx,by,br,bry,0,0,Math.PI*2);ctx.fillStyle=bg;ctx.fill();
+    });
+    // 균열
+    ctx.strokeStyle='rgba(100,0,0,.14)';ctx.lineWidth=1;
+    for(let i=0;i<22;i++){
+      const cx=(i*127+43)%MW,cy=(i*89+61)%MH;
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+(i%2?32:-32),cy+(i*7)%60+18);ctx.stroke();
+    }
+
+  // ══ 월드2 챌린지맵 지형 ══
+
+  } else if(t==='quarantine_infinite'){
+    // 무한 격리구역: 격리 시설 — 셀 블록, 경고 줄무늬, 바이오해저드 마크
+    ctx.strokeStyle='rgba(90,140,25,.18)';ctx.lineWidth=1;
+    for(let gy=0;gy<MH;gy+=55){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(MW,gy);ctx.stroke();}
+    for(let gx=0;gx<MW;gx+=55){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,MH);ctx.stroke();}
+    for(let sy=0;sy<MH;sy+=480){
+      // 격리 셀 4칸
+      [[8,sy+8,370,215],[422,sy+8,370,215],[8,sy+260,370,215],[422,sy+260,370,215]].forEach(([cx2,cy2,cw,ch])=>{
+        ctx.fillStyle='rgba(110,180,25,.1)';ctx.fillRect(cx2,cy2,cw,ch);
+        ctx.strokeStyle='rgba(100,180,28,.28)';ctx.lineWidth=2;ctx.strokeRect(cx2,cy2,cw,ch);
+      });
+      // 경고 줄무늬 (중간 띠)
+      const wy=sy+234;
+      for(let x=0;x<MW;x+=38){
+        if(Math.floor(x/38)%2===0){ctx.fillStyle='rgba(140,200,18,.10)';ctx.fillRect(x,wy,38,18);}
+      }
+      // 바이오해저드 기호 ×2
+      [190,590].forEach(bx=>{
+        const by=wy+9;
+        ctx.strokeStyle='rgba(140,210,28,.22)';ctx.lineWidth=2;
+        ctx.beginPath();ctx.arc(bx,by,12,0,Math.PI*2);ctx.stroke();
+        ctx.beginPath();ctx.arc(bx,by,5,0,Math.PI*2);ctx.stroke();
+        [0,120,240].forEach(deg=>{
+          const a=deg*Math.PI/180;
+          ctx.beginPath();ctx.moveTo(bx+Math.cos(a)*5,by+Math.sin(a)*5);ctx.lineTo(bx+Math.cos(a)*12,by+Math.sin(a)*12);ctx.stroke();
+        });
+      });
+    }
+
+  } else if(t==='abyss_experiment'){
+    // 심연의 실험체: 보라빛 심연 실험실 — 에너지 도관, 동심원 공허, 룬
+    for(let i=0;i<18;i++){
+      const ay=(i*233+77)%MH;
+      const g=ctx.createRadialGradient(MW/2,ay,5,MW/2,ay,160+i*18);
+      g.addColorStop(0,'rgba(90,35,220,.09)');g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=g;ctx.fillRect(0,Math.max(0,ay-200),MW,400);
+    }
+    // 수직 에너지 도관
+    [[80,'#7c3aed'],[285,'#5b21b6'],[505,'#4c1d95'],[685,'#7c3aed']].forEach(([ex,ec])=>{
+      ctx.strokeStyle=ec+'44';ctx.lineWidth=3;
+      ctx.beginPath();ctx.moveTo(ex,0);ctx.lineTo(ex,MH);ctx.stroke();
+      for(let ny=80;ny<MH;ny+=280){
+        ctx.fillStyle=ec+'33';ctx.beginPath();ctx.arc(ex,ny,9,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle=ec+'77';ctx.lineWidth=1.5;ctx.stroke();
+      }
+    });
+    // 룬 원 + 방사선
+    for(let i=0;i<14;i++){
+      const rx=(i*181+35)%(MW-100)+50,ry=(i*137+67)%(MH-100)+50;
+      ctx.strokeStyle='rgba(160,110,255,.11)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(rx,ry,22,0,Math.PI*2);ctx.stroke();
+      for(let j=0;j<6;j++){const a=j/6*Math.PI*2;ctx.beginPath();ctx.moveTo(rx+Math.cos(a)*8,ry+Math.sin(a)*8);ctx.lineTo(rx+Math.cos(a)*22,ry+Math.sin(a)*22);ctx.stroke();}
+    }
+    // 어두운 격자
+    ctx.strokeStyle='rgba(80,30,160,.09)';ctx.lineWidth=1;
+    for(let gy=0;gy<MH;gy+=75){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(MW,gy);ctx.stroke();}
+    for(let gx=0;gx<MW;gx+=75){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,MH);ctx.stroke();}
+
   } else {
     // 보스맵 - 정사각형 아레나
     drawBossArena(ctx,m);

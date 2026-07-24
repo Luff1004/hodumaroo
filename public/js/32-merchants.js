@@ -74,7 +74,7 @@ const RICH_POTIONS = MB_CATS.map((cat,i)=>{
 });
 const RICH_SPOON={id:'rich_spoon', name:'부자의 숟가락', icon:'🥄', price:50000000,
   desc:'1회용 사치품. 사용하면 엄청난 빛과 함께 히든 업적과 "부자의 모자"를 얻는다.'};
-const STORM_WORKSUIT={id:'storm_worksuit', name:'폭풍 작업복', icon:'🌪️', price:800000000,
+const STORM_WORKSUIT={id:'storm_worksuit', name:'폭풍 작업복', icon:'🌪️', price:99990000,
   desc:'신비로운 보라색 연기 오라를 내뿜는 월드2 필수 장비. 방어+65%, 이동속도+2'};
 
 // ── 케빈: 음식물쓰레기 3종 + 폐지 10종 ──
@@ -1172,10 +1172,12 @@ function buyStarship(){
 // 매입한 스타쉽이 로비 바닥에 상시 정박해 있는 대형 연출 — 그 자체가 월드3 왕복 버튼.
 // 애니메이션 없이 즉시 "정박된 상태"로 보여줄 때 사용 (페이지 로드 시 등).
 function renderStarshipDock(){
+  const stormCleared=typeof localStorage!=='undefined'&&!!localStorage.getItem('hd_storm_cleared');
+  const showShip=ownedStarship||stormCleared;
   ['starshipDockEarth','starshipDockWorld3'].forEach(id=>{
     const el=document.getElementById(id); if(!el)return;
     el.classList.remove('landing','launching');
-    if(!ownedStarship){ el.classList.remove('on'); el.innerHTML=''; return; }
+    if(!showShip){ el.classList.remove('on'); el.innerHTML=''; return; }
     el.innerHTML=MERCHANT_VEHICLE_SVG.starship;
     el.classList.add('on');
     bindDockClick(id);
@@ -1225,14 +1227,20 @@ function triggerWarpFlash(){
 }
 function goToWorld3(){ launchToWorld3(); }
 function launchToWorld3(){
-  if(!ownedStarship||!isWorld3Unlocked())return;
+  const stormCleared=typeof localStorage!=='undefined'&&!!localStorage.getItem('hd_storm_cleared');
+  if(!stormCleared&&!ownedStarship)return;
+  if(!stormCleared){
+    alert('🌩️ 폭풍구역을 클리어해야 월드3로 출발할 수 있습니다!');
+    return;
+  }
   closeStarshipPopup();
+  // 월드3 준비 중 — 나중에 J-LAB 구현 시 변경
   playDockLaunch('starshipDockEarth', ()=>{
     triggerWarpFlash();
-    curWorld=3;
-    go('sLobby3');
-    playDockLanding('starshipDockWorld3');
-    achStats.starshipLaunches=(achStats.starshipLaunches||0)+1;saveAch();checkAchievements();
+    setTimeout(()=>{
+      alert('🚀 월드3(J-LAB) 준비 중입니다. 업데이트를 기다려 주세요!');
+      playDockLanding('starshipDockEarth');
+    }, 600);
   });
 }
 function returnFromWorld3(){

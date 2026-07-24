@@ -109,6 +109,11 @@ const ACHIEVEMENTS = [
   {id:'alien_first',name:'차원의 틈',          desc:'정체불명의 큐브를 열어 에일리언 차원에 처음 진입', reward:{coins:6000}, cond:'(achStats.alienDimensionEntered||0)>=1'},
   {id:'alien_escape',name:'ESCAPE',            desc:'공포의 복도를 탈출해 노란 문을 통과했다', reward:{stardrops:1}, cond:'(achStats.corridorCleared||0)>=1'},
   {id:'alien_master',name:'차원을 넘나드는 자', desc:'에일리언 차원에 5회 진입',            reward:{job:'egg_job_dimensiontraveler'}, cond:'(achStats.alienDimensionEntered||0)>=5'},
+  // ── 폭풍구역 업적 ──
+  {id:'storm_enter',  name:'폭풍 속으로',        desc:'폭풍구역에 처음 발을 들였다',          reward:{coins:10000},  cond:'(achStats.stormEntries||0)>=1'},
+  {id:'storm_boss1',  name:'돌을 무너뜨린 자',   desc:'폭풍 골렘을 처치했다',                reward:{coins:20000},  cond:'(achStats.stormBossKills||{}).golem>=1'},
+  {id:'storm_boss4',  name:'독을 넘은 자',        desc:'폭풍구역 보스 4종 모두 처치',         reward:{energy:200000},cond:'["golem","shadow","wanderer","spider"].every(k=>(achStats.stormBossKills||{})[k]>=1)'},
+  {id:'sagisa',       name:'사기사',              desc:'폭풍구역을 완전 클리어하고 전설의 갑옷을 얻었다', reward:{armor:'storm_worksuit_ultimate'}, cond:'(achStats.stormCleared||0)>=1'},
   // ── 운 업적 ──
   {id:'lucky',      name:'오늘은 운이 좋군요', desc:'매 1초마다 20000분의 1 확률로 획득',  reward:{item:'lucky_clover'}, cond:'luckyAchieved>=1'},
   // ── 히든 ──
@@ -326,7 +331,7 @@ function go(id){
   document.getElementById('gameCanvas').style.display='none';
   document.getElementById('gameUI').style.display='none';
   if(id!=='sAlienDimension'&&typeof stopHorrorLines==='function')stopHorrorLines();
-  if(id==='sLobby'){updRes();stopGame();if(typeof stopEventPresentation==='function')stopEventPresentation();if(bgmUnlocked)startBGM();updateTitleDisp();if(typeof renderMerchantNpc==='function')renderMerchantNpc();if(typeof renderKevinBeg==='function')renderKevinBeg();}
+  if(id==='sLobby'){updRes();stopGame();if(typeof stopEventPresentation==='function')stopEventPresentation();if(bgmUnlocked)startBGM();updateTitleDisp();if(typeof renderMerchantNpc==='function')renderMerchantNpc();if(typeof renderKevinBeg==='function')renderKevinBeg();if(typeof updStormZoneHelicopter==='function')updStormZoneHelicopter();}
   if(id==='sLobby3'){updRes();stopGame();if(typeof stopEventPresentation==='function')stopEventPresentation();if(bgmUnlocked)startBGM();}
   if(id==='sAlienDimension'){stopGame();if(typeof stopEventPresentation==='function')stopEventPresentation();if(typeof renderHorrorEyesField==='function')renderHorrorEyesField();if(typeof startHorrorLines==='function')startHorrorLines();}
   if(id==='sBackrooms'){stopGame();if(typeof stopEventPresentation==='function')stopEventPresentation();if(typeof renderBackroomsHub==='function')renderBackroomsHub();}

@@ -28,7 +28,7 @@ function quitGame() {
   } else if(selMap&&selMap.backroomsEngine){
     go('sBackrooms');
   } else {
-    go(curWorld===3?'sLobby3':'sLobby');
+    go('sLobby');curWorld=1;
   }
 }
 
