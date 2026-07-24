@@ -270,6 +270,12 @@ function enterStormZone() {
   szRunLoop();
 }
 
+// ── [DEV] 폭풍구역 엔딩 바로 확인 ──
+function devStormEnding() {
+  enterStormZone();
+  setTimeout(() => { if (sz && sz.running) szTriggerEnding(); }, 300);
+}
+
 // ── 폭풍구역 종료 ──
 function exitStormZone(won) {
   if (!sz) return;
