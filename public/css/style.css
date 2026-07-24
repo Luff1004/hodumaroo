@@ -1266,8 +1266,8 @@ button:active{transform:scale(.95);}
 .rar-ancient{border-color:#78350f!important;box-shadow:0 0 18px #78350f70;animation:glow-gold 1.4s infinite;}
 .rar-divine{border-color:#0ea5e9!important;box-shadow:0 0 20px #0ea5e980;animation:glow-epic 1.2s infinite;}
 .rar-ethereal{border-color:#67e8f9!important;box-shadow:0 0 22px #67e8f990;animation:glow-rainbow 1s infinite;}
-.rar-transcendent{border-color:#f472b6!important;box-shadow:0 0 26px #f472b6a0;animation:glow-rainbow .8s infinite;}
-.rar-transcendent .snm,.rar-transcendent .sds{color:#f87171!important;}
+.rar-transcendent{border-color:#dc2626!important;background:linear-gradient(135deg,#fee2e2,#fff)!important;box-shadow:0 0 40px #dc262680,0 0 80px #dc2626cc!important;animation:glow-red 0.6s infinite;}
+.rar-transcendent .snm,.rar-transcendent .sds{color:#ff0000!important;text-shadow:0 0 8px #ff0000,0 0 16px #ff0000!important;font-weight:900!important;}
 .rar-absolute{border-color:#ffffff!important;box-shadow:0 0 32px #ffffffcc;animation:glow-rainbow .6s infinite;}
 .rar-event{border-color:#22d3ee!important;box-shadow:0 0 22px #22d3ee90;animation:glow-rainbow 1s infinite;}
 .rar-secret{border-color:#000!important;background:linear-gradient(135deg,#0a0a0f,#1a0a24)!important;box-shadow:0 0 24px #00000090;animation:glow-secret 1.6s infinite;}
@@ -1356,6 +1356,7 @@ button:active{transform:scale(.95);}
 @keyframes glow-gold{0%,100%{box-shadow:0 0 10px #f59e0b50}50%{box-shadow:0 0 22px #f59e0bcc}}
 @keyframes glow-rainbow{0%{box-shadow:0 0 14px #ec489980}33%{box-shadow:0 0 14px #8b5cf680}66%{box-shadow:0 0 14px #06b6d480}100%{box-shadow:0 0 14px #ec489980}}
 @keyframes glow-secret{0%,100%{box-shadow:0 0 10px #00000080}50%{box-shadow:0 0 26px #7c3aedcc}}
+@keyframes glow-red{0%,100%{box-shadow:0 0 30px #dc262680,0 0 60px #dc2626bb}50%{box-shadow:0 0 50px #ff0000cc,0 0 100px #ff0000ff}}
 @keyframes cutsceneShake{0%{transform:translate(0,0)}10%{transform:translate(-8px,4px)}20%{transform:translate(7px,-6px)}30%{transform:translate(-6px,-4px)}40%{transform:translate(8px,5px)}50%{transform:translate(-5px,6px)}60%{transform:translate(6px,-3px)}70%{transform:translate(-7px,3px)}80%{transform:translate(4px,-5px)}90%{transform:translate(-4px,2px)}100%{transform:translate(0,0)}}
 .cutshake{animation:cutsceneShake .35s linear infinite;}
 @keyframes cutTextPulse{0%,100%{filter:brightness(1) drop-shadow(0 0 20px #a855f7)}50%{filter:brightness(1.5) drop-shadow(0 0 50px #fbbf24)}}
