@@ -119,7 +119,7 @@ function renderShop(){
       g.appendChild(d);
     });
   } else if(curShopTab==='armor'){
-    ARMORS.filter(ar=>!ar.spOnly&&!ar.eventOnly&&!ar.sdOnly).forEach(ar=>{
+    ARMORS.filter(ar=>!ar.spOnly&&!ar.eventOnly&&!ar.sdOnly&&!ar.achOnly).forEach(ar=>{
       const ow=owned['ar_'+ar.id]||false,eq=eqArmor===ar.id,cb=!ow&&coins>=ar.price;
       const d=document.createElement('div');const arRarCls=ar.rarity?' rar-'+ar.rarity:'';d.className='si'+(eq?' own':cb?' cb2':ow?' own':'')+arRarCls;
       const ico=document.createElement('div');ico.className='sico';ico.textContent=ar.icon;d.appendChild(ico);
@@ -132,6 +132,27 @@ function renderShop(){
         btn.onclick=()=>byAr(ar.id);d.appendChild(btn);
       } else {
         const done=document.createElement('div');done.style.cssText='font-size:9px;color:#7c3aed';done.textContent='장비탭에서 장착';d.appendChild(done);
+      }
+      g.appendChild(d);
+    });
+    // ── 업적 보상 전용 갑옷 섹션 ──
+    const _achArHdr=document.createElement('div');
+    _achArHdr.style.cssText='grid-column:1/-1;padding:6px 10px;background:linear-gradient(90deg,#4c0519,#7f1d1d);color:#fca5a5;border-radius:8px;font-size:11px;font-weight:800;text-align:center;margin-top:8px;border:1px solid #dc2626;';
+    _achArHdr.textContent='⚡ 업적 보상 전용 갑옷';g.appendChild(_achArHdr);
+    ARMORS.filter(ar=>ar.achOnly).forEach(ar=>{
+      const ow=owned['ar_'+ar.id]||false;
+      const rarCls=ar.rarity?' rar-'+ar.rarity:'';
+      const d=document.createElement('div');
+      d.className='si'+(ow?' own':'')+rarCls;
+      if(!ow)d.style.cssText+='opacity:0.75;';
+      const ico=document.createElement('div');ico.className='sico';ico.textContent=ar.icon;d.appendChild(ico);
+      const nm=document.createElement('div');nm.className='snm';nm.textContent=ar.name;d.appendChild(nm);
+      const ds=document.createElement('div');ds.className='sds';ds.textContent=ar.desc;d.appendChild(ds);
+      if(ow){
+        const done=document.createElement('div');done.style.cssText='font-size:9px;color:#fca5a5;font-weight:700;margin-top:3px;';done.textContent='✅ 보유 (장비탭에서 장착)';d.appendChild(done);
+      } else {
+        const lock=document.createElement('div');lock.style.cssText='font-size:9px;background:#4c0519;color:#fca5a5;padding:3px 6px;border-radius:6px;border:1px solid #dc2626;margin-top:3px;';
+        lock.textContent='⚡ 업적 보상으로 획득';d.appendChild(lock);
       }
       g.appendChild(d);
     });
@@ -244,7 +265,7 @@ function renderShop(){
       const lvel=document.createElement('div');lvel.className='slv';lvel.textContent=ow?'✅보유':'미구매';d.appendChild(lvel);
       const ds=document.createElement('div');ds.className='sds';ds.textContent=w.desc;d.appendChild(ds);
       // 이름에 희귀도 뱃지
-      if(w.rarity){const bdg=document.createElement('span');bdg.style.cssText='font-size:7px;padding:1px 4px;border-radius:4px;margin-left:3px;font-weight:800;color:#fff;background:'+(w.rarity==='mythic'?'linear-gradient(90deg,#ec4899,#8b5cf6)':w.rarity==='legendary'?'#f59e0b':w.rarity==='epic'?'#a855f7':'#6366f1');bdg.textContent={rare:'RARE',epic:'EPIC',legendary:'✨LEGEND',mythic:'🌈MYTHIC'}[w.rarity]||'';nm.appendChild(bdg);}
+      if(w.rarity){const bdg=document.createElement('span');bdg.style.cssText='font-size:7px;padding:1px 4px;border-radius:4px;margin-left:3px;font-weight:800;color:#fff;background:'+(w.rarity==='mythic'?'linear-gradient(90deg,#ec4899,#8b5cf6)':w.rarity==='legendary'?'#f59e0b':w.rarity==='epic'?'#a855f7':w.rarity==='transcendent'?'linear-gradient(90deg,#dc2626,#7f1d1d)':'#6366f1');bdg.textContent={rare:'RARE',epic:'EPIC',legendary:'✨LEGEND',mythic:'🌈MYTHIC',transcendent:'虛空裂界'}[w.rarity]||'';nm.appendChild(bdg);}
       if(!ow){
         if(isBossWep){
           // 보스 클리어 잠금 표시

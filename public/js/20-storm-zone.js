@@ -182,11 +182,16 @@ function enterStormZone() {
   const wsBtn = document.getElementById('waveSpeedBtn');
   if (wsBtn) wsBtn.style.display = 'none';
 
-  // 업적 진입 기록
+  // 업적 진입 기록 (폭풍 진입 업적만 직접 처리, 전체 checkAchievements 호출 금지)
   if (typeof achStats !== 'undefined') {
     achStats.stormEntries = (achStats.stormEntries || 0) + 1;
     if (typeof saveAch === 'function') saveAch();
-    if (typeof checkAchievements === 'function') checkAchievements();
+    if ((achStats.stormEntries) >= 1 && typeof achData !== 'undefined' && !achData['storm_enter']) {
+      achData['storm_enter'] = true;
+      const _ach = ACHIEVEMENTS.find(a => a.id === 'storm_enter');
+      if (_ach) { grantAchReward(_ach); if (typeof setMsg === 'function') setMsg('🏆 업적 달성: 폭풍 속으로!'); }
+      if (typeof saveAch === 'function') saveAch();
+    }
   }
 
   // 상태 초기화
@@ -233,7 +238,7 @@ function enterStormZone() {
 
     // 폭풍 지속 피해 (갑옷 없으면)
     stormDmgT: 0,
-    hasStormArmor: (typeof eqArmor !== 'undefined' && eqArmor === 'storm_worksuit'),
+    hasStormArmor: (typeof eqArmor !== 'undefined' && (eqArmor === 'storm_worksuit' || eqArmor === 'storm_worksuit_ultimate')),
     hasToxicAK: (typeof eqWepId !== 'undefined' && eqWepId === 'toxic_ak'),
     // HP 재생 타이머 (3초=180프레임마다 2HP)
     regenT: 0,
@@ -414,6 +419,9 @@ function szUpdate() {
 
   // ── 데미지 타이머 ──
   if (s.playerDmgT > 0) s.playerDmgT--;
+
+  // ── ESC: 폭풍구역 종료 ──
+  if (keys['escape']) { keys['escape'] = false; exitStormZone(false); return; }
 
   // ── 죽음 판정 ──
   if (s.pHp <= 0 && !s._dying) {
@@ -1960,6 +1968,10 @@ function szUpdateCave() {
   if (s.msgT > 0) s.msgT--;
   if (s.msgT <= 0) s.msg = '';
   if (s.playerDmgT > 0) s.playerDmgT--;
+
+  // HP 재생 (동굴 모드에서도 동일하게 3초마다 2HP)
+  s.regenT = (s.regenT || 0) + 1;
+  if (s.regenT >= 180) { s.regenT = 0; if (s.pHp < s.pMaxHp) s.pHp = Math.min(s.pMaxHp, s.pHp + 2); }
 
   // ESC로 동굴 탈출 (보스 아직 스폰 안됐으면)
   if (keys['escape'] && !s.activeBoss) { keys['escape']=false; szExitCave(false); }
