@@ -2308,13 +2308,9 @@ function drawBackroomsMode(){
       brDrawTable(sxp,h/2+size*0.2,size,alpha);
     } else if(sp.kind==='entity'){
       if(br.mode==='fun')brDrawPartygoer(sxp,h/2+size*0.25,size,1);
-      else if(typeof hcEntityImgOk!=='undefined'&&hcEntityImgOk&&typeof hcEntityImg!=='undefined'){
+      else if(typeof hcEntityImg!=='undefined'){
         const ew=size*1.05, eh=size*0.68;
         ctx.drawImage(hcEntityImg,sxp-ew/2,h/2-eh/2,ew,eh);
-      } else {
-        ctx.font=Math.round(size*0.9)+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-        ctx.fillText('👁️',sxp,h/2+size*0.04);
-        ctx.textAlign='left';ctx.textBaseline='alphabetic';
       }
     }
   }
